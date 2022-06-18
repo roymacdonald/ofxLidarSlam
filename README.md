@@ -3,8 +3,7 @@
 openFrameworks addon for performing SLAM using Lidar data.
 
 
-Uses the [lidar-slam library]
-(https://gitlab.kitware.com/keu-computervision/slam)
+Uses the [lidar-slam library](https://gitlab.kitware.com/keu-computervision/slam)
 
 Currently only implemented for Ouster Lidars. 
 
