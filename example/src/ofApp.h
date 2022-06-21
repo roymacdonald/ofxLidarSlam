@@ -38,6 +38,14 @@ class ofApp : public ofBaseApp{
     
     ofParameter<void> connect = {"Connect"};
 
+    ofParameter<void> openPcapDialogParam = {"Open PCAP"};
+    ofParameter<void> openPcapParam = {"Open Last PCAP"};
+    
+    
+    void openPcapDialog();
+    bool openPcap(string pcap, string config);
+    void tryOpenPcap();
+    
     string currentParams;
     bool bShowParams = false;
     
