@@ -65,23 +65,57 @@ enum OutputKeypointsMapsMode : uint8_t
 //
 //};
 
-struct TrajectoryPoint{
+class TrajectoryPoint{
+public:
     double x;
     double y;
     double z;
     double time;
-    glm::quat quaternion;
+    glm::dquat quaternion;
     double axisAngle [4];
     double covariance [36];
     
+    TrajectoryPoint * prev = nullptr;
     
-    glm::mat4 getTransformMatrix(){
-        ofNode n;
-        n.setOrientation(quaternion);
-        n.setPosition({x, y, z});
-        return n.getGlobalTransformMatrix();
+    const ofNode& getNode(bool scaled = false){
+        if(bNeedsSetNode){
+            bNeedsSetNode = false;
+            node.setOrientation(quaternion);
+            node.setPosition({x, y, z});
+            
+            scaledNode.setOrientation(quaternion);
+            scaledNode.setPosition({x*1000.0, y*1000.0, z*1000.0});
+            
+        }
+        if(scaled ){
+            return scaledNode;
+        }
+        return node;
     }
     
+//    glm::mat4 getTransformMatrix(){
+//        return getNode().getGlobalTransformMatrix();
+//    }
+    
+//    const glm::dmat4& getTransformAccumulatedMatrix(bool scale = true){
+//        if(bNeedsSetTransform){
+//            bNeedsSetTransform = false;
+//            glm::dvec3 pos(x, y, z);
+//            if(scale){
+//                pos = pos *1000.0;
+//            }
+//            accumTransform = glm::translate(glm::dmat4(1.0), pos);
+//
+//
+//            if(prev != nullptr){
+//                accumQuat = prev->accumQuat * quaternion;
+//            }else{
+//                accumQuat = quaternion;
+//            }
+//            accumTransform = accumTransform * glm::toMat4(accumQuat);
+//        }
+//        return accumTransform;
+//    }
     
     ofVboMesh mesh;
     
@@ -90,22 +124,82 @@ struct TrajectoryPoint{
         mesh.addVertices(m.getVertices());
         
         
-//        for(auto& v: mesh.getVertices()){
-//            range.check(v);
-//        }
-//        range.print();
     }
-//    Range3f range;
     
+    bool save(string savePath, size_t index){
+        if(mesh.getVertices().size()){
+            mesh.save(savePath + "/" + ofToString(index) + ".ply");
+        }
+            ofJson j;
+            j["x"] = x;
+            j["y"] = y;
+            j["z"] = z;
+            j["time"] = time;
+            j["quaternion"] = {
+                        {"w", quaternion.w},
+                        {"x", quaternion.x},
+                        {"y", quaternion.y},
+                        {"z", quaternion.z}};
+            j["axisAngle"] = axisAngle;
+            j["covariance"] = covariance;
+            
+        return ofSaveJson(savePath + "/metadata/"+ofToString(index) + ".json", j);
+            
+    }
+    
+    
+    
+protected:
+    
+    
+private:
+    
+    ofNode node, scaledNode;
+    bool bNeedsSetNode = true;
+    
+//    glm::dquat accumQuat;
+//    glm::dmat4 accumTransform;
     
 };
 
 
+class ofxLidarSlamResults{
+public:
+    TrajectoryPoint trajectoryPoint;
+    
+    ofVboMesh RegisteredMap;
+    ofVboMesh EdgeMap;
+    ofVboMesh PlanarMap;
+    ofVboMesh BlobMap;
 
-class ofxLidarSlam
+    ofVboMesh EdgeKeypoints;
+    ofVboMesh PlanarKeypoints;
+    ofVboMesh BlobKeypoints;
+    
+    bool bValid = false;
+    
+    void saveMaps(string timestamp){
+    
+        if(EdgeMap.getVertices().size()) {
+            EdgeMap.save("EdgeMap_" + timestamp + ".ply" );
+        }
+        if(PlanarMap.getVertices().size()) {
+            PlanarMap.save("PlanarMap_" + timestamp + ".ply" );
+        }
+        if(BlobMap.getVertices().size()) {
+            BlobMap.save("BlobMap_" + timestamp + ".ply" );
+        }
+        
+    }
+    
+    
+};
+
+class ofxLidarSlam: public ofThread
 {
 public:
     ofxLidarSlam();
+    virtual ~ofxLidarSlam();
     
     void setup(std::shared_ptr<ofxOuster>& lidar);
     //  virtual vtkMTimeType GetMTime() override;
@@ -199,15 +293,21 @@ public:
     void printParams();
     string getCurrentSlamParamsAsString();
     
+    const vector<TrajectoryPoint>& getTrajectory(){return trajectory;};
     
+    void saveRegisteredMeshes(string timestamp);
     
 protected:
+    
     
     void setDefaults();
     
 private:
     ofxLidarSlam(const ofxLidarSlam&) = delete;
     void operator=(const ofxLidarSlam&) = delete;
+    
+    
+    
     
     // ---------------------------------------------------------------------------
     //   Useful helpers
@@ -244,6 +344,17 @@ protected:
     void onLidarData(ouster::LidarScan &);
     void onImuData(ofxOusterIMUData & );
     
+    ofxLidarSlamResults processLidarData(ouster::LidarScan &);
+    void processImuData(ofxOusterIMUData & );
+    
+    
+    void _update(ofEventArgs&);
+    
+    ofThreadChannel<ouster::LidarScan> toSlamScan;
+    ofThreadChannel<ofxOusterIMUData> toSlamIMU;
+    ofThreadChannel<ofxLidarSlamResults> fromSlam;
+    
+    void threadedFunction();
     
 private:
     
@@ -267,14 +378,10 @@ private:
     vector<TrajectoryPoint> trajectory;
 
     ofPolyline TrajectoryLine;
-    ofVboMesh RegisteredMap;
-    ofVboMesh EdgeMap;
-    ofVboMesh PlanarMap;
-    ofVboMesh BlobMap;
+
     
-    ofVboMesh EdgeKeypoints;
-    ofVboMesh PlanarKeypoints;
-    ofVboMesh BlobKeypoints;
+    ofxLidarSlamResults slamResults;
+    
     
 //    ofVboMesh keypointMeshes [LidarSlam::nKeypointTypes];
     

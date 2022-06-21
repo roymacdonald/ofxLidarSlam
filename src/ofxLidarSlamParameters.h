@@ -31,8 +31,15 @@ public:
     ofParameter<bool> bUseImuData = {"Use IMU data", true};
     ofParameter<int> NbThreads = {"Num Thrads", 1, 1, 8};
     ofParameter<bool> bEnableSlam = {"Enable Slam", true};
-//    ofParameter<bool> bUseMillimeters = {"Use Millimeters", true};
     ofParameter<void> reset = {"Reset"};
+    ofParameter<bool> bAccumulateRegistered = {"Accumulate reg. meshes", false};
+    ofParameter<size_t> startAccumDraw = {"Start Accum Draw", 0, 0, 1};
+    ofParameter<size_t> endAccumDraw = {"End Accum Draw", 0, 0, 1};
+    
+    ofParameter<void> saveMaps = {"Save Maps"};
+    
+    ofParameter<bool> bUseDepthTest = {"Use Depth Test", false};
+    
     
     /// AdvancedReturnMode
     /// If enabled, advanced return mode will add arrays to outputs showing some

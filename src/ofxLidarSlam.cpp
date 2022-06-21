@@ -20,6 +20,14 @@ listeners.push(params.param.newListener([&](type & _arg){\
 this->SlamAlgo->Set##param(_arg);\
 }));
 
+#define GET_MAP(map, type) if(params.bDraw##map) {PclToOf(this->SlamAlgo->GetMap(type), results.map);}
+
+#define GET_SUBMAP(map, type) if(params.bDraw##map) {PclToOf(this->SlamAlgo->GetTargetSubMap(type), results.map);}
+
+#define GET_KEYPOINTS(keypoints, type) if(params.bDraw##keypoints) {PclToOf(this->SlamAlgo->GetKeypoints(type, params.OutputKeypointsInWorldCoordinates.get()), results.keypoints);}
+
+
+
 
 #define SetDefaultValueMacro(param) params.param  = this->SlamAlgo->Get##param();
 
@@ -63,7 +71,7 @@ void AddPclToOf( LidarSlam::Slam::PointCloud::Ptr pc, ofVboMesh& mesh){
 //#define STRINGIFY(x) #x
 
 //-----------------------------------------------------------------------------
-ofxLidarSlam::ofxLidarSlam()
+ofxLidarSlam::ofxLidarSlam():pointShader("SLAM")
 {
     
     SlamAlgo = std::make_unique<LidarSlam::Slam>();
@@ -83,6 +91,11 @@ ofxLidarSlam::ofxLidarSlam()
     cam.setNearClip(0);
     cam.setRelativeYAxis(!cam.getRelativeYAxis());
     
+    /// the SLAM library uses meters as its units
+    pointShader.setRangeUnit(1);
+    
+    
+    startThread();
     
     
 //    static const string shader_header = "#version 150\n";
@@ -120,16 +133,31 @@ ofxLidarSlam::ofxLidarSlam()
 
     
 }
+//-----------------------------------------------------------------------------
+ofxLidarSlam::~ofxLidarSlam()
+{
+    toSlamScan.close();
+    toSlamIMU.close();
+    fromSlam.close();
 
+    waitForThread(true);
+}
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::setup(std::shared_ptr<ofxOuster>& lidar){
     this->lidar = lidar;
     setParamsListeners();
     
+    
+    
     listeners.push(this->lidar->lidarDataEvent.newListener(this, &ofxLidarSlam::onLidarData));
     listeners.push(this->lidar->imuDataEvent.newListener(this, &ofxLidarSlam::onImuData));
     
+    listeners.push(ofEvents().update.newListener(this, &ofxLidarSlam::_update));
+    
+    
+    
     pointShader.loadShaderFromFiles(ofToDataPath("shaders/shader.vert"),ofToDataPath("shaders/shader.frag"));
+//    pointShader.colorMap.makeColorMap("GRAY SCALE", {ofFloatColor::black, ofFloatColor::white});
     
     pointShader.setGuiPosition( glm::vec2(ofGetWidth() - 600,10) );
     
@@ -161,8 +189,39 @@ void ofxLidarSlam::reset()
 
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::onLidarData(ouster::LidarScan &scan){
+//    cout << "ofxLidarSlam::onLidarData\n";
+    toSlamScan.send(scan);
     
+}
+
+void ofxLidarSlam::saveRegisteredMeshes(string timestamp){
+    
+    string dirPath  = "RegisteredMeshes/"+ timestamp;
+    cout <<"saveRegisteredMeshes:: saving to: " << dirPath <<"\n";
+    
+    {
+    ofDirectory dir (dirPath);
+    dir.create(true);
+    }
+    {
+    ofDirectory dir (dirPath + "/metadata");
+    dir.create(true);
+    }
+    
+    
+    for(size_t i =0; i < trajectory.size(); i++){
+        trajectory[i].save(dirPath, i);
+    }
+    cout <<"saveRegisteredMeshes:: done!\n";
+
+}
+
+//-----------------------------------------------------------------------------
+ofxLidarSlamResults ofxLidarSlam::processLidarData(ouster::LidarScan &scan){
+    
+    ofxLidarSlamResults results;
     if(params.bEnableSlam){
+//        cout << "ofxLidarSlam::processLidarData\n";
         // Get frame first point time in vendor format
         double frameFirstPointTime = scan.timestamp()[0] * this->TimeToSecondsFactor;
         // Get first frame packet reception time
@@ -186,8 +245,14 @@ void ofxLidarSlam::onLidarData(ouster::LidarScan &scan){
         // ===== SLAM frame and pose =====
         // Output : Current undistorted LiDAR frame in world coordinates
         
-        PclToOf(this->SlamAlgo->GetRegisteredFrame(), RegisteredMap);
-//        trajectory.back().copyMesh(RegisteredMap);
+        PclToOf(this->SlamAlgo->GetRegisteredFrame(), results.RegisteredMap);
+        if(params.bAccumulateRegistered){
+            trajectory.back().copyMesh(results.RegisteredMap);
+        }
+        
+        params.startAccumDraw.setMax(trajectory.size());
+        params.endAccumDraw.setMax(trajectory.size());
+        
 //        cout << "Trajectory num verts: " << trajectory.back().mesh.getNumVertices() << endl;
         // Update the output maps if required or if the mode was changed
         bool updateMaps = params.OutputKeypointsMaps != this->PreviousMapOutputMode ||
@@ -197,47 +262,59 @@ void ofxLidarSlam::onLidarData(ouster::LidarScan &scan){
         // If the maps is fixed by the user, the whole map and the submap are equal but the submap is outputed (faster)
         if (updateMaps && (params.OutputKeypointsMaps == OutputKeypointsMapsMode::FULL_MAPS && this->SlamAlgo->GetMapUpdate() != LidarSlam::MappingMode::NONE))
         {
-            PclToOf(this->SlamAlgo->GetMap(LidarSlam::EDGE), EdgeMap);
-            PclToOf(this->SlamAlgo->GetMap(LidarSlam::PLANE), PlanarMap);
-            PclToOf(this->SlamAlgo->GetMap(LidarSlam::BLOB), BlobMap);
+            GET_MAP(EdgeMap, LidarSlam::EDGE)
+            GET_MAP(PlanarMap, LidarSlam::PLANE)
+            GET_MAP(BlobMap, LidarSlam::BLOB)
             this->PreviousMapOutputMode = params.OutputKeypointsMaps.get();
         }
         else if (updateMaps && (params.OutputKeypointsMaps == OutputKeypointsMapsMode::SUB_MAPS || this->SlamAlgo->GetMapUpdate() == LidarSlam::MappingMode::NONE))
         {
-            PclToOf(this->SlamAlgo->GetTargetSubMap(LidarSlam::EDGE), EdgeMap);
-            PclToOf(this->SlamAlgo->GetTargetSubMap(LidarSlam::PLANE), PlanarMap);
-            PclToOf(this->SlamAlgo->GetTargetSubMap(LidarSlam::BLOB), BlobMap);
+            
+            GET_SUBMAP(EdgeMap, LidarSlam::EDGE)
+            GET_SUBMAP(PlanarMap, LidarSlam::PLANE)
+            GET_SUBMAP(BlobMap, LidarSlam::BLOB)
+            
+//            if(params.bDrawEdgeMap) {PclToOf(this->SlamAlgo->GetTargetSubMap(LidarSlam::EDGE), results.EdgeMap);}
+//            if(params.bDrawPlanarMap) {PclToOf(this->SlamAlgo->GetTargetSubMap(LidarSlam::PLANE), results.PlanarMap);}
+//            if(params.bDrawBlobMap) {PclToOf(this->SlamAlgo->GetTargetSubMap(LidarSlam::BLOB), results.BlobMap);}
             this->PreviousMapOutputMode = params.OutputKeypointsMaps.get();
         }
         // If the output is disabled, reset it.
         else if (params.OutputKeypointsMaps != this->PreviousMapOutputMode && params.OutputKeypointsMaps == OutputKeypointsMapsMode::NONE)
         {
-            EdgeMap.clear();
-            PlanarMap.clear();
-            BlobMap.clear();
+            results.EdgeMap.clear();
+            results.PlanarMap.clear();
+            results.BlobMap.clear();
             this->PreviousMapOutputMode = params.OutputKeypointsMaps.get();
         }
         
         // ===== Extracted keypoints from current frame =====
         if (params.OutputCurrentKeypoints)
         {
-//            k, params.OutputKeypointsInWorldCoordinates), keypointMeshes[k]);
-            bool wc= params.OutputKeypointsInWorldCoordinates.get();
-            PclToOf(this->SlamAlgo->GetKeypoints(LidarSlam::EDGE, wc), EdgeKeypoints);
-            PclToOf(this->SlamAlgo->GetKeypoints(LidarSlam::PLANE,wc), PlanarKeypoints);
-            PclToOf(this->SlamAlgo->GetKeypoints(LidarSlam::BLOB, wc), BlobKeypoints);
+
+            
+            GET_KEYPOINTS(EdgeKeypoints, LidarSlam::EDGE)
+            GET_KEYPOINTS(PlanarKeypoints, LidarSlam::PLANE)
+            GET_KEYPOINTS(BlobKeypoints, LidarSlam::BLOB)
+            
+//            if(params.bDrawEdgeKeypoints) { PclToOf(this->SlamAlgo->GetKeypoints(LidarSlam::EDGE, wc), results.EdgeKeypoints);}
+//            if(params.bDrawPlanarKeypoints) { PclToOf(this->SlamAlgo->GetKeypoints(LidarSlam::PLANE,wc), results.PlanarKeypoints);}
+//            if(params.bDrawBlobKeypoints) { PclToOf(this->SlamAlgo->GetKeypoints(LidarSlam::BLOB, wc), results.BlobKeypoints);}
         }
         
-        
+        results.bValid = true;
         
     }
     frameCount++;
-    
+    return results;
 }
-
-
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::onImuData(ofxOusterIMUData& data){
+    toSlamIMU.send(data);
+//    processImuData(data);
+}
+//-----------------------------------------------------------------------------
+void ofxLidarSlam::processImuData(ofxOusterIMUData & data){
     if(params.bUseImuData){
         LidarSlam::ExternalSensors::GravityMeasurement gravityMeasurement;
         gravityMeasurement.Time = data.accel_timestamp;
@@ -248,6 +325,45 @@ void ofxLidarSlam::onImuData(ofxOusterIMUData& data){
         this->SlamAlgo->AddGravityMeasurement(gravityMeasurement);
     }
 }
+//-----------------------------------------------------------------------------
+void ofxLidarSlam::threadedFunction(){
+    // wait until there's a new frame
+    // this blocks the thread, so it doesn't use
+    // the CPU at all, until a frame arrives.
+    // also receive doesn't allocate or make any copies
+    ofPixels pixels;
+    
+//    <> toSlamScan;
+    ofxOusterIMUData imuData;
+//    toSlamIMU;
+    while(toSlamIMU.tryReceive(imuData)){
+        processImuData(imuData);
+    }
+    
+    ouster::LidarScan scan;
+    
+    while(toSlamScan.receive(scan)){
+        auto results = processLidarData(scan);
+
+        if(results.bValid){
+            fromSlam.send(std::move(results));
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void ofxLidarSlam::_update(ofEventArgs &){
+//    bool newFrame = false;
+    while(fromSlam.tryReceive(slamResults)){
+//        newFrame = true;
+    }
+//    if(newFrame){
+     
+//    }
+}
+
+
+
 
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::setInitialPoseTranslation(double x, double y, double z)
@@ -280,8 +396,12 @@ void ofxLidarSlam::AddCurrentPoseToTrajectory()
     // Get current SLAM pose in WORLD coordinates
     LidarSlam::LidarState& currentState = this->SlamAlgo->GetLastState();
     
+    
     trajectory.push_back(TrajectoryPoint());
     auto& p = trajectory.back();
+    if(trajectory.size()> 1){
+        p.prev = &trajectory[trajectory.size()-2];
+    }
     
     // Add position
     Eigen::Vector3d translation = currentState.Isometry.translation();
@@ -318,18 +438,7 @@ void ofxLidarSlam::AddCurrentPoseToTrajectory()
     TrajectoryLine.addVertex(p.x, p.y, p.z);
     
 }
-float getRPMs(const ouster::sensor::sensor_info & info){
-    switch(info.mode){
-        case ouster::sensor::MODE_UNSPEC:
-        case ouster::sensor::MODE_512x10:
-        case ouster::sensor::MODE_1024x10:
-        case ouster::sensor::MODE_2048x10:
-            return 600;
-        case ouster::sensor::MODE_512x20:
-        case ouster::sensor::MODE_1024x20:
-            return 1200;
-    }
-}
+
 
 //-----------------------------------------------------------------------------
 LidarSlam::Slam::PointCloud::Ptr ofxLidarSlam::getPointCloudFromLidar(ouster::LidarScan & scan)
@@ -602,53 +711,94 @@ ofxSpinningSensorKeypointExtractor& ofxLidarSlam::getKeyPointExtractor(){
 }
 
 #define DRAW_MESH(mesh) \
-if(params.bDraw##mesh) { ofSetColor(params.mesh##Color.get()); mesh.draw(); }
+if(params.bDraw##mesh) { ofSetColor(params.mesh##Color.get()); slamResults.mesh.draw(); }
 
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::draw(){
     auto r = lidar->getRenderer();
     if(!r)return;
     cam.begin();
-    if(params.bDrawLidarFeed){ if(lidar) lidar->drawPointCloud(); }
+    
+    if(params.bUseDepthTest){
+        ofEnableDepthTest();
+    }
+  
     ofPushStyle();
 
     ofPushMatrix();
     ofScale(1000);
     
-//    for(auto&t : trajectory)
-//    if(trajectory.size() > 0)
-//    {
-////        auto& t = trajectory[0];
-//        pointShader.begin(t.getTransformMatrix());
-//        ofSetColor(255);
-//        t.mesh.disableColors();
-//        t.mesh.draw();
-//        pointShader.end();
-//    }
-    
-    
-    
-    
     if(params.bDrawRegisteredMap) {
-        pointShader.begin();
-        RegisteredMap.draw();
-        pointShader.end();
+        if(params.bAccumulateRegistered){
+            
+            size_t end = 0;
+            if(trajectory.size() > params.startAccumDraw.get()){
+                end = trajectory.size() - 1 -params.startAccumDraw.get();
+            }
+            size_t start = 0;
+            if(end >= params.endAccumDraw.get()){
+                start = end - params.endAccumDraw.get();
+            }
+            if(start < end){
+                for(size_t i = start; i < end && i < trajectory.size(); i++)
+                {
+//                    pointShader.begin();
+//                    pointShader.shader.setUniform3f("offset", trajectory[i].x, trajectory[i].y, trajectory[i].z);
+                    ofSetColor(255);
+//                    t.mesh.disableColors();
+                    trajectory[i].mesh.draw();
+//                    pointShader.end();
+                }
+            }
+        }else{
+//            pointShader.begin();
+//            if(trajectory.size()){
+//                pointShader.shader.setUniform3f("offset", trajectory.back().x, trajectory.back().y, trajectory.back().z);
+//            }
+            slamResults.RegisteredMap.draw();
+//            pointShader.end();
+        }
     }
-    
-    
+    pointShader.begin(); pointShader.shader.setUniform3f("offset", 0,0,0);
     DRAW_MESH(EdgeMap)
+    pointShader.end();
+    
+    pointShader.begin(); pointShader.shader.setUniform3f("offset", 0,0,0);
     DRAW_MESH(PlanarMap)
+    pointShader.end();
+    
+    pointShader.begin(); pointShader.shader.setUniform3f("offset", 0,0,0);
     DRAW_MESH(BlobMap)
-    if(params.OutputCurrentKeypoints){
-        DRAW_MESH(EdgeKeypoints)
-        DRAW_MESH(PlanarKeypoints)
-        DRAW_MESH(BlobKeypoints)
+    pointShader.end();
+    
+    if(trajectory.size() > 0 && params.bDrawTrajectoryLine) {
+        ofSetColor(params.TrajectoryLineColor.get());
+        TrajectoryLine.draw();
+        ofPushStyle();
+        trajectory.back().getNode().transformGL();
+        ofSetLineWidth(8);
+        ofDrawAxis(0.3);
+        trajectory.back().getNode().restoreTransformGL();
+        ofPopStyle();
     }
-    DRAW_MESH(TrajectoryLine)
     ofPopMatrix();
     ofPopStyle();
+    if(params.bDrawLidarFeed){
+        if(lidar) {
+            if(trajectory.size() > 0){
+                trajectory.back().getNode(true).transformGL();
+            }
+            lidar->drawPointCloud();
+            if(trajectory.size() > 0){
+                trajectory.back().getNode(true).restoreTransformGL();
+            }
+        }
+    }
     
     
+    if(params.bUseDepthTest){
+        ofDisableDepthTest();
+    }
     cam.end();
     
 }
@@ -800,7 +950,11 @@ void ofxLidarSlam::setParamsListeners(){
         SetVoxelGridLeafSizeBlobs(f);
     }));
     
-    
+    listeners.push(params.saveMaps.newListener([&](){
+        auto ts = ofGetTimestampString();
+        slamResults.saveMaps(ts);
+        saveRegisteredMeshes(ts);
+    }));
     
     
     //    //-----------------------------------------------------------------------------

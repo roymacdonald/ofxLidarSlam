@@ -17,6 +17,12 @@ ofxLidarSlamParameters::ofxLidarSlamParameters(){
     gui.add(bUseImuData);
     gui.add(bDrawColorsGui);
     gui.add(destaggerSignal);
+    gui.add(bAccumulateRegistered);
+    
+    gui.add(saveMaps);
+    
+    gui.add(startAccumDraw);
+    gui.add(endAccumDraw);
     
     gui.add(verboseLevel);
 //    gui.add(bUseMillimeters);
@@ -43,7 +49,7 @@ ofxLidarSlamParameters::ofxLidarSlamParameters(){
     g.add(samplingModePlanesDropdown.get());
     g.add(samplingModeBlobsDropdown.get());
     
-    
+    drawParams.add(bUseDepthTest);
     drawParams.add(bDrawLidarFeed);
     drawParams.add(bDrawTrajectoryLine);
     drawParams.add(bDrawRegisteredMap);
@@ -53,6 +59,7 @@ ofxLidarSlamParameters::ofxLidarSlamParameters(){
     drawParams.add(bDrawEdgeKeypoints);
     drawParams.add(bDrawPlanarKeypoints);
     drawParams.add(bDrawBlobKeypoints);
+    
     
     
     gui.add(drawParams);
