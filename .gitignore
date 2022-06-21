@@ -21,6 +21,8 @@ docs/tagfile.xml
 *.app/
 *.pyc
 .svn/
+*.ply
+*/bin/data/RegisteredMeshes/*
 
 #########################
 # IDE
