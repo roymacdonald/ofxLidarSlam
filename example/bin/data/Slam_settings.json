@@ -1,5 +1,6 @@
 {
     "Lidar_SLAM": {
+        "Accumulate_reg__meshes": "1",
         "Advanced_Return_Mode": "0",
         "Confidence": {
             "Motion_Constraint": {
@@ -13,23 +14,35 @@
         },
         "Destagger_Signal": "0",
         "Draw": {
-            "Draw_Blob_KeyPoints": "1",
+            "Draw_Blob_KeyPoints": "0",
             "Draw_Blob_Map": "1",
-            "Draw_Edge_KeyPoints": "1",
+            "Draw_Edge_KeyPoints": "0",
             "Draw_Edge_Map": "1",
-            "Draw_Lidar_Feed": "1",
-            "Draw_Planar_KeyPoints": "1",
+            "Draw_Lidar_Feed": "0",
+            "Draw_Planar_KeyPoints": "0",
             "Draw_Planar_Map": "1",
             "Draw_Registered_Map": "1",
-            "Draw_Trajectory_Line": "1"
+            "Draw_Trajectory_Line": "1",
+            "Use_Depth_Test": "1"
         },
         "EgoMotionMode": "\u0001",
         "Enable_Slam": "0",
+        "End_Accum_Draw": "0",
         "Keyframes": {
             "Keyframe_Angle_Threshold": "5",
             "Keyframe_Distance_Threshold": "0.5"
         },
-        "MappingMode": "\u0002",
+        "Keypoint_Extractor": {
+            "Edge_min_depth_gap": "0.15",
+            "Edge_min_intensity_gap": "50",
+            "Edge_min_saliency_distance": "1.5",
+            "Edge_min_sinus_angle": "0.86",
+            "Min_distance_to_sensor": "1.5",
+            "Min_laser_beam_to_surface_angle": "10",
+            "Neighborhood_width": "4",
+            "Plane_max_sinus_angle": "0.5"
+        },
+        "MappingMode": "\u0001",
         "Maps_Update_Step": "1",
         "Num_Thrads": "4",
         "Optimization": {
@@ -44,7 +57,7 @@
                 "Ego_Motion_LM_Max_Iter": "15",
                 "Ego_Motion_Max_Neighbors_Distance": "5",
                 "Ego_Motion_Planarity_Threshold": "0.04",
-                "Ego_Motion_Plane_Max_Model_Error": "0.1",
+                "Ego_Motion_Plane_Max_Model_Error": "0.2",
                 "Ego_Motion_Plane_Nb_Neighbors": "5"
             },
             "Localization": {
@@ -59,11 +72,11 @@
                 "Localization_LM_Max_Iter": "15",
                 "Localization_Max_Neighbors_Distance": "5",
                 "Localization_Planarity_Threshold": "0.04",
-                "Localization_Plane_Max_Model_Error": "0.1",
+                "Localization_Plane_Max_Model_Error": "0.2",
                 "Localization_Plane_Nb_Neighbors": "5",
                 "Sensor_Max_Measures": "1000000",
                 "Sensor_Time_Offset": "0",
-                "Sensor_Time_Threshold": "0.2",
+                "Sensor_Time_Threshold": "0.5",
                 "Wheel_Odom_Relative": "0",
                 "Wheel_Odom_Weight": "0"
             }
@@ -72,13 +85,13 @@
         "Output_Keypoints_In_World_Coordinates": "1",
         "Output_Keypoints_Maps": "\u0001",
         "Rolling_Grid": {
-            "Leaf_Size_Edges": "0.30",
-            "Leaf_Size_Planes": "0.60",
-            "Leaf_Size_Blobs": "0.30",  
+            "Leaf_Size_Blobs": "0.1",
+            "Leaf_Size_Edges": "0.1",
+            "Leaf_Size_Planes": "0.2",
             "Voxel_Grid_Decaying_Threshold": "-1",
             "Voxel_Grid_Min_Frames_Per_Voxel": "0",
-            "Voxel_Grid_Resolution": "10",
-            "Voxel_Grid_Size": "50"
+            "Voxel_Grid_Resolution": "1",
+            "Voxel_Grid_Size": "200"
         },
         "Sampling_modes": {
             "Sampling_Mode_Blobs": "\u0002",
@@ -86,9 +99,11 @@
             "Sampling_Mode_Planes": "\u0002"
         },
         "Show_Colors": "0",
+        "Start_Accum_Draw": "0",
         "Timestamp_First_Packet": "1",
         "UndistortionMode": "\u0002",
-        "UseBlobs": "0",
-        "Use_IMU_data": "1"
+        "UseBlobs": "1",
+        "Use_IMU_data": "1",
+        "Verbose_Level": "\u0000"
     }
 }
