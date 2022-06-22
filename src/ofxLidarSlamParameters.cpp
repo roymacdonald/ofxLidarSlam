@@ -21,6 +21,15 @@ ofxLidarSlamParameters::ofxLidarSlamParameters(){
     
     gui.add(saveMaps);
     
+    gui.add(saveMarkersOnly);
+    gui.add(saveMeshes);
+    
+    gui.add(savePoseEvery);
+    gui.add(bSavePoseEvery);
+    
+    gui.add(bDrawMarkers);
+    
+    
     gui.add(startAccumDraw);
     gui.add(endAccumDraw);
     

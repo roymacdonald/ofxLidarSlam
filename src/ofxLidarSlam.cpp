@@ -62,18 +62,11 @@ void AddPclToOf( LidarSlam::Slam::PointCloud::Ptr pc, ofVboMesh& mesh){
 
 
 
-//void toPCL(shared_ptr<pcl::PointCloud<pcl::PointXYZ>>& dest, const vector<glm::vec3>& points){
-//    dest =  make_shared<pcl::PointCloud<pcl::PointXYZ>>(points.size(), 1);
-//    for (size_t i = 0; i < points.size(); i++){
-//        dest->points[i] = pcl::PointXYZ(points[i].x,points[i].y,points[i].z);
-//    }
-//}
-//#define STRINGIFY(x) #x
-
 //-----------------------------------------------------------------------------
 ofxLidarSlam::ofxLidarSlam():pointShader("SLAM")
 {
-    
+ 
+    bMarkCurrent = false;
     SlamAlgo = std::make_unique<LidarSlam::Slam>();
     
     SlamAlgo->SetKeyPointsExtractor(getKeyPointExtractor().extractor);
@@ -96,42 +89,6 @@ ofxLidarSlam::ofxLidarSlam():pointShader("SLAM")
     
     
     startThread();
-    
-    
-//    static const string shader_header = "#version 150\n";
-//
-//          static const string fragShader = shader_header + STRINGIFY(
-//          in float vcolor;
-//          uniform sampler2DRect palette;
-//          out vec4 color;
-//          void main() {
-//              color = texture(palette, vec2(vcolor, 1));
-//          }
-//          );
-//
-//          string vertShader = shader_header + STRINGIFY(
-//          in vec4 position;
-//          uniform mat4 modelViewProjectionMatrix;
-//          uniform mat4 transform;
-//          uniform float range_max;
-//          uniform float colorMapSize;
-//
-//          out float vcolor;
-//          void main(){
-//              float range = length(position.xyz);
-//              vcolor = (range * colorMapSize)/(226326.f*range_max);
-//              gl_Position = modelViewProjectionMatrix * transform * position;
-//          }
-//          );
-//
-//
-    
-    
-//    pointShader.loadShader(vertShader, fragShader);
-    
-    
-
-    
 }
 //-----------------------------------------------------------------------------
 ofxLidarSlam::~ofxLidarSlam()
@@ -189,37 +146,41 @@ void ofxLidarSlam::reset()
 
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::onLidarData(ouster::LidarScan &scan){
-//    cout << "ofxLidarSlam::onLidarData\n";
     toSlamScan.send(scan);
+}
+
+string ofxLidarSlam::createSaveDir(string timestamp){
+    currentSavePath  = "RegisteredMeshes/"+ timestamp;
     
+    {
+    ofDirectory dir (currentSavePath);
+    dir.create(true);
+    }
+    {
+    ofDirectory dir (currentSavePath + "/metadata");
+    dir.create(true);
+    }
+    return currentSavePath;
 }
 
 void ofxLidarSlam::saveRegisteredMeshes(string timestamp){
-    
-    string dirPath  = "RegisteredMeshes/"+ timestamp;
-    cout <<"saveRegisteredMeshes:: saving to: " << dirPath <<"\n";
-    
-    {
-    ofDirectory dir (dirPath);
-    dir.create(true);
+    if(currentSavePath.empty()){
+        createSaveDir(timestamp);
     }
-    {
-    ofDirectory dir (dirPath + "/metadata");
-    dir.create(true);
-    }
-    
-    
     for(size_t i =0; i < trajectory.size(); i++){
-        trajectory[i].save(dirPath, i);
+        if((params.saveMarkersOnly.get() && trajectory[i].isMarker) || !params.saveMarkersOnly.get()){
+            trajectory[i].save(currentSavePath, i, params.saveMeshes.get());
+        }
     }
     cout <<"saveRegisteredMeshes:: done!\n";
 
 }
 
+
 //-----------------------------------------------------------------------------
-ofxLidarSlamResults ofxLidarSlam::processLidarData(ouster::LidarScan &scan){
+void ofxLidarSlam::processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults & results){
     
-    ofxLidarSlamResults results;
+    
     if(params.bEnableSlam){
 //        cout << "ofxLidarSlam::processLidarData\n";
         // Get frame first point time in vendor format
@@ -246,9 +207,30 @@ ofxLidarSlamResults ofxLidarSlam::processLidarData(ouster::LidarScan &scan){
         // Output : Current undistorted LiDAR frame in world coordinates
         
         PclToOf(this->SlamAlgo->GetRegisteredFrame(), results.RegisteredMap);
+        if(bMarkCurrent){
+            bMarkCurrent = false;
+            meshSaver.save(results.RegisteredMap, ofGetTimestampString() + ".ply");
+        }
         if(params.bAccumulateRegistered){
             trajectory.back().copyMesh(results.RegisteredMap);
         }
+        
+        
+        if(params.bSavePoseEvery){
+            if(currentSavePath.empty()){
+                createSaveDir( ofGetTimestampString());
+            }
+            
+            auto& p = trajectory.back();
+            glm::vec3 pose (p.x, p.y, p.z);
+            if (glm::distance(lastSavedPose, pose) >= params.savePoseEvery.get()){
+                p.save(currentSavePath, frameCount);
+                meshSaver.save(results.RegisteredMap, ofFilePath::join(currentSavePath, ofToString(frameCount, 4,0) + ".ply"));
+                lastSavedPose = pose;
+                p.isMarker = true;
+            }
+        }
+        
         
         params.startAccumDraw.setMax(trajectory.size());
         params.endAccumDraw.setMax(trajectory.size());
@@ -274,9 +256,6 @@ ofxLidarSlamResults ofxLidarSlam::processLidarData(ouster::LidarScan &scan){
             GET_SUBMAP(PlanarMap, LidarSlam::PLANE)
             GET_SUBMAP(BlobMap, LidarSlam::BLOB)
             
-//            if(params.bDrawEdgeMap) {PclToOf(this->SlamAlgo->GetTargetSubMap(LidarSlam::EDGE), results.EdgeMap);}
-//            if(params.bDrawPlanarMap) {PclToOf(this->SlamAlgo->GetTargetSubMap(LidarSlam::PLANE), results.PlanarMap);}
-//            if(params.bDrawBlobMap) {PclToOf(this->SlamAlgo->GetTargetSubMap(LidarSlam::BLOB), results.BlobMap);}
             this->PreviousMapOutputMode = params.OutputKeypointsMaps.get();
         }
         // If the output is disabled, reset it.
@@ -289,29 +268,21 @@ ofxLidarSlamResults ofxLidarSlam::processLidarData(ouster::LidarScan &scan){
         }
         
         // ===== Extracted keypoints from current frame =====
+
         if (params.OutputCurrentKeypoints)
         {
-
-            
             GET_KEYPOINTS(EdgeKeypoints, LidarSlam::EDGE)
             GET_KEYPOINTS(PlanarKeypoints, LidarSlam::PLANE)
             GET_KEYPOINTS(BlobKeypoints, LidarSlam::BLOB)
-            
-//            if(params.bDrawEdgeKeypoints) { PclToOf(this->SlamAlgo->GetKeypoints(LidarSlam::EDGE, wc), results.EdgeKeypoints);}
-//            if(params.bDrawPlanarKeypoints) { PclToOf(this->SlamAlgo->GetKeypoints(LidarSlam::PLANE,wc), results.PlanarKeypoints);}
-//            if(params.bDrawBlobKeypoints) { PclToOf(this->SlamAlgo->GetKeypoints(LidarSlam::BLOB, wc), results.BlobKeypoints);}
         }
-        
         results.bValid = true;
-        
     }
     frameCount++;
-    return results;
+    
 }
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::onImuData(ofxOusterIMUData& data){
     toSlamIMU.send(data);
-//    processImuData(data);
 }
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::processImuData(ofxOusterIMUData & data){
@@ -343,7 +314,8 @@ void ofxLidarSlam::threadedFunction(){
     ouster::LidarScan scan;
     
     while(toSlamScan.receive(scan)){
-        auto results = processLidarData(scan);
+        ofxLidarSlamResults results;
+        processLidarData(scan, results);
 
         if(results.bValid){
             fromSlam.send(std::move(results));
@@ -435,11 +407,23 @@ void ofxLidarSlam::AddCurrentPoseToTrajectory()
         p.covariance[i] = currentState.Covariance.data()[i];
     }
     
+    if(bMarkCurrent){
+        p.isMarker = true;
+//        bMarkCurrent = false;
+    }
+    
+    
+    
+    
+    
+    
     TrajectoryLine.addVertex(p.x, p.y, p.z);
     
 }
-
-
+//-----------------------------------------------------------------------------
+void ofxLidarSlam::markCurrentFrame(){
+    bMarkCurrent = true;
+}
 //-----------------------------------------------------------------------------
 LidarSlam::Slam::PointCloud::Ptr ofxLidarSlam::getPointCloudFromLidar(ouster::LidarScan & scan)
 {
@@ -449,34 +433,13 @@ LidarSlam::Slam::PointCloud::Ptr ofxLidarSlam::getPointCloudFromLidar(ouster::Li
         auto r = lidar->getRenderer();
         
         if(r){
-            
-            
-//            float Rpm = getRPMs(lidar->getSensorInfo());
-//            size_t nbPoints = r->points.getNumVertices();
+                        
             size_t nbPoints = scan.w * scan.h;
-            // We take advantage of the fact that ofxOusterRenderer has already dewarped the pointcloud and stored it.
-            // Loop over points data
             pc->reserve(nbPoints);
             
             auto timestamps = scan.timestamp();
             auto ids = scan.measurement_id();
             
-//            lidar_conversions::Utils::SpinningFrameAdvancementEstimator frameAdvancementEstimator;
-            
-//            stringstream ss;
-//            ss << "scan.w  : " << scan.w << "  h: " << scan.h << "\n";
-//            ss << "nbPoints : " << nbPoints << "\n";
-            //            ss << "timestamps : " << timestamps.size() << "\n";
-            //            ss << "ids : " << ids.size() << "\n";
-            //            uint16_t m = 0;
-            //            for(auto& i: ids){
-            //                if(i > m){
-            //                    m = i;
-            //                }
-            //            }
-            //            ss << "max id: " << m << "\n";
-            //
-//            cout << ss.str();
             
             auto frameTimestamp = timestamps[(params.TimestampFirstPacket?0:(scan.w - 1))];
             pc->header.stamp = frameTimestamp / 1000.0f; // max time in microseconds
@@ -484,25 +447,14 @@ LidarSlam::Slam::PointCloud::Ptr ofxLidarSlam::getPointCloudFromLidar(ouster::Li
             pc->header.seq = frameCount;
             auto range = scan.field(ouster::sensor::RANGE);
             auto signal = scan.field(ouster::sensor::ChanField::SIGNAL);//.cast<double>();
-            if(params.destaggerSignal){
-//                signal = ouster::destagger<double>(signal.cast<double>(), lidar->getSensorInfo().format.pixel_shift_by_row);
-            }
-            
             
             auto& lut = r->getLut();
             
-        
             
             if (range.cols() * range.rows() != lut.direction.rows()){
                 ofLogError("ofxLidarSlam::getPointCloudFromLidar") << "unexpected image dimensions";
                 return nullptr;
             }
-            
-//            auto reshaped = Eigen::Map<const Eigen::Array<ouster::LidarScan::raw_t, -1, 1>>(range.data(), range.cols() * range.rows()).cast<double>();
-//            auto nooffset = lut.direction.colwise() * reshaped;
-//            return (nooffset.array() == 0.0).select(nooffset, nooffset + lut.offset);
-            
-//            bool useMM = params.bUseMillimeters.get();
             
             for(size_t y= 0; y< range.rows(); y++){
                 for(size_t x= 0; x< range.cols(); x++){
@@ -515,57 +467,18 @@ LidarSlam::Slam::PointCloud::Ptr ofxLidarSlam::getPointCloudFromLidar(ouster::Li
                     p.y = lut.direction(i, 1) * val * 0.001;//
                     p.z = lut.direction(i, 2) * val * 0.001;//
 
-                    
-//                    p.x += lut.offset(i, 0);
-//                    p.y += lut.offset(i, 1);
-//                    p.z += lut.offset(i, 2);
-                    
+                                        
                     p.intensity = signal(y, x);
                     p.laser_id = range.rows()  - y - 1;
-//                    p.time = floor((timestamps[x] - frameTimestamp)/1000.0f);
                     
                     p.device_id = 0;
-                    // in case of using more than a single device the following line should be used instead of the prior. otherwise it gives an anoying warning
-                    //p.device_id = lidar->getSensorInfo().init_id;
-                    
-                    
-//                    double frameAdvancement = frameAdvancementEstimator(p);
-                    //                p.time = (params.TimestampFirstPacket ? frameAdvancement : frameAdvancement - 1) ;
-//                    p.time = (params.TimestampFirstPacket ? frameAdvancement : frameAdvancement - 1) / Rpm * 60.;
                     
                     p.time = (timestamps[x] - frameTimestamp)* TimeToSecondsFactor;
-                    
-//                    cout << "time: " << p.time << "  " << t;
-                    
                     
                     pc->push_back(p);
                 }
             }
-//
-////            auto & v = r->points.getVertices();
-//            size_t y = scan.h;
-//            for (size_t i = 0; i < nbPoints; i++)
-//            {
-//                if(i%scan.w == 0){
-//                    y--;
-//                }
-//                size_t x = i % scan.w;
-//
-//                LidarSlam::Slam::Point p;
-//                p.x = v[i].x;
-//                p.y = v[i].y;
-//                p.z = v[i].z;
-//                //                p.time = timestamps[x] * TimeToSecondsFactor; // time in seconds
-//                p.laser_id = y;
-//                p.intensity = signal(i) ;
-//
-//                double frameAdvancement = frameAdvancementEstimator(p);
-//                //                p.time = (params.TimestampFirstPacket ? frameAdvancement : frameAdvancement - 1) ;
-//                p.time = (params.TimestampFirstPacket ? frameAdvancement : frameAdvancement - 1) / Rpm * 60.;
-//
-//
-//                pc->push_back(p);
-//            }
+
             return pc;
         }
     }
@@ -577,39 +490,11 @@ LidarSlam::Slam::PointCloud::Ptr ofxLidarSlam::getPointCloudFromLidar(ouster::Li
 // =============================================================================
 
 //-----------------------------------------------------------------------------
-void ofxLidarSlam::advancedReturnModeChanged(bool& _arg)
-{
+void ofxLidarSlam::advancedReturnModeChanged(bool& _arg){
+    SlamAlgo->SetOverlapSamplingRatio( ( _arg? params.OverlapSamplingRatio.get() : 0.));
+    SlamAlgo->SetTimeWindowDuration( ( _arg? params.TimeWindowDuration.get() : 0.));
+    SlamAlgo->SetLoggingTimeout( ( _arg? 1.1 * params.TimeWindowDuration.get() : 0.));
     
-    auto debugInfo = this->SlamAlgo->GetDebugInformation();
-    
-    // If AdvancedReturnMode is being activated
-    if (_arg)
-    {
-        // Add new optional arrays to trajectory, and init past values to 0.
-        //      for (const auto& it : debugInfo)
-        //      {
-        //        auto array = Utils::CreateArray<vtkDoubleArray>(it.first, 1, this->Trajectory->GetNumberOfPoints());
-        //        for (vtkIdType i = 0; i < this->Trajectory->GetNumberOfPoints(); i++)
-        //          array->SetTuple1(i, 0.);
-        //        this->Trajectory->GetPointData()->AddArray(array);
-        //      }
-        // Enable overlap computation
-        SlamAlgo->SetOverlapSamplingRatio(params.OverlapSamplingRatio);
-        SlamAlgo->SetTimeWindowDuration(params.TimeWindowDuration);
-        SlamAlgo->SetLoggingTimeout(1.1 * params.TimeWindowDuration);
-    }
-    
-    // If AdvancedReturnMode is being disabled
-    else
-    {
-        // Delete optional arrays
-        //      for (const auto& it : debugInfo)
-        //        this->Trajectory->GetPointData()->RemoveArray(it.first.c_str());
-        // Disable overlap computation
-        SlamAlgo->SetOverlapSamplingRatio(0.);
-        SlamAlgo->SetTimeWindowDuration(0.);
-        SlamAlgo->SetLoggingTimeout(0.);
-    }
 }
 
 
@@ -742,21 +627,23 @@ void ofxLidarSlam::draw(){
             if(start < end){
                 for(size_t i = start; i < end && i < trajectory.size(); i++)
                 {
-//                    pointShader.begin();
-//                    pointShader.shader.setUniform3f("offset", trajectory[i].x, trajectory[i].y, trajectory[i].z);
+                    pointShader.begin();
+                    pointShader.shader.setUniform3f("offset", trajectory[i].x, trajectory[i].y, trajectory[i].z);
                     ofSetColor(255);
 //                    t.mesh.disableColors();
                     trajectory[i].mesh.draw();
-//                    pointShader.end();
+                    pointShader.end();
                 }
             }
         }else{
-//            pointShader.begin();
-//            if(trajectory.size()){
-//                pointShader.shader.setUniform3f("offset", trajectory.back().x, trajectory.back().y, trajectory.back().z);
-//            }
+            pointShader.begin();
+            glm::vec3 offset = {0,0,0};
+            if(trajectory.size()){
+                offset = {trajectory.back().x, trajectory.back().y, trajectory.back().z};
+            }
+            pointShader.shader.setUniform3f("offset", offset);
             slamResults.RegisteredMap.draw();
-//            pointShader.end();
+            pointShader.end();
         }
     }
     pointShader.begin(); pointShader.shader.setUniform3f("offset", 0,0,0);
@@ -781,6 +668,16 @@ void ofxLidarSlam::draw(){
         trajectory.back().getNode().restoreTransformGL();
         ofPopStyle();
     }
+    if(trajectory.size() > 0 && params.bDrawMarkers) {
+        ofPushStyle();
+        ofSetColor(ofColor::yellow);
+        for(auto & t: trajectory){
+            if(t.isMarker){
+                ofDrawBox(t.x, t.y, t.z, 0.3, 0.3, 0.3);
+            }
+        }
+        ofPopStyle();
+    }
     ofPopMatrix();
     ofPopStyle();
     if(params.bDrawLidarFeed){
@@ -795,6 +692,8 @@ void ofxLidarSlam::draw(){
         }
     }
     
+    
+  
     
     if(params.bUseDepthTest){
         ofDisableDepthTest();
@@ -957,14 +856,6 @@ void ofxLidarSlam::setParamsListeners(){
     }));
     
     
-    //    //-----------------------------------------------------------------------------
-    //    void ofxLidarSlam::SetVoxelGridLeafSize(LidarSlam::Keypoint k, double s)
-    //    {
-    //        //  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting VoxelGridLeafSize to " << s);
-    //        this->SlamAlgo->SetVoxelGridLeafSize(k, s);
-    //        //  this->ParametersModificationTime.Modified();
-    //    }
-    
     listeners.push(params.samplingModeEdges.newListener([&](uint8_t& mode){
         SetVoxelGridSamplingModeEdges((int)mode);
     }));
@@ -976,13 +867,7 @@ void ofxLidarSlam::setParamsListeners(){
     listeners.push(params.samplingModeBlobs.newListener([&](uint8_t& mode){
         SetVoxelGridSamplingModeBlobs((int)mode);
     }));
-    
-    //
-       
-    //
-    //
-    //
-        
+            
     listeners.push(params.angularAccLimit.newListener([&](float&){
         SetAccelerationLimits(params.linearAccLimit.get(), params.angularAccLimit.get());
     }));
@@ -1007,16 +892,6 @@ void ofxLidarSlam::setParamsListeners(){
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::setDefaults(){
     
-    
-    //    SetDefaultValueMacro(NbThreads)
-    //    SetDefaultValueMacro(Verbosity)
-    //    SetDefaultValueMacro(LoggingTimeout)
-    //    SetDefaultValueMacro(Latency)
-    //    SetDefaultValueMacro(G2oFileName)
-    //    SetDefaultValueMacro(FixFirstVertex)
-    //    SetDefaultValueMacro(FixLastVertex)
-    //    SetDefaultValueMacro(BaseFrameId)
-    //    SetDefaultValueMacro(WorldFrameId)
     SetDefaultValueMacro(TwoDMode)
     SetDefaultValueMacro(EgoMotionLMMaxIter)
     SetDefaultValueMacro(EgoMotionICPMaxIter)
@@ -1044,19 +919,9 @@ void ofxLidarSlam::setDefaults(){
     SetDefaultValueMacro(SensorTimeOffset)
     SetDefaultValueMacro(SensorTimeThreshold)
     SetDefaultValueMacro(SensorMaxMeasures)
-    //    SetDefaultValueMacro(LandmarkWeight)
-    //    SetDefaultValueMacro(LandmarkSaturationDistance)
-    //    SetDefaultValueMacro(LandmarkPositionOnly)
-    //    SetDefaultValueMacro(LandmarkCovarianceRotation)
-    //    SetDefaultValueMacro(LandmarkConstraintLocal)
+
     SetDefaultValueMacro(KfDistanceThreshold)
     SetDefaultValueMacro(KfAngleThreshold)
-    //    SetDefaultValueMacro(MapUpdate)
     SetDefaultValueMacro(OverlapSamplingRatio)
-    //    SetDefaultValueMacro(OverlapEstimation)
-    //    SetDefaultValueMacro(TotalMatchedKeypoints)
-    //    SetDefaultValueMacro(AccelerationLimits)
-    //    SetDefaultValueMacro(VelocityLimits)
     SetDefaultValueMacro(TimeWindowDuration)
-    //    SetDefaultValueMacro(ComplyMotionLimits)
 }

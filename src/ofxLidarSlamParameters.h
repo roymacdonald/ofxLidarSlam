@@ -37,9 +37,15 @@ public:
     ofParameter<size_t> endAccumDraw = {"End Accum Draw", 0, 0, 1};
     
     ofParameter<void> saveMaps = {"Save Maps"};
+    ofParameter<bool> saveMarkersOnly = {"Save Markers Only", true};
+    ofParameter<bool> saveMeshes = {"Save Meshes", false};
     
+    
+    ofParameter<bool> bDrawMarkers = {"Draw Markers", true};
     ofParameter<bool> bUseDepthTest = {"Use Depth Test", false};
     
+    ofParameter<float> savePoseEvery = {"Save Pose Every", 1, 0, 10};
+    ofParameter<bool> bSavePoseEvery = {"Enable Save Pose", false};
     
     /// AdvancedReturnMode
     /// If enabled, advanced return mode will add arrays to outputs showing some

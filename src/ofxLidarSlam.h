@@ -21,6 +21,8 @@
 
 #include "ofxGui.h"
 
+#include "ofxMeshSaver.h"
+
 enum OutputKeypointsMapsMode : uint8_t
 {
     //! No maps output
@@ -31,40 +33,6 @@ enum OutputKeypointsMapsMode : uint8_t
     SUB_MAPS = 2
 };
 
-//class Range{
-//public:
-//    Range(string _name):name(_name){
-//
-//    }
-//    float mn = std::numeric_limits<float>::max();
-//    float mx = - std::numeric_limits<float>::max();
-//    void check(float val){
-//        if(val > mx) mx = val;
-//        if(val < mn) mn = val;
-//    }
-//    string name;
-//    void print(){
-//        cout << name <<" Range " << mn << " - " << mx << endl;
-//    }
-//};
-//class Range3f{
-//public:
-//
-//    void check(const glm::vec3& v){
-//        ranges[0].check(v.x);
-//        ranges[1].check(v.y);
-//        ranges[2].check(v.z);
-//    }
-//    Range ranges [3] = {Range("X"),Range("Y"),Range("Z")};
-//
-//    void print(){
-//        ranges[0].print();
-//        ranges[1].print();
-//        ranges[2].print();
-//    }
-//
-//};
-
 class TrajectoryPoint{
 public:
     double x;
@@ -74,6 +42,7 @@ public:
     glm::dquat quaternion;
     double axisAngle [4];
     double covariance [36];
+    bool isMarker = false;
     
     TrajectoryPoint * prev = nullptr;
     
@@ -93,29 +62,6 @@ public:
         return node;
     }
     
-//    glm::mat4 getTransformMatrix(){
-//        return getNode().getGlobalTransformMatrix();
-//    }
-    
-//    const glm::dmat4& getTransformAccumulatedMatrix(bool scale = true){
-//        if(bNeedsSetTransform){
-//            bNeedsSetTransform = false;
-//            glm::dvec3 pos(x, y, z);
-//            if(scale){
-//                pos = pos *1000.0;
-//            }
-//            accumTransform = glm::translate(glm::dmat4(1.0), pos);
-//
-//
-//            if(prev != nullptr){
-//                accumQuat = prev->accumQuat * quaternion;
-//            }else{
-//                accumQuat = quaternion;
-//            }
-//            accumTransform = accumTransform * glm::toMat4(accumQuat);
-//        }
-//        return accumTransform;
-//    }
     
     ofVboMesh mesh;
     
@@ -126,8 +72,8 @@ public:
         
     }
     
-    bool save(string savePath, size_t index){
-        if(mesh.getVertices().size()){
+    bool save(string savePath, size_t index, bool saveMesh = false){
+        if(saveMesh && mesh.getVertices().size()){
             mesh.save(savePath + "/" + ofToString(index) + ".ply");
         }
             ofJson j;
@@ -142,12 +88,12 @@ public:
                         {"z", quaternion.z}};
             j["axisAngle"] = axisAngle;
             j["covariance"] = covariance;
+            j["isMarker"] = isMarker;
             
+        
         return ofSaveJson(savePath + "/metadata/"+ofToString(index) + ".json", j);
             
     }
-    
-    
     
 protected:
     
@@ -156,10 +102,7 @@ private:
     
     ofNode node, scaledNode;
     bool bNeedsSetNode = true;
-    
-//    glm::dquat accumQuat;
-//    glm::dmat4 accumTransform;
-    
+        
 };
 
 
@@ -202,7 +145,6 @@ public:
     virtual ~ofxLidarSlam();
     
     void setup(std::shared_ptr<ofxOuster>& lidar);
-    //  virtual vtkMTimeType GetMTime() override;
     
     // ---------------------------------------------------------------------------
     //   General stuff and flags
@@ -215,11 +157,7 @@ public:
     void setInitialPoseTranslation(double x, double y, double z);
     void setInitialPoseRotation(double roll, double pitch, double yaw);
     
-    // Getters / Setters
-    
-    
-    
-    
+   
     
     // ---------------------------------------------------------------------------
     //   BASE to LIDAR transform
@@ -276,14 +214,10 @@ public:
     //   Confidence estimator parameters
     // ---------------------------------------------------------------------------
     
-    
-
 
     void SetAccelerationLimits(float linearAcc, float angularAcc);
     void SetVelocityLimits(float linearVel, float angularVel);
         
-
-
     void draw();
     
     void drawGui();
@@ -297,8 +231,13 @@ public:
     
     void saveRegisteredMeshes(string timestamp);
     
-protected:
     
+    void markCurrentFrame();
+    
+    
+    
+protected:
+    ofxMeshSaver meshSaver;
     
     void setDefaults();
     
@@ -306,6 +245,7 @@ private:
     ofxLidarSlam(const ofxLidarSlam&) = delete;
     void operator=(const ofxLidarSlam&) = delete;
     
+    string createSaveDir(string timestamp);
     
     
     
@@ -344,7 +284,7 @@ protected:
     void onLidarData(ouster::LidarScan &);
     void onImuData(ofxOusterIMUData & );
     
-    ofxLidarSlamResults processLidarData(ouster::LidarScan &);
+    void processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults & results);
     void processImuData(ofxOusterIMUData & );
     
     
@@ -357,6 +297,8 @@ protected:
     void threadedFunction();
     
 private:
+    
+    std::atomic<bool> bMarkCurrent;
     
     uint8_t PreviousMapOutputMode = OutputKeypointsMapsMode::FULL_MAPS;
     
@@ -378,15 +320,10 @@ private:
     vector<TrajectoryPoint> trajectory;
 
     ofPolyline TrajectoryLine;
-
+        
     
     ofxLidarSlamResults slamResults;
     
-    
-//    ofVboMesh keypointMeshes [LidarSlam::nKeypointTypes];
-    
-//    void getKeypoints(LidarSlam::Keypoint k);
-
     
     ofEasyCam cam;
 
@@ -397,6 +334,11 @@ private:
     size_t frameCount = 0;
     
     ofxPointShader pointShader;
+    
+    glm::vec3 lastSavedPose = {0,0,0};
+    
+    
+    string currentSavePath;
     
     
 };
