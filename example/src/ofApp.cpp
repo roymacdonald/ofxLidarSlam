@@ -149,7 +149,8 @@ void ofApp::keyReleased(int key){
         if(bShowParams){
             currentParams = slam.getCurrentSlamParamsAsString();
         }
-    }else if(key == 's'){
+    }else if(key == ' '){
+        slam.markCurrentFrame();
 //        slam.params.bEnableSlam = false;
 //        slam.saveRegisteredMeshes();
         
