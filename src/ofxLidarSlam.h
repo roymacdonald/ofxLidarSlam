@@ -23,6 +23,12 @@
 
 #include "ofxMeshSaver.h"
 
+#ifdef HAS_OFXGRABCAM
+#include "ofxGrabCam.h"
+#endif
+
+
+
 enum OutputKeypointsMapsMode : uint8_t
 {
     //! No maps output
@@ -31,6 +37,12 @@ enum OutputKeypointsMapsMode : uint8_t
     FULL_MAPS = 1,
     //! Output the target sub maps used for the current frame registration
     SUB_MAPS = 2
+};
+
+enum AccumulateMode : uint8_t{
+    DONT_ACCUM = 0,
+    DISTANCE = 1,
+    FRAMES = 2
 };
 
 class TrajectoryPoint{
@@ -114,7 +126,6 @@ public:
     ofVboMesh EdgeMap;
     ofVboMesh PlanarMap;
     ofVboMesh BlobMap;
-
     ofVboMesh EdgeKeypoints;
     ofVboMesh PlanarKeypoints;
     ofVboMesh BlobKeypoints;
@@ -134,8 +145,18 @@ public:
         }
         
     }
-    
-    
+
+    void clear(){
+        RegisteredMap.clear();
+        EdgeMap.clear();
+        PlanarMap.clear();
+        BlobMap.clear();
+        EdgeKeypoints.clear();
+        PlanarKeypoints.clear();
+        BlobKeypoints.clear();
+
+        
+    }
 };
 
 class ofxLidarSlam: public ofThread
@@ -281,22 +302,25 @@ protected:
 
     
     
-    void onLidarData(ouster::LidarScan &);
-    void onImuData(ofxOusterIMUData & );
+//    void onLidarData(ouster::LidarScan &);
+//    void onImuData(ofxOusterIMUData & );
     
     void processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults & results);
     void processImuData(ofxOusterIMUData & );
     
     
     void _update(ofEventArgs&);
-    
-    ofThreadChannel<ouster::LidarScan> toSlamScan;
-    ofThreadChannel<ofxOusterIMUData> toSlamIMU;
+
     ofThreadChannel<ofxLidarSlamResults> fromSlam;
     
     void threadedFunction();
     
 private:
+    
+    
+    ofThreadChannel<ouster::LidarScan > toRenderer;
+    
+    unique_ptr<ofxOusterRenderer> renderer = nullptr;
     
     std::atomic<bool> bMarkCurrent;
     
@@ -308,7 +332,7 @@ private:
     
     
     // SLAM initialization
-    std::string InitMapPrefix; ///< Path prefix of initial maps
+    
     Eigen::Vector6d InitPose;  ///< Initial pose of the SLAM
     
     
@@ -325,7 +349,12 @@ private:
     ofxLidarSlamResults slamResults;
     
     
+#ifdef HAS_OFXGRABCAM
+    ofxGrabCam cam;
+#else
     ofEasyCam cam;
+#endif
+    
 
     
     void setParamsListeners();
@@ -339,6 +368,9 @@ private:
     
     
     string currentSavePath;
+    
+    
+    vector<int32_t > markedFrames;
     
     
 };
