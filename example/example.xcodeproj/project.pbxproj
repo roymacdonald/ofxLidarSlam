@@ -806,6 +806,7 @@
 		AF89549D18D2CF073B92642A /* Block.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Block.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/Block.h; sourceTree = SOURCE_ROOT; };
 		AFCCA6DD34B1B3B0DA569F10 /* IncompleteCholesky.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = IncompleteCholesky.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/IterativeLinearSolvers/IncompleteCholesky.h"; sourceTree = SOURCE_ROOT; };
 		AFF3B4C3E081696591EE540A /* SparseSelfAdjointView.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseSelfAdjointView.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/SparseCore/SparseSelfAdjointView.h"; sourceTree = SOURCE_ROOT; };
+		B00EAF2328625FF600F524A5 /* ofxMeshSaver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofxMeshSaver.h; path = ../src/ofxMeshSaver.h; sourceTree = "<group>"; };
 		B03EB6BB67844275B782AF48 /* TensorStriding.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorStriding.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorStriding.h; sourceTree = SOURCE_ROOT; };
 		B040544EBD10892BF59F57DB /* PacketMath.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = PacketMath.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/SVE/PacketMath.h; sourceTree = SOURCE_ROOT; };
 		B0D26574ABF5B8D096006FB5 /* KroneckerTensorProduct.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = KroneckerTensorProduct.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/KroneckerProduct/KroneckerTensorProduct.h; sourceTree = SOURCE_ROOT; };
@@ -2819,6 +2820,7 @@
 		AE8C3D9CDCEA524F680CB06B /* src */ = {
 			isa = PBXGroup;
 			children = (
+				B00EAF2328625FF600F524A5 /* ofxMeshSaver.h */,
 				28C920F4985CB20990EB2262 /* ofxLidarSlam.cpp */,
 				395D0A3AFFA66B0841B6119F /* ofxLidarSlam.h */,
 				3E608417BDC92B1F524F5606 /* ofxLidarSlamParameters.cpp */,
@@ -4572,6 +4574,7 @@
 					/usr/local/lib/libpcl_stereo.dylib,
 					/usr/local/lib/libpcl_surface.dylib,
 					/usr/local/lib/libpcl_tracking.dylib,
+					/usr/local/lib/libboost_filesystem.dylib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
