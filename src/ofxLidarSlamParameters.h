@@ -32,20 +32,26 @@ public:
     ofParameter<int> NbThreads = {"Num Thrads", 1, 1, 8};
     ofParameter<bool> bEnableSlam = {"Enable Slam", true};
     ofParameter<void> reset = {"Reset"};
-    ofParameter<bool> bAccumulateRegistered = {"Accumulate reg. meshes", false};
-    ofParameter<size_t> startAccumDraw = {"Start Accum Draw", 0, 0, 1};
-    ofParameter<size_t> endAccumDraw = {"End Accum Draw", 0, 0, 1};
     
     ofParameter<void> saveMaps = {"Save Maps"};
     ofParameter<bool> saveMarkersOnly = {"Save Markers Only", true};
-    ofParameter<bool> saveMeshes = {"Save Meshes", false};
+//    ofParameter<bool> saveMeshes = {"Save Meshes", false};
     
     
     ofParameter<bool> bDrawMarkers = {"Draw Markers", true};
     ofParameter<bool> bUseDepthTest = {"Use Depth Test", false};
+
     
-    ofParameter<float> savePoseEvery = {"Save Pose Every", 1, 0, 10};
-    ofParameter<bool> bSavePoseEvery = {"Enable Save Pose", false};
+//    ofParameter<bool> bAccumulateRegistered = {"Accumulate reg. meshes", false};
+    
+    ofParameter<float> accumEveryDistance = {"Accum. Distance", 1, 0, 10};
+    ofParameter<size_t> accumEveryFrames = {"Accum. Frames", 4, 1, 100};
+    ofParameter<bool> bSaveAccumToDisk = {"Enable Save To disk", false};
+    ofParameter<size_t> drawAccumMax = {"Draw Accum Max", 10, 0, 100};
+    
+    ofParameter<uint8_t> accumulateByMode = {"Accumulate by", 0, 0, 2};
+    
+    ofParameter<bool> bDrawAccum = {"Draw Accumulated", true};
     
     /// AdvancedReturnMode
     /// If enabled, advanced return mode will add arrays to outputs showing some
@@ -197,7 +203,7 @@ public:
 
     /// parameter group which contains all the parameters.
     
-
+    ofParameterGroup accumulateParams = {"Accumulate Registered"};
     ofParameterGroup optimizationParams = {"Optimization"};
     ofParameterGroup egoMotionParams = {"Ego Motion"};
     ofParameterGroup localizationParams = {"Localization"};
@@ -226,7 +232,7 @@ public:
     
     ofxPanel guiColors;
 
-    ofParameter<bool> destaggerSignal = {"Destagger Signal", false};
+//    ofParameter<bool> destaggerSignal = {"Destagger Signal", false};
 
     // 0: print errors, warnings or one time info
     // 1: 0 + frame number, total frame processing time
@@ -248,7 +254,7 @@ protected:
     shared_ptr<ofxDropdown_<uint8_t>> samplingModePlanesDropdown = nullptr;
     shared_ptr<ofxDropdown_<uint8_t>> samplingModeBlobsDropdown = nullptr;
     
-
+    shared_ptr<ofxDropdown_<uint8_t>> accumulateByDropdown = nullptr;
     
     
     void makeDropdowns();

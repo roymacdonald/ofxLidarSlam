@@ -10,33 +10,39 @@
 ofxLidarSlamParameters::ofxLidarSlamParameters(){
     
     string settingsFile = "Slam_settings.json";
+    makeDropdowns();
     gui.setup("Lidar SLAM",settingsFile);
     gui.setWidthElements(300);
     gui.add(bEnableSlam);
     gui.add(NbThreads);
     gui.add(bUseImuData);
     gui.add(bDrawColorsGui);
-    gui.add(destaggerSignal);
-    gui.add(bAccumulateRegistered);
-    
-    gui.add(saveMaps);
-    
-    gui.add(saveMarkersOnly);
-    gui.add(saveMeshes);
-    
-    gui.add(savePoseEvery);
-    gui.add(bSavePoseEvery);
-    
-    gui.add(bDrawMarkers);
+//    gui.add(destaggerSignal);
     
     
-    gui.add(startAccumDraw);
-    gui.add(endAccumDraw);
+    accumulateParams.add(saveMaps);
+    accumulateParams.add(saveMarkersOnly);
+//    accumulateParams.add(saveMeshes);
+    accumulateParams.add(accumEveryDistance);
+    accumulateParams.add(accumEveryFrames);
+    accumulateParams.add(bSaveAccumToDisk);
+    accumulateParams.add(drawAccumMax);
+    
+    
+    gui.add(accumulateParams);
+    
+    gui.getGroup(accumulateParams.getName()).add(accumulateByDropdown.get());
+    
+    
+    
+    
+    
+    
     
     gui.add(verboseLevel);
 //    gui.add(bUseMillimeters);
     gui.add(reset);
-    makeDropdowns();
+    
     
     gui.add(AdvancedReturnMode);
     gui.add(OutputCurrentKeypoints);
@@ -68,7 +74,8 @@ ofxLidarSlamParameters::ofxLidarSlamParameters(){
     drawParams.add(bDrawEdgeKeypoints);
     drawParams.add(bDrawPlanarKeypoints);
     drawParams.add(bDrawBlobKeypoints);
-    
+    drawParams.add(bDrawMarkers);
+    drawParams.add(bDrawAccum);
     
     
     gui.add(drawParams);
@@ -233,6 +240,8 @@ void ofxLidarSlamParameters::makeDropdowns(){
         "REGISTRATION" ,
         "MOTION_EXTRAPOLATION_AND_REGISTRATION"}
         , egoMotionMode);
+    
+    accumulateByDropdown = makeDropdown({"NONE","DISTANCE", "FRAMES"}, accumulateByMode);
     
     vector<string> sampling_names = {
         "FIRST" ,
