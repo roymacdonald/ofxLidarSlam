@@ -6,7 +6,10 @@ docs/html
 docs/tagfile.xml
 
 */bin/*
+*/bin/data/*.json
 !*/bin/data/
+
+
 
 # for bin folder in root
 /bin/*
