@@ -21,14 +21,12 @@ class ofApp : public ofBaseApp{
         void dragEvent(ofDragInfo dragInfo);
         void gotMessage(ofMessage msg);
 
-
-    
     
 
     ofxPanel gui;
 
 
-    ofParameter<float> point_size = {"Point Size", 3, 1, 10};
+    
 
     ofEventListeners listeners;
 
@@ -40,7 +38,11 @@ class ofApp : public ofBaseApp{
 
     ofParameter<void> openPcapDialogParam = {"Open PCAP"};
     ofParameter<void> openPcapParam = {"Open Last PCAP"};
+
+    ofParameter<string> lidarIp = {"Lidar's IP", "192.168.0.155"};
+    ofParameter<string> localIp = {"Computer's IP", "192.168.0.100"};
     
+    ofParameter<bool> bRecord = {"Record to PCAP", false};
     
     void openPcapDialog();
     bool openPcap(string pcap, string config);

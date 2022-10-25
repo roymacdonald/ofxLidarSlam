@@ -24,47 +24,54 @@ string validateFileInJson(ofJson& json, string key){
 void ofApp::setup(){
     
     ofSetBackgroundAuto(false);
+//    ofxGuiSetTextPadding(30);
+    
     gui.setup();
+    gui.add(lidarIp);
+    gui.add(localIp);
     gui.add(connect);
     gui.add(openPcapDialogParam);
     gui.add(openPcapParam);
-    gui.add(point_size);
+    gui.add(bRecord);
+    
 
     lidar = make_shared<ofxOuster>();
     slam.setup(lidar);
 
     listeners.push(connect.newListener([&](){
-        lidar->connect("192.168.0.155", "192.168.0.100");
+        // set to the correct IP address of both your computer and the lidar
+        lidar->connect(lidarIp.get(), localIp.get());
     }));
-//
     
     
     listeners.push(openPcapParam.newListener(this, &ofApp::tryOpenPcap));
     
     listeners.push(openPcapDialogParam.newListener(this, &ofApp::openPcapDialog));
     
-//    listeners.push(connect.newListener([&](){
-//    lidar->load("/Users/roy/Desktop/park_stephan/2022-06-02-13-50-11_OS-1-64-992214000010-1024x10.pcap",        "/Users/roy/Desktop/park_stephan/2022-06-02-13-50-11_OS-1-64-992214000010-1024x10.json");
-//
-    
-//    listeners.push(connect.newListener([&](){
-//        lidar->load("/Users/roy/Downloads/OS0_128_freeway_sample/OS0_128_freeway_sample.pcap",
-//                    "/Users/roy/Downloads/OS0_128_freeway_sample/OS0_2048x10_128.json", 47691, 37873);
-//    }));
-//
+
     lidar->setGuiPosition(gui.getShape().getBottomLeft() + glm::vec2(0, 20));
 
     auto r = slam.params.gui.getShape();
     slam.params.gui.setPosition(ofGetWidth() - r.width - 20, 20);
     
-    
-    listeners.push(point_size.newListener([&](float&){
-        glPointSize(point_size.get());
+    listeners.push(bRecord.newListener([&](bool&){
+        if(lidar){
+            if(bRecord.get()){
+                auto res = ofSystemSaveDialog("LidarRecording_"+ofGetTimestampString(), "Choose where to save your recording");
+            
+                if(res.bSuccess){
+                    lidar->recordToPCap(res.getPath());
+                }else{
+                    bRecord = false;
+                }
+            }else{
+                if(lidar->isRecording()) lidar->endRecording();
+            }
+        }
     }));
     
     
     
-
 }
 
 //--------------------------------------------------------------
@@ -144,7 +151,12 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-    if(key == 'p'){
+    int numKey = key - '1';
+    if(numKey >= 0 && numKey <= ofxLidarSlamParameters::GUI_DRAW){
+        slam.params.setTab(numKey);
+    }
+    
+    else if(key == 'p'){
         bShowParams ^= true;
         if(bShowParams){
             currentParams = slam.getCurrentSlamParamsAsString();
@@ -163,7 +175,6 @@ void ofApp::keyReleased(int key){
 //
 //        mesh.save(ofGetTimestampString()+".ply");
 //
-        
     }
 }
 

@@ -1,6 +1,7 @@
 ofxCeresLib
 ofxDropdown
 ofxGui
+ofxGuiTabs
 ofxOusterLidar
 ofxLidarSlam
 ofxPCL

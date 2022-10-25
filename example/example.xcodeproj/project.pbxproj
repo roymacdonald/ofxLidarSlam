@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07BACB34FA6BB43255BF4B07 /* ofxGuiTabsOption.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94DF9969508EA9C266426ED7 /* ofxGuiTabsOption.cpp */; };
 		07E63DB61E1231982D5B1B6B /* LocalOptimizer.cxx in Sources */ = {isa = PBXBuildFile; fileRef = F1F63521847CAA6D49756C33 /* LocalOptimizer.cxx */; };
+		13B7E845E734CDB3E39FFC13 /* ofxLidarSlamTrajectoryPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 739EE42A7E4A304F0D43836E /* ofxLidarSlamTrajectoryPoint.cpp */; };
 		13D15DD232F85DC793243219 /* Slam.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 9D70921C800FB3A11F3B159D /* Slam.cxx */; };
 		195FB94FF183626EB1D1F157 /* parsing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E138D48A104AD93D4C0CE95C /* parsing.cpp */; };
 		1CD33E884D9E3358252E82A1 /* ofxToggle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 907C5B5E104864A2D3A25745 /* ofxToggle.cpp */; };
-		1E9DE0A6E0B0E6D1F3D3E129 /* Transform.cxx in Sources */ = {isa = PBXBuildFile; fileRef = F8FBFCAF942BBD30DA1781A5 /* Transform.cxx */; };
 		226481CF5D5DD71EFBF18DEE /* MotionModel.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 57F5A3E0E8B1A593576798A9 /* MotionModel.cxx */; };
+		2E0369341D017E7FED95888C /* buffered_udp_source.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF791973D5C0EA43D87FEBAB /* buffered_udp_source.cpp */; };
 		34A9B6CE62C45C8E55F42FA5 /* RollingGrid.cxx in Sources */ = {isa = PBXBuildFile; fileRef = AF19094E66FF5B90214D0117 /* RollingGrid.cxx */; };
 		483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78D67A00EB899FAC09430597 /* ofxLabel.cpp */; };
 		52B2EFEFF26E58CF2E74D701 /* ofxPointShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58300196DA9470FF7C37E172 /* ofxPointShader.cpp */; };
@@ -20,7 +22,7 @@
 		5BF2F371E0490ED12AF5BC50 /* ofxSpinningSensorKeypointExtractor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B14F3D988BBCF42692A32B6A /* ofxSpinningSensorKeypointExtractor.cpp */; };
 		5CBB2AB3A60F65431D7B555D /* ofxButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C88333E71C9457E441C33474 /* ofxButton.cpp */; };
 		5EE821DB95CDFBB2A1A3D694 /* ConfidenceEstimators.cxx in Sources */ = {isa = PBXBuildFile; fileRef = CE7EB7DD602C096CA0E00694 /* ConfidenceEstimators.cxx */; };
-		663E310F6132D427497C69CF /* PoseGraphOptimization.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 063C4C08DE7F365D336532C4 /* PoseGraphOptimization.cxx */; };
+		7229530117650AD6789C5524 /* VoxelGrid.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 249FD6AFB3E699A69B5517A5 /* VoxelGrid.cxx */; };
 		773657160FAC0639289347DB /* FusionAhrs.c in Sources */ = {isa = PBXBuildFile; fileRef = 6C32DCFC89CB35CCE27339A4 /* FusionAhrs.c */; };
 		79EB6803011B81AE6F52B680 /* netcompat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 014F100B890E7F2EC758D617 /* netcompat.cpp */; };
 		837220E80EB56CD44AD27F2A /* ofxSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15F2C6477A769C03A56D1401 /* ofxSlider.cpp */; };
@@ -32,7 +34,6 @@
 		8CE0A206C3C4BD5DC043DEF2 /* ofxOusterIMU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13BE42BCC16E454FF748E6B3 /* ofxOusterIMU.cpp */; };
 		8D564F2CAAADC44DD4529239 /* ofxOusterClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BC6A2883A75B9EBB7C9CADF /* ofxOusterClient.cpp */; };
 		94F755BBD297A83F36145664 /* Utilities.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 7437E50BEA25A0E9C0CF040C /* Utilities.cxx */; };
-		98FB02F17A689628183C4012 /* GlobalTrajectoriesRegistration.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 1A6D351F66FA631D4446C17F /* GlobalTrajectoriesRegistration.cxx */; };
 		9A5549BBAB138680296AFD39 /* FusionCompass.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B8547F03CA6278F9C6CACBF /* FusionCompass.c */; };
 		A18E85801A246136D4B1B4CC /* os_pcap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 62A29C2D89493F8DE5EABF21 /* os_pcap.cpp */; };
 		A78DA5F72866EDF0632F9B92 /* ofxOusterPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFED2865D6411FEEBD4EC018 /* ofxOusterPlayer.cpp */; };
@@ -43,7 +44,10 @@
 		B56FE57CC35806596D38118C /* ofxSliderGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 802251BAF1B35B1D67B32FD0 /* ofxSliderGroup.cpp */; };
 		B7F8BBD427FF73E5D7D9456A /* client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8B05C0C739D1C22669879E3 /* client.cpp */; };
 		BBFD2BE06489E5842C8AA814 /* types.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B1726DF3050AD13B18BA3E /* types.cpp */; };
+		C466EBC8501C917D1BC65FCD /* sensor_tcp_imp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12B546FAB0909AA3CE589D23 /* sensor_tcp_imp.cpp */; };
+		CD93161A42282A4CC657B60A /* sensor_http_imp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1858F1706C8DCE49650C900 /* sensor_http_imp.cpp */; };
 		D0114C9A7E092D033C9C8E4A /* lidar_scan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAD5576C5A8621829E36B731 /* lidar_scan.cpp */; };
+		DDD27B68A82097755C39188E /* sensor_http.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE78A02BBD07278379BD1DA8 /* sensor_http.cpp */; };
 		E03BE61A20EDC60FA3DF893F /* ofxDropdown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 09CE0CDFCC647DF97EC06861 /* ofxDropdown.cpp */; };
 		E05C2CDBF5D330642067DE44 /* ofxLidarSlamParameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3E608417BDC92B1F524F5606 /* ofxLidarSlamParameters.cpp */; };
 		E25C81FCB68814498E3B3E32 /* FusionOffset.c in Sources */ = {isa = PBXBuildFile; fileRef = 43979FE865AC34594D0CE36C /* FusionOffset.c */; };
@@ -53,6 +57,7 @@
 		EFDD114FA968D21918D223A1 /* ofxOuster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C2F851FEB61306F6DE8EF7 /* ofxOuster.cpp */; };
 		F285EB3169F1566CA3D93C20 /* ofxPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E112B3AEBEA2C091BF2B40AE /* ofxPanel.cpp */; };
 		F4C879545284ECB479E63287 /* ExternalSensorManagers.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 207B71324430BA3A45D54420 /* ExternalSensorManagers.cxx */; };
+		F583E83A67DE8191075B145F /* ofxGuiTabs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1361CCD4830A863C2104890E /* ofxGuiTabs.cpp */; };
 		F8569AAB3B7E84656B1128B4 /* ofxOusterRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 785AA119473BEC04208EED38 /* ofxOusterRenderer.cpp */; };
 /* End PBXBuildFile section */
 
@@ -86,7 +91,6 @@
 		02424D33AC2A0530D6640A7A /* TriangularMatrixMatrix.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TriangularMatrixMatrix.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/products/TriangularMatrixMatrix.h; sourceTree = SOURCE_ROOT; };
 		0265192A46981383FCCE39A5 /* SparseView.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseView.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/SparseCore/SparseView.h; sourceTree = SOURCE_ROOT; };
 		030642C14B6169FEAFE05238 /* reenable_warnings.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = reenable_warnings.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/internal/reenable_warnings.h"; sourceTree = SOURCE_ROOT; };
-		0356901484BA9C617021D13E /* build.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = build.h; path = ../../../addons/ofxOusterLidar/libs/ouster/include/ouster/build.h; sourceTree = SOURCE_ROOT; };
 		03E31C18D8AAD28A9619E72A /* GeneralMatrixMatrix_BLAS.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = GeneralMatrixMatrix_BLAS.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h"; sourceTree = SOURCE_ROOT; };
 		044C35F6748DEB30D3C91D4B /* ThreadPoolInterface.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ThreadPoolInterface.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/ThreadPool/ThreadPoolInterface.h; sourceTree = SOURCE_ROOT; };
 		044D3A05E7947F51B9A023AC /* image_processing.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = image_processing.h; path = ../../../addons/ofxOusterLidar/libs/ouster/include/ouster/image_processing.h; sourceTree = SOURCE_ROOT; };
@@ -96,7 +100,7 @@
 		057D45D64ADFED028B96B3FE /* MathFunctions.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MathFunctions.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/MathFunctions.h; sourceTree = SOURCE_ROOT; };
 		05D728F5C0225B576B63AA22 /* radiotap_parser.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = radiotap_parser.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/utils/radiotap_parser.h; sourceTree = SOURCE_ROOT; };
 		05DE7CFF67AD0AD7AE8DDEA9 /* covariance.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = covariance.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/covariance.h"; sourceTree = SOURCE_ROOT; };
-		063C4C08DE7F365D336532C4 /* PoseGraphOptimization.cxx */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = PoseGraphOptimization.cxx; path = ../../../addons/ofxLidarSlam/libs/slam_lib/src/PoseGraphOptimization.cxx; sourceTree = SOURCE_ROOT; };
+		06E34CA257B7C14D004ACEC1 /* ofxGuiTabs.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxGuiTabs.h; path = ../../../addons/ofxGuiTabs/src/ofxGuiTabs.h; sourceTree = SOURCE_ROOT; };
 		07044F9FEA513AF6E4DDD4FF /* SparseLUImpl.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseLUImpl.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/SparseLU/SparseLUImpl.h"; sourceTree = SOURCE_ROOT; };
 		070B61767592CC63B7936505 /* types.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = types.h; path = ../../../addons/ofxOusterLidar/libs/ouster/include/ouster/types.h; sourceTree = SOURCE_ROOT; };
 		07655E8E30C0D4BF249D4453 /* SelfAdjointView.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SelfAdjointView.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/SelfAdjointView.h; sourceTree = SOURCE_ROOT; };
@@ -110,12 +114,14 @@
 		09C63F7243B1D1BD7517FFAD /* logging.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = logging.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/glog/logging.h"; sourceTree = SOURCE_ROOT; };
 		09CE0CDFCC647DF97EC06861 /* ofxDropdown.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxDropdown.cpp; path = ../../../addons/ofxDropdown/src/ofxDropdown.cpp; sourceTree = SOURCE_ROOT; };
 		0A1DAC09F322AE313A40706D /* ofxToggle.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxToggle.h; path = ../../../addons/ofxGui/src/ofxToggle.h; sourceTree = SOURCE_ROOT; };
+		0B163A90E24E5F3C8A3F572A /* sensor_http.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = sensor_http.h; path = ../../../addons/ofxOusterLidar/libs/ouster/src/sensor_http.h; sourceTree = SOURCE_ROOT; };
 		0B36CBCC73739BC46AA1E25F /* udp.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = udp.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/udp.h; sourceTree = SOURCE_ROOT; };
 		0B3C447C0B6515E020B18906 /* Householder.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Householder.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Householder/Householder.h"; sourceTree = SOURCE_ROOT; };
 		0B61D76AC643109263344730 /* SkylineMatrixBase.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SkylineMatrixBase.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/Skyline/SkylineMatrixBase.h; sourceTree = SOURCE_ROOT; };
 		0B69DC2C03E5D4B42600C033 /* DenseCoeffsBase.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = DenseCoeffsBase.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/DenseCoeffsBase.h; sourceTree = SOURCE_ROOT; };
 		0B8164FA9AF98D2CFE33FA77 /* MatrixCwiseBinaryOps.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MatrixCwiseBinaryOps.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/plugins/MatrixCwiseBinaryOps.h; sourceTree = SOURCE_ROOT; };
 		0BC8958F1D1B0F47E9E91D8F /* TensorFunctors.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorFunctors.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorFunctors.h; sourceTree = SOURCE_ROOT; };
+		0BF43A7B30615B3CBF74D5DD /* sensor_tcp_imp.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = sensor_tcp_imp.h; path = ../../../addons/ofxOusterLidar/libs/ouster/src/sensor_tcp_imp.h; sourceTree = SOURCE_ROOT; };
 		0C080D98D39F20482900B019 /* BesselFunctionsFunctors.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = BesselFunctionsFunctors.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/SpecialFunctions/BesselFunctionsFunctors.h; sourceTree = SOURCE_ROOT; };
 		0C2D4081CE442FCBADF4DB8D /* sphere_manifold.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = sphere_manifold.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/sphere_manifold.h"; sourceTree = SOURCE_ROOT; };
 		0C44351F2FC7D5CEBD97FAFE /* ArrayCwiseUnaryOps.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ArrayCwiseUnaryOps.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/plugins/ArrayCwiseUnaryOps.h; sourceTree = SOURCE_ROOT; };
@@ -147,7 +153,9 @@
 		1266C11D44B7AE0D645AA539 /* TriangularMatrixMatrix_BLAS.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TriangularMatrixMatrix_BLAS.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h"; sourceTree = SOURCE_ROOT; };
 		126ACE31F271DD0F503765F6 /* jet_traits.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = jet_traits.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/internal/jet_traits.h"; sourceTree = SOURCE_ROOT; };
 		128927C34AD780E711D618F1 /* TensorFFT.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorFFT.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorFFT.h; sourceTree = SOURCE_ROOT; };
+		12B546FAB0909AA3CE589D23 /* sensor_tcp_imp.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = sensor_tcp_imp.cpp; path = ../../../addons/ofxOusterLidar/libs/ouster/src/sensor_tcp_imp.cpp; sourceTree = SOURCE_ROOT; };
 		132F1F8854BF3A75434C4ECC /* pktap.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = pktap.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/pktap.h; sourceTree = SOURCE_ROOT; };
+		1361CCD4830A863C2104890E /* ofxGuiTabs.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxGuiTabs.cpp; path = ../../../addons/ofxGuiTabs/src/ofxGuiTabs.cpp; sourceTree = SOURCE_ROOT; };
 		1369FADF237613FB4D85DBAC /* MatrixLogarithm.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MatrixLogarithm.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/MatrixFunctions/MatrixLogarithm.h; sourceTree = SOURCE_ROOT; };
 		139D5FA7CB364B646880F895 /* vlog_is_on.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = vlog_is_on.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/glog/vlog_is_on.h"; sourceTree = SOURCE_ROOT; };
 		13BCA8F08DC44193B99D4E94 /* gradient_problem_solver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = gradient_problem_solver.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/gradient_problem_solver.h"; sourceTree = SOURCE_ROOT; };
@@ -172,7 +180,6 @@
 		17DB025354BD548C98017C28 /* MatrixFunction.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MatrixFunction.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/MatrixFunctions/MatrixFunction.h; sourceTree = SOURCE_ROOT; };
 		17E65988300FBD9AAA2CD0CA /* ofxGui.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxGui.h; path = ../../../addons/ofxGui/src/ofxGui.h; sourceTree = SOURCE_ROOT; };
 		181D363B6DD54D1FA6309C43 /* ofxColorPicker.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxColorPicker.cpp; path = ../../../addons/ofxGui/src/ofxColorPicker.cpp; sourceTree = SOURCE_ROOT; };
-		1847C9E0FBEDAE44BE4AC00C /* netcompat.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = netcompat.h; path = ../../../addons/ofxOusterLidar/libs/ouster/include/ouster/impl/netcompat.h; sourceTree = SOURCE_ROOT; };
 		18798BC505D4D00A03A6390F /* ipv6.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ipv6.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/ipv6.h; sourceTree = SOURCE_ROOT; };
 		193C546DB7B35AB1C82DA66B /* Utilities.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Utilities.h; path = ../../../addons/ofxLidarSlam/libs/slam_lib/include/LidarSlam/Utilities.h; sourceTree = SOURCE_ROOT; };
 		1971F38DCE14105EC1DA1674 /* TriangularSolver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TriangularSolver.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/SparseCore/TriangularSolver.h; sourceTree = SOURCE_ROOT; };
@@ -181,11 +188,11 @@
 		19BAFE2F6E115BA23DCCBEDC /* routing_utils.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = routing_utils.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/utils/routing_utils.h; sourceTree = SOURCE_ROOT; };
 		1A1AC3C1C928DD30CD6DBF11 /* Product.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Product.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/Product.h; sourceTree = SOURCE_ROOT; };
 		1A2B1BADE52D8060CD6E1ABD /* dynamic_autodiff_cost_function.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = dynamic_autodiff_cost_function.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/dynamic_autodiff_cost_function.h"; sourceTree = SOURCE_ROOT; };
-		1A6D351F66FA631D4446C17F /* GlobalTrajectoriesRegistration.cxx */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = GlobalTrajectoriesRegistration.cxx; path = ../../../addons/ofxLidarSlam/libs/slam_lib/src/GlobalTrajectoriesRegistration.cxx; sourceTree = SOURCE_ROOT; };
 		1AED6783659AF6E216BCCF5B /* Complex.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Complex.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/AVX512/Complex.h; sourceTree = SOURCE_ROOT; };
 		1AF23B41C97CDD197AC409AF /* integer_sequence_algorithm.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = integer_sequence_algorithm.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/internal/integer_sequence_algorithm.h"; sourceTree = SOURCE_ROOT; };
 		1B039E5C19EC73BAEFBF31E3 /* SolveWithGuess.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SolveWithGuess.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/IterativeLinearSolvers/SolveWithGuess.h"; sourceTree = SOURCE_ROOT; };
 		1B4D591D373587EFB84417D1 /* AutoDiffScalar.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = AutoDiffScalar.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/AutoDiff/AutoDiffScalar.h; sourceTree = SOURCE_ROOT; };
+		1B75C36FC60BCC9E4DB2B35F /* buffered_udp_source.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = buffered_udp_source.h; path = ../../../addons/ofxOusterLidar/libs/ouster/include/ouster/buffered_udp_source.h; sourceTree = SOURCE_ROOT; };
 		1B766DEE639EBC9904362551 /* DiagonalProduct.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = DiagonalProduct.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/DiagonalProduct.h; sourceTree = SOURCE_ROOT; };
 		1BA4296E2A59A7D169774CBD /* Complex.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Complex.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/arch/ZVector/Complex.h"; sourceTree = SOURCE_ROOT; };
 		1BC593DD41EBB2AE7211C613 /* Map.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Map.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/Map.h"; sourceTree = SOURCE_ROOT; };
@@ -194,7 +201,6 @@
 		1C082C64EF74B9E6E6E30DA7 /* cost_function_to_functor.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cost_function_to_functor.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/cost_function_to_functor.h"; sourceTree = SOURCE_ROOT; };
 		1C0DA2561397A7DE0246858B /* ofxGuiGroup.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxGuiGroup.h; path = ../../../addons/ofxGui/src/ofxGuiGroup.h; sourceTree = SOURCE_ROOT; };
 		1C1085149CE5DB649A0836E9 /* NumTraits.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = NumTraits.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/NumTraits.h"; sourceTree = SOURCE_ROOT; };
-		1CBDA52F18B30ED7BA6DD44E /* GlobalTrajectoriesRegistration.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = GlobalTrajectoriesRegistration.h; path = ../../../addons/ofxLidarSlam/libs/slam_lib/include/LidarSlam/GlobalTrajectoriesRegistration.h; sourceTree = SOURCE_ROOT; };
 		1D432BE030EB4C315D44407B /* StableNorm.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = StableNorm.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/StableNorm.h"; sourceTree = SOURCE_ROOT; };
 		1D6A08CD6B323336AC8A6BE3 /* SparseSolverBase.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseSolverBase.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/SparseCore/SparseSolverBase.h"; sourceTree = SOURCE_ROOT; };
 		1D9193B75550F9CEFBD27181 /* PartialPivLU_LAPACKE.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = PartialPivLU_LAPACKE.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/LU/PartialPivLU_LAPACKE.h; sourceTree = SOURCE_ROOT; };
@@ -224,12 +230,14 @@
 		23AC764ECFFDA89A9DEAA7E5 /* DiagonalProduct.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = DiagonalProduct.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/DiagonalProduct.h"; sourceTree = SOURCE_ROOT; };
 		242DB191D8C9525066DB7C08 /* SpecialFunctions.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SpecialFunctions.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/SpecialFunctions/arch/NEON/SpecialFunctions.h; sourceTree = SOURCE_ROOT; };
 		242FCBB3E0DFC657BBBCCB6A /* Jacobi.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Jacobi.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Jacobi/Jacobi.h"; sourceTree = SOURCE_ROOT; };
+		249FD6AFB3E699A69B5517A5 /* VoxelGrid.cxx */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = VoxelGrid.cxx; path = ../../../addons/ofxLidarSlam/libs/slam_lib/src/VoxelGrid.cxx; sourceTree = SOURCE_ROOT; };
 		24FB2FFE6871B35BD3C443F4 /* c_api.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = c_api.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/c_api.h"; sourceTree = SOURCE_ROOT; };
 		259678A3C2B509FFB268637A /* Rotation2D.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Rotation2D.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Geometry/Rotation2D.h"; sourceTree = SOURCE_ROOT; };
 		25BAC874297E2CE86E701B20 /* Hyperplane.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Hyperplane.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Geometry/Hyperplane.h; sourceTree = SOURCE_ROOT; };
 		25E82B82E0F321B214727D40 /* MappedSparseMatrix.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MappedSparseMatrix.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/SparseCore/MappedSparseMatrix.h; sourceTree = SOURCE_ROOT; };
 		25EC0BB990F14AB48E9CF55F /* MatrixProductMMA.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MatrixProductMMA.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h; sourceTree = SOURCE_ROOT; };
 		2699299087DA7568459291C3 /* DenseCoeffsBase.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = DenseCoeffsBase.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/DenseCoeffsBase.h"; sourceTree = SOURCE_ROOT; };
+		2746EB646B4FD044EBEB9C77 /* curl_client.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = curl_client.h; path = ../../../addons/ofxOusterLidar/libs/ouster/src/curl_client.h; sourceTree = SOURCE_ROOT; };
 		275D900696F9E1F793D727E9 /* PolynomialUtils.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = PolynomialUtils.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/Polynomials/PolynomialUtils.h; sourceTree = SOURCE_ROOT; };
 		27A5C272A01599C540315FF6 /* Eigen_Colamd.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Eigen_Colamd.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/OrderingMethods/Eigen_Colamd.h"; sourceTree = SOURCE_ROOT; };
 		27B7EB6EC8B26EE2064C4C0B /* SparseCompressedBase.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseCompressedBase.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/SparseCore/SparseCompressedBase.h"; sourceTree = SOURCE_ROOT; };
@@ -238,6 +246,7 @@
 		27EC96A33512ED18465C1E96 /* Matrix.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Matrix.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/Matrix.h"; sourceTree = SOURCE_ROOT; };
 		27FF39BC1BDB7874414C48C6 /* TensorContractionGpu.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorContractionGpu.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorContractionGpu.h; sourceTree = SOURCE_ROOT; };
 		2834D88A62CD23F3DE2C47D1 /* ofxButton.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxButton.h; path = ../../../addons/ofxGui/src/ofxButton.h; sourceTree = SOURCE_ROOT; };
+		2835B8E33F98223F1AD0FB82 /* ofxGuiTabsOption.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxGuiTabsOption.h; path = ../../../addons/ofxGuiTabs/src/ofxGuiTabsOption.h; sourceTree = SOURCE_ROOT; };
 		28C920F4985CB20990EB2262 /* ofxLidarSlam.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxLidarSlam.cpp; path = ../../../addons/ofxLidarSlam/src/ofxLidarSlam.cpp; sourceTree = SOURCE_ROOT; };
 		28CE50B6753A255095B0628F /* BesselFunctions.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = BesselFunctions.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/SpecialFunctions/arch/AVX/BesselFunctions.h; sourceTree = SOURCE_ROOT; };
 		290DD78B3CC48F66F9B57CA7 /* SparseColEtree.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseColEtree.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/SparseCore/SparseColEtree.h"; sourceTree = SOURCE_ROOT; };
@@ -287,6 +296,7 @@
 		35E2C9210A02D00E86F362F8 /* Homogeneous.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Homogeneous.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Geometry/Homogeneous.h"; sourceTree = SOURCE_ROOT; };
 		3604514392D4EB26AA5865D5 /* CoreEvaluators.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = CoreEvaluators.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/CoreEvaluators.h; sourceTree = SOURCE_ROOT; };
 		362858676C82B858026C14E7 /* ip_address.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ip_address.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/ip_address.h; sourceTree = SOURCE_ROOT; };
+		3667AD5C2A4186FDE66C6451 /* sensor_http_imp.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = sensor_http_imp.h; path = ../../../addons/ofxOusterLidar/libs/ouster/src/sensor_http_imp.h; sourceTree = SOURCE_ROOT; };
 		36B5850CB4BC8E5653DDA2D5 /* CwiseUnaryOp.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = CwiseUnaryOp.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/CwiseUnaryOp.h"; sourceTree = SOURCE_ROOT; };
 		36D672C0149438FEC29E68CA /* MathFunctionsImpl.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MathFunctionsImpl.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/MathFunctionsImpl.h; sourceTree = SOURCE_ROOT; };
 		36F2F53CD60577A692D4FAFF /* CoreIterators.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = CoreIterators.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/CoreIterators.h"; sourceTree = SOURCE_ROOT; };
@@ -347,6 +357,7 @@
 		436FBAB095958684ED0CD649 /* ReenableStupidWarnings.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ReenableStupidWarnings.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/util/ReenableStupidWarnings.h"; sourceTree = SOURCE_ROOT; };
 		43979FE865AC34594D0CE36C /* FusionOffset.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = FusionOffset.c; path = ../../../addons/ofxOusterLidar/libs/fusion/src/FusionOffset.c; sourceTree = SOURCE_ROOT; };
 		43C0A699D6E78710DF5253D4 /* Complex.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Complex.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/MSA/Complex.h; sourceTree = SOURCE_ROOT; };
+		43EC8D04F2DF52E43D4FC327 /* netcompat.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = netcompat.h; path = ../../../addons/ofxOusterLidar/libs/ouster/src/netcompat.h; sourceTree = SOURCE_ROOT; };
 		4438C120B3F7AC96A817AD73 /* PacketMath.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = PacketMath.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/GPU/PacketMath.h; sourceTree = SOURCE_ROOT; };
 		443B514E53820AB5BC0B9E1B /* ieee802_3.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ieee802_3.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/ieee802_3.h; sourceTree = SOURCE_ROOT; };
 		449570C0F46CB7B865F0C7D3 /* dot3.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = dot3.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/dot3.h; sourceTree = SOURCE_ROOT; };
@@ -390,7 +401,6 @@
 		4CF704FF93B7475AD25BEB2F /* client.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = client.h; path = ../../../addons/ofxOusterLidar/libs/ouster/include/ouster/client.h; sourceTree = SOURCE_ROOT; };
 		4DE587EDE1224C2B5F8604C7 /* TypeCasting.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TypeCasting.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/arch/CUDA/TypeCasting.h"; sourceTree = SOURCE_ROOT; };
 		4E2DACD68E12A8E9C544A624 /* gflags_gflags.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = gflags_gflags.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/gflags/gflags_gflags.h"; sourceTree = SOURCE_ROOT; };
-		4E4B4D5321CB876A2DFA01F5 /* PoseGraphOptimization.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = PoseGraphOptimization.h; path = ../../../addons/ofxLidarSlam/libs/slam_lib/include/LidarSlam/PoseGraphOptimization.h; sourceTree = SOURCE_ROOT; };
 		4E69F7E9AEEA9AFECE61FAFA /* r1updt.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = r1updt.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/NonLinearOptimization/r1updt.h; sourceTree = SOURCE_ROOT; };
 		4EBD9A9AE81104D8BB4FD954 /* ArrayWrapper.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ArrayWrapper.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/ArrayWrapper.h"; sourceTree = SOURCE_ROOT; };
 		4EE736155DE3D317F76BC71D /* ip_reassembler.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ip_reassembler.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/ip_reassembler.h; sourceTree = SOURCE_ROOT; };
@@ -400,6 +410,7 @@
 		50030B8E4FBC4E2C1F778A85 /* numeric_diff_cost_function.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = numeric_diff_cost_function.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/numeric_diff_cost_function.h"; sourceTree = SOURCE_ROOT; };
 		5048414ECB672B6D150E9B74 /* TensorForwardDeclarations.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorForwardDeclarations.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorForwardDeclarations.h; sourceTree = SOURCE_ROOT; };
 		50C854875A079AD8AE9216A7 /* utils.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = utils.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/utils.h; sourceTree = SOURCE_ROOT; };
+		5105B32C8263C11F60E97A24 /* build.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = build.h; path = ../../../addons/ofxOusterLidar/libs/ouster/include/ouster/impl/build.h; sourceTree = SOURCE_ROOT; };
 		5177E06BD65C12DEB88A6244 /* BooleanRedux.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = BooleanRedux.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/BooleanRedux.h; sourceTree = SOURCE_ROOT; };
 		5187B1757F8D0DC89AC6D033 /* CXX11Workarounds.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = CXX11Workarounds.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/util/CXX11Workarounds.h; sourceTree = SOURCE_ROOT; };
 		51C25D5B37BC0B58E0281287 /* TriangularSolverMatrix.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TriangularSolverMatrix.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/products/TriangularSolverMatrix.h; sourceTree = SOURCE_ROOT; };
@@ -536,6 +547,7 @@
 		71B9899D56CD194848081104 /* TensorMeta.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorMeta.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorMeta.h; sourceTree = SOURCE_ROOT; };
 		7282425778490D1FF7D2A5C6 /* r1mpyq.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = r1mpyq.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/NonLinearOptimization/r1mpyq.h; sourceTree = SOURCE_ROOT; };
 		72F18C8432405494C7A806CD /* SparseMatrix.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseMatrix.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/SparseCore/SparseMatrix.h; sourceTree = SOURCE_ROOT; };
+		739EE42A7E4A304F0D43836E /* ofxLidarSlamTrajectoryPoint.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxLidarSlamTrajectoryPoint.cpp; path = ../../../addons/ofxLidarSlam/src/ofxLidarSlamTrajectoryPoint.cpp; sourceTree = SOURCE_ROOT; };
 		73B7EDA1F5861CBB7E15CAF2 /* Parallelizer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Parallelizer.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/products/Parallelizer.h; sourceTree = SOURCE_ROOT; };
 		73FE05CBF51DA45ED63D2EB1 /* Memory.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Memory.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/util/Memory.h"; sourceTree = SOURCE_ROOT; };
 		7437E50BEA25A0E9C0CF040C /* Utilities.cxx */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = Utilities.cxx; path = ../../../addons/ofxLidarSlam/libs/slam_lib/src/Utilities.cxx; sourceTree = SOURCE_ROOT; };
@@ -550,7 +562,6 @@
 		76CA9AF9C2FADC1097C4414C /* SpecialFunctions.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SpecialFunctions.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/SpecialFunctions/arch/AVX/SpecialFunctions.h; sourceTree = SOURCE_ROOT; };
 		76CBF100B4553AFD453754BA /* SparseTranspose.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseTranspose.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/SparseCore/SparseTranspose.h"; sourceTree = SOURCE_ROOT; };
 		76D04275533E90A703772298 /* icmp_extension.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = icmp_extension.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/icmp_extension.h; sourceTree = SOURCE_ROOT; };
-		76D3D31CBCBC61098D732EDF /* netcompat.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = netcompat.h; path = ../../../addons/ofxOusterLidar/libs/ouster/include/ouster/netcompat.h; sourceTree = SOURCE_ROOT; };
 		772A6A1F9EE283AE15FEDF6B /* ForwardDeclarations.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ForwardDeclarations.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/util/ForwardDeclarations.h"; sourceTree = SOURCE_ROOT; };
 		772EE382C5386FB2212E50B6 /* ColPivHouseholderQR_LAPACKE.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ColPivHouseholderQR_LAPACKE.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/QR/ColPivHouseholderQR_LAPACKE.h"; sourceTree = SOURCE_ROOT; };
 		77883F0260D5F49B7DE85D07 /* Settings.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Settings.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/Default/Settings.h; sourceTree = SOURCE_ROOT; };
@@ -630,6 +641,7 @@
 		8661225B189DB9FC4D87A33F /* assertions.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = assertions.h; path = ../../../addons/ofxOusterLidar/libs/jsoncpp/include/json/assertions.h; sourceTree = SOURCE_ROOT; };
 		86BCD3F16DEDD47FCA64D4ED /* SparseColEtree.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseColEtree.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/SparseCore/SparseColEtree.h; sourceTree = SOURCE_ROOT; };
 		874296527267E3782621CA6C /* Macros.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Macros.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/util/Macros.h; sourceTree = SOURCE_ROOT; };
+		8758E4BF77F4E8C391DA6348 /* ofxOusterHelpers.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxOusterHelpers.h; path = ../../../addons/ofxOusterLidar/src/ofxOusterHelpers.h; sourceTree = SOURCE_ROOT; };
 		87A0451A2D7274F4E973052E /* MathFunctions.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MathFunctions.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/arch/AVX/MathFunctions.h"; sourceTree = SOURCE_ROOT; };
 		87AC6CE10D86A3BEA4E6CD16 /* GeneralMatrixVector_BLAS.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = GeneralMatrixVector_BLAS.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h; sourceTree = SOURCE_ROOT; };
 		87DDA4D4F1BA0C3AFFC4BDF8 /* SimplicialCholesky_impl.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SimplicialCholesky_impl.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/SparseCholesky/SimplicialCholesky_impl.h; sourceTree = SOURCE_ROOT; };
@@ -663,6 +675,7 @@
 		8D0FA96BA0352D4D2DA9F60D /* export.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = export.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/glog/export.h"; sourceTree = SOURCE_ROOT; };
 		8D13195C8A7DFBAB2462FA16 /* SyclMemoryModel.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SyclMemoryModel.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h; sourceTree = SOURCE_ROOT; };
 		8D81B23D803E2777A50844A7 /* dynamic_numeric_diff_cost_function.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = dynamic_numeric_diff_cost_function.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/dynamic_numeric_diff_cost_function.h"; sourceTree = SOURCE_ROOT; };
+		8DA9AAAC2143099029218F3C /* ofxLidarSlamTrajectoryPoint.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxLidarSlamTrajectoryPoint.h; path = ../../../addons/ofxLidarSlam/src/ofxLidarSlamTrajectoryPoint.h; sourceTree = SOURCE_ROOT; };
 		8DB1E2AB4156E33493148737 /* TensorContractionBlocking.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorContractionBlocking.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorContractionBlocking.h; sourceTree = SOURCE_ROOT; };
 		8DCA41F36AC79CB1AAD6024F /* MatrixPower.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MatrixPower.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/MatrixFunctions/MatrixPower.h; sourceTree = SOURCE_ROOT; };
 		8E7D067689B946360B241440 /* config.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = config.h; path = ../../../addons/ofxOusterLidar/libs/jsoncpp/include/json/config.h; sourceTree = SOURCE_ROOT; };
@@ -690,6 +703,7 @@
 		929E6BFA5EC1CC61100945F1 /* IncompleteCholesky.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = IncompleteCholesky.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/IterativeLinearSolvers/IncompleteCholesky.h; sourceTree = SOURCE_ROOT; };
 		933D798570F29EB8180DD071 /* SparseDiagonalProduct.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseDiagonalProduct.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/SparseCore/SparseDiagonalProduct.h; sourceTree = SOURCE_ROOT; };
 		934B85B16DC744363623641A /* BooleanRedux.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = BooleanRedux.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/BooleanRedux.h"; sourceTree = SOURCE_ROOT; };
+		9366305E6DD32C3BD1BCC09C /* http_client.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = http_client.h; path = ../../../addons/ofxOusterLidar/libs/ouster/src/http_client.h; sourceTree = SOURCE_ROOT; };
 		93B1252F9BC59CE25524B7B2 /* TriangularMatrix.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TriangularMatrix.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/TriangularMatrix.h"; sourceTree = SOURCE_ROOT; };
 		93B31C8D5C1E6221162A1693 /* TensorConvolutionSycl.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorConvolutionSycl.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorConvolutionSycl.h; sourceTree = SOURCE_ROOT; };
 		93BF327430FCBBEF8AA3ACE4 /* HouseholderSequence.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = HouseholderSequence.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Householder/HouseholderSequence.h; sourceTree = SOURCE_ROOT; };
@@ -698,6 +712,7 @@
 		944D8F22C0A3D35262FF03AE /* AmbiVector.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = AmbiVector.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/SparseCore/AmbiVector.h"; sourceTree = SOURCE_ROOT; };
 		9463C7561159084D63C06F27 /* conditioned_cost_function.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = conditioned_cost_function.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/conditioned_cost_function.h"; sourceTree = SOURCE_ROOT; };
 		9467821F3DE8202809E89B3E /* cost_function.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cost_function.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/cost_function.h"; sourceTree = SOURCE_ROOT; };
+		94DF9969508EA9C266426ED7 /* ofxGuiTabsOption.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxGuiTabsOption.cpp; path = ../../../addons/ofxGuiTabs/src/ofxGuiTabsOption.cpp; sourceTree = SOURCE_ROOT; };
 		94E1AF7B9351C0A2EAE4D1B2 /* TriangularSolverMatrix.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TriangularSolverMatrix.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/products/TriangularSolverMatrix.h"; sourceTree = SOURCE_ROOT; };
 		94F28470A72BE47D45A4243F /* NoAlias.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = NoAlias.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/NoAlias.h"; sourceTree = SOURCE_ROOT; };
 		9588B61CB8372BB44D67CF65 /* SparseLU_relax_snode.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseLU_relax_snode.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/SparseLU/SparseLU_relax_snode.h; sourceTree = SOURCE_ROOT; };
@@ -751,6 +766,7 @@
 		9FD21D572DA50325BC2B2FCC /* MatrixProduct.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MatrixProduct.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/AltiVec/MatrixProduct.h; sourceTree = SOURCE_ROOT; };
 		A06759D42C3EE1E9133DEBD0 /* ArithmeticSequence.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ArithmeticSequence.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/ArithmeticSequence.h; sourceTree = SOURCE_ROOT; };
 		A13D0BE580EFC45D793414BB /* SimplicialCholesky_impl.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SimplicialCholesky_impl.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/SparseCholesky/SimplicialCholesky_impl.h"; sourceTree = SOURCE_ROOT; };
+		A1858F1706C8DCE49650C900 /* sensor_http_imp.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = sensor_http_imp.cpp; path = ../../../addons/ofxOusterLidar/libs/ouster/src/sensor_http_imp.cpp; sourceTree = SOURCE_ROOT; };
 		A18F1B2B48ECEF0F0AEA8D17 /* UpperBidiagonalization.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = UpperBidiagonalization.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/SVD/UpperBidiagonalization.h"; sourceTree = SOURCE_ROOT; };
 		A2EECCB03299493967B6AF67 /* SolveTriangular.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SolveTriangular.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/SolveTriangular.h"; sourceTree = SOURCE_ROOT; };
 		A35C7D4339EDE34A76D16215 /* gradient_checker.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = gradient_checker.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/gradient_checker.h"; sourceTree = SOURCE_ROOT; };
@@ -806,7 +822,6 @@
 		AF89549D18D2CF073B92642A /* Block.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Block.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/Block.h; sourceTree = SOURCE_ROOT; };
 		AFCCA6DD34B1B3B0DA569F10 /* IncompleteCholesky.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = IncompleteCholesky.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/IterativeLinearSolvers/IncompleteCholesky.h"; sourceTree = SOURCE_ROOT; };
 		AFF3B4C3E081696591EE540A /* SparseSelfAdjointView.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseSelfAdjointView.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/SparseCore/SparseSelfAdjointView.h"; sourceTree = SOURCE_ROOT; };
-		B00EAF2328625FF600F524A5 /* ofxMeshSaver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofxMeshSaver.h; path = ../src/ofxMeshSaver.h; sourceTree = "<group>"; };
 		B03EB6BB67844275B782AF48 /* TensorStriding.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorStriding.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorStriding.h; sourceTree = SOURCE_ROOT; };
 		B040544EBD10892BF59F57DB /* PacketMath.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = PacketMath.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/SVE/PacketMath.h; sourceTree = SOURCE_ROOT; };
 		B0D26574ABF5B8D096006FB5 /* KroneckerTensorProduct.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = KroneckerTensorProduct.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/KroneckerProduct/KroneckerTensorProduct.h; sourceTree = SOURCE_ROOT; };
@@ -967,6 +982,7 @@
 		D9A96FA75F7387C17AC6D80A /* ConfigureVectorization.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ConfigureVectorization.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/util/ConfigureVectorization.h; sourceTree = SOURCE_ROOT; };
 		DA80D2BE7E6FC4F6A3456F09 /* SparseLU_kernel_bmod.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SparseLU_kernel_bmod.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/SparseLU/SparseLU_kernel_bmod.h"; sourceTree = SOURCE_ROOT; };
 		DB76B1864F55949DC3074368 /* IndexedViewMethods.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = IndexedViewMethods.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/plugins/IndexedViewMethods.h; sourceTree = SOURCE_ROOT; };
+		DB9E2667474957477C0B4607 /* VoxelGrid.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = VoxelGrid.h; path = ../../../addons/ofxLidarSlam/libs/slam_lib/include/LidarSlam/VoxelGrid.h; sourceTree = SOURCE_ROOT; };
 		DBC5A834BB39F38EC947D876 /* Tensor.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Tensor.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/Tensor.h; sourceTree = SOURCE_ROOT; };
 		DBEBCEBE07AAA0078F263867 /* Complex.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Complex.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/arch/SSE/Complex.h"; sourceTree = SOURCE_ROOT; };
 		DC252C9475E886F0F78FC85C /* CXX11Meta.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = CXX11Meta.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/util/CXX11Meta.h; sourceTree = SOURCE_ROOT; };
@@ -976,11 +992,12 @@
 		DD9E085A6BFB7DB1AA4A9523 /* IncompleteLUT.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = IncompleteLUT.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/IterativeLinearSolvers/IncompleteLUT.h"; sourceTree = SOURCE_ROOT; };
 		DDB40ED7E23009A86A5C339C /* Kernel.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Kernel.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/misc/Kernel.h; sourceTree = SOURCE_ROOT; };
 		DDEA267DC42F72E6BA7A274C /* ConditionEstimator.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ConditionEstimator.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/ConditionEstimator.h; sourceTree = SOURCE_ROOT; };
-		DE0B1D9DCCD2BAF84D5B8DE7 /* Transform.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Transform.h; path = ../../../addons/ofxLidarSlam/libs/slam_lib/include/LidarSlam/Transform.h; sourceTree = SOURCE_ROOT; };
 		DE18EBDA1CDAB91E8458B8FA /* TriangularMatrixMatrix.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TriangularMatrixMatrix.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/products/TriangularMatrixMatrix.h"; sourceTree = SOURCE_ROOT; };
 		DE46A574AF8CEF9129175639 /* VectorwiseOp.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = VectorwiseOp.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/VectorwiseOp.h"; sourceTree = SOURCE_ROOT; };
 		DE77D2C16DA20C7AFCD27577 /* SimplicialCholesky.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SimplicialCholesky.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/SparseCholesky/SimplicialCholesky.h; sourceTree = SOURCE_ROOT; };
+		DE78A02BBD07278379BD1DA8 /* sensor_http.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = sensor_http.cpp; path = ../../../addons/ofxOusterLidar/libs/ouster/src/sensor_http.cpp; sourceTree = SOURCE_ROOT; };
 		DEB2898867889D1B171439F4 /* IO.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = IO.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/IO.h"; sourceTree = SOURCE_ROOT; };
+		DF791973D5C0EA43D87FEBAB /* buffered_udp_source.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = buffered_udp_source.cpp; path = ../../../addons/ofxOusterLidar/libs/ouster/src/buffered_udp_source.cpp; sourceTree = SOURCE_ROOT; };
 		DFC8414D6204225177BF4228 /* Complex.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Complex.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/SSE/Complex.h; sourceTree = SOURCE_ROOT; };
 		DFF6C3D996525C58330E3275 /* BesselFunctionsArrayAPI.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = BesselFunctionsArrayAPI.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/SpecialFunctions/BesselFunctionsArrayAPI.h; sourceTree = SOURCE_ROOT; };
 		E01721036B6C691E42AE37D8 /* dot11_assoc.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = dot11_assoc.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/dot11/dot11_assoc.h; sourceTree = SOURCE_ROOT; };
@@ -992,6 +1009,7 @@
 		E12AD0748512CB9292211937 /* TensorBroadcasting.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorBroadcasting.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorBroadcasting.h; sourceTree = SOURCE_ROOT; };
 		E138D48A104AD93D4C0CE95C /* parsing.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = parsing.cpp; path = ../../../addons/ofxOusterLidar/libs/ouster/src/parsing.cpp; sourceTree = SOURCE_ROOT; };
 		E1A2330A6420CE65BAC77625 /* UnaryFunctors.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = UnaryFunctors.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/Eigen/src/Core/functors/UnaryFunctors.h"; sourceTree = SOURCE_ROOT; };
+		E2234F4CF733E5338B0EF162 /* ofxMeshSaver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxMeshSaver.h; path = ../../../addons/ofxLidarSlam/src/ofxMeshSaver.h; sourceTree = SOURCE_ROOT; };
 		E23428DC23972489BF54DF6B /* TensorMorphing.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorMorphing.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorMorphing.h; sourceTree = SOURCE_ROOT; };
 		E26FE670024874F9EC96CB3B /* IDRS.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = IDRS.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/IterativeSolvers/IDRS.h; sourceTree = SOURCE_ROOT; };
 		E279CB8BF081051B8365CDF1 /* eapol.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = eapol.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/eapol.h; sourceTree = SOURCE_ROOT; };
@@ -1255,9 +1273,7 @@
 		F8B05C0C739D1C22669879E3 /* client.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = client.cpp; path = ../../../addons/ofxOusterLidar/libs/ouster/src/client.cpp; sourceTree = SOURCE_ROOT; };
 		F8F3A877046016B56AF1C101 /* PlainObjectBase.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = PlainObjectBase.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/PlainObjectBase.h; sourceTree = SOURCE_ROOT; };
 		F8F875D1CADD2346A2101331 /* export.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = export.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/internal/export.h"; sourceTree = SOURCE_ROOT; };
-		F8FBFCAF942BBD30DA1781A5 /* Transform.cxx */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = Transform.cxx; path = ../../../addons/ofxLidarSlam/libs/slam_lib/src/Transform.cxx; sourceTree = SOURCE_ROOT; };
 		F95181F4164964AC3187B5B0 /* memory_helpers.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = memory_helpers.h; path = ../../../addons/ofxOusterLidar/libs/libtins/include/tins/memory_helpers.h; sourceTree = SOURCE_ROOT; };
-		F975EAE1F859E0F08BCEED9C /* parsing.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = parsing.h; path = ../../../addons/ofxOusterLidar/libs/ouster/include/ouster/parsing.h; sourceTree = SOURCE_ROOT; };
 		F9EF887BA40C61657CD19B9E /* MathFunctions.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MathFunctions.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/NEON/MathFunctions.h; sourceTree = SOURCE_ROOT; };
 		FA8B90735F20313A636DC091 /* TypeCasting.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TypeCasting.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/Default/TypeCasting.h; sourceTree = SOURCE_ROOT; };
 		FACD076BB83E8CC9FE8076C3 /* TensorReductionSycl.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = TensorReductionSycl.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/Tensor/TensorReductionSycl.h; sourceTree = SOURCE_ROOT; };
@@ -1337,8 +1353,8 @@
 		030DFD125BC96C662A736F33 /* impl */ = {
 			isa = PBXGroup;
 			children = (
+				5105B32C8263C11F60E97A24 /* build.h */,
 				1F8C9074131C5B5D7EC19939 /* lidar_scan_impl.h */,
-				1847C9E0FBEDAE44BE4AC00C /* netcompat.h */,
 			);
 			name = impl;
 			sourceTree = "<group>";
@@ -1382,17 +1398,15 @@
 			children = (
 				CE7EB7DD602C096CA0E00694 /* ConfidenceEstimators.cxx */,
 				207B71324430BA3A45D54420 /* ExternalSensorManagers.cxx */,
-				1A6D351F66FA631D4446C17F /* GlobalTrajectoriesRegistration.cxx */,
 				96E90EF86FBBFF31C2FEA66A /* KeypointsMatcher.cxx */,
 				F1F63521847CAA6D49756C33 /* LocalOptimizer.cxx */,
 				57F5A3E0E8B1A593576798A9 /* MotionModel.cxx */,
-				063C4C08DE7F365D336532C4 /* PoseGraphOptimization.cxx */,
 				D1ADD31A628FD7434F46BE27 /* PoseGraphOptimizer.cxx */,
 				AF19094E66FF5B90214D0117 /* RollingGrid.cxx */,
 				9D70921C800FB3A11F3B159D /* Slam.cxx */,
 				E94AACC7D73C6A0C594674E8 /* SpinningSensorKeypointExtractor.cxx */,
-				F8FBFCAF942BBD30DA1781A5 /* Transform.cxx */,
 				7437E50BEA25A0E9C0CF040C /* Utilities.cxx */,
+				249FD6AFB3E699A69B5517A5 /* VoxelGrid.cxx */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -1561,6 +1575,14 @@
 				7A0496D197D1B8104C848982 /* TypeCasting.h */,
 			);
 			name = GPU;
+			sourceTree = "<group>";
+		};
+		1BFB9BC085F7ABB9C22BF86A /* ofxGuiTabs */ = {
+			isa = PBXGroup;
+			children = (
+				3E7E4A404495BC0728558753 /* src */,
+			);
+			name = ofxGuiTabs;
 			sourceTree = "<group>";
 		};
 		1E08934FC2CD75E3407A9F1A /* SSE */ = {
@@ -1792,6 +1814,17 @@
 			name = Householder;
 			sourceTree = "<group>";
 		};
+		3E7E4A404495BC0728558753 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				1361CCD4830A863C2104890E /* ofxGuiTabs.cpp */,
+				06E34CA257B7C14D004ACEC1 /* ofxGuiTabs.h */,
+				94DF9969508EA9C266426ED7 /* ofxGuiTabsOption.cpp */,
+				2835B8E33F98223F1AD0FB82 /* ofxGuiTabsOption.h */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
 		3FE2205A1985B1ACD92550A2 /* PaStiXSupport */ = {
 			isa = PBXGroup;
 			children = (
@@ -1927,15 +1960,13 @@
 		4F681EF92179BDEFC38D2D6A /* ouster */ = {
 			isa = PBXGroup;
 			children = (
-				0356901484BA9C617021D13E /* build.h */,
+				1B75C36FC60BCC9E4DB2B35F /* buffered_udp_source.h */,
 				4CF704FF93B7475AD25BEB2F /* client.h */,
 				C8546235BFA48ACA82B6E3F1 /* colormaps.h */,
 				044D3A05E7947F51B9A023AC /* image_processing.h */,
 				030DFD125BC96C662A736F33 /* impl */,
 				85CC72BA73EFD08BE7E53245 /* lidar_scan.h */,
-				76D3D31CBCBC61098D732EDF /* netcompat.h */,
 				0F8E3084366378C8C99CBA3A /* os_pcap.h */,
-				F975EAE1F859E0F08BCEED9C /* parsing.h */,
 				070B61767592CC63B7936505 /* types.h */,
 				B96CAD46B28448C7F97498E8 /* version.h */,
 			);
@@ -2524,12 +2555,22 @@
 		99D09C2BAF1B537CE0FB2535 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				DF791973D5C0EA43D87FEBAB /* buffered_udp_source.cpp */,
 				F8B05C0C739D1C22669879E3 /* client.cpp */,
+				2746EB646B4FD044EBEB9C77 /* curl_client.h */,
+				9366305E6DD32C3BD1BCC09C /* http_client.h */,
 				9A1DE3D2A078127A77946A96 /* image_processing.cpp */,
 				BAD5576C5A8621829E36B731 /* lidar_scan.cpp */,
 				014F100B890E7F2EC758D617 /* netcompat.cpp */,
+				43EC8D04F2DF52E43D4FC327 /* netcompat.h */,
 				62A29C2D89493F8DE5EABF21 /* os_pcap.cpp */,
 				E138D48A104AD93D4C0CE95C /* parsing.cpp */,
+				DE78A02BBD07278379BD1DA8 /* sensor_http.cpp */,
+				0B163A90E24E5F3C8A3F572A /* sensor_http.h */,
+				A1858F1706C8DCE49650C900 /* sensor_http_imp.cpp */,
+				3667AD5C2A4186FDE66C6451 /* sensor_http_imp.h */,
+				12B546FAB0909AA3CE589D23 /* sensor_tcp_imp.cpp */,
+				0BF43A7B30615B3CBF74D5DD /* sensor_tcp_imp.h */,
 				00B1726DF3050AD13B18BA3E /* types.cpp */,
 			);
 			name = src;
@@ -2820,11 +2861,13 @@
 		AE8C3D9CDCEA524F680CB06B /* src */ = {
 			isa = PBXGroup;
 			children = (
-				B00EAF2328625FF600F524A5 /* ofxMeshSaver.h */,
 				28C920F4985CB20990EB2262 /* ofxLidarSlam.cpp */,
 				395D0A3AFFA66B0841B6119F /* ofxLidarSlam.h */,
 				3E608417BDC92B1F524F5606 /* ofxLidarSlamParameters.cpp */,
 				795ADBA037E4ADABD06350B2 /* ofxLidarSlamParameters.h */,
+				739EE42A7E4A304F0D43836E /* ofxLidarSlamTrajectoryPoint.cpp */,
+				8DA9AAAC2143099029218F3C /* ofxLidarSlamTrajectoryPoint.h */,
+				E2234F4CF733E5338B0EF162 /* ofxMeshSaver.h */,
 				B14F3D988BBCF42692A32B6A /* ofxSpinningSensorKeypointExtractor.cpp */,
 				1BF1822DA79C77987E50B62B /* ofxSpinningSensorKeypointExtractor.h */,
 			);
@@ -2968,6 +3011,7 @@
 				64ECB95725D6DAD6D73F78C9 /* ofxOusterClient.h */,
 				8B4A53E794F7DD16BF7020A5 /* ofxOusterColorMap.cpp */,
 				ABA79DCB91EA2570D94DA62A /* ofxOusterColorMap.h */,
+				8758E4BF77F4E8C391DA6348 /* ofxOusterHelpers.h */,
 				13BE42BCC16E454FF748E6B3 /* ofxOusterIMU.cpp */,
 				EE321D53930119AC9E1B5EDD /* ofxOusterIMU.h */,
 				BFED2865D6411FEEBD4EC018 /* ofxOusterPlayer.cpp */,
@@ -2998,21 +3042,19 @@
 				6E466CF484E681AC14C4AD54 /* ConfidenceEstimators.h */,
 				31D3A4A7120217ABB09A7F74 /* Enums.h */,
 				EF6670CD26D351FE4DA4739B /* ExternalSensorManagers.h */,
-				1CBDA52F18B30ED7BA6DD44E /* GlobalTrajectoriesRegistration.h */,
 				99EF6C5AB240715FDD277EA8 /* KDTreePCLAdaptor.h */,
 				AEFF65EDEB2570408B075CF0 /* KeypointsMatcher.h */,
 				D104FB1C0E7CBDF1836E8D66 /* LidarPoint.h */,
 				574A3A9EFB1033051237BD60 /* LocalOptimizer.h */,
 				6253E10CE4C49655B02CC06F /* MotionModel.h */,
 				C4AB0533E5C8EE1DAFE5F60F /* PointCloudStorage.h */,
-				4E4B4D5321CB876A2DFA01F5 /* PoseGraphOptimization.h */,
 				9A83A00D3E0805A33C7B85F2 /* PoseGraphOptimizer.h */,
 				61F507598C841AE58D90E68F /* RollingGrid.h */,
 				305E3EBC0E391800CE40FBB7 /* Slam.h */,
 				310E88836093E8CFF470E220 /* SpinningSensorKeypointExtractor.h */,
 				8FFC652DB96DD62C679C4DC9 /* State.h */,
-				DE0B1D9DCCD2BAF84D5B8DE7 /* Transform.h */,
 				193C546DB7B35AB1C82DA66B /* Utilities.h */,
+				DB9E2667474957477C0B4607 /* VoxelGrid.h */,
 			);
 			name = LidarSlam;
 			sourceTree = "<group>";
@@ -3041,6 +3083,7 @@
 				60C7FC797FAF8788A516CE84 /* ofxCeresLib */,
 				3C927DC599F16C02E7D12F30 /* ofxDropdown */,
 				480A780D8D0308AE4A368801 /* ofxGui */,
+				1BFB9BC085F7ABB9C22BF86A /* ofxGuiTabs */,
 				6B092C54656BAFDCC7F677CF /* ofxOusterLidar */,
 				970F7937A871E7B1DB9C1143 /* ofxLidarSlam */,
 			);
@@ -4074,15 +4117,21 @@
 				837220E80EB56CD44AD27F2A /* ofxSlider.cpp in Sources */,
 				B56FE57CC35806596D38118C /* ofxSliderGroup.cpp in Sources */,
 				1CD33E884D9E3358252E82A1 /* ofxToggle.cpp in Sources */,
+				F583E83A67DE8191075B145F /* ofxGuiTabs.cpp in Sources */,
+				07BACB34FA6BB43255BF4B07 /* ofxGuiTabsOption.cpp in Sources */,
 				773657160FAC0639289347DB /* FusionAhrs.c in Sources */,
 				9A5549BBAB138680296AFD39 /* FusionCompass.c in Sources */,
 				E25C81FCB68814498E3B3E32 /* FusionOffset.c in Sources */,
+				2E0369341D017E7FED95888C /* buffered_udp_source.cpp in Sources */,
 				B7F8BBD427FF73E5D7D9456A /* client.cpp in Sources */,
 				88256CD4EDA91B69F68B2451 /* image_processing.cpp in Sources */,
 				D0114C9A7E092D033C9C8E4A /* lidar_scan.cpp in Sources */,
 				79EB6803011B81AE6F52B680 /* netcompat.cpp in Sources */,
 				A18E85801A246136D4B1B4CC /* os_pcap.cpp in Sources */,
 				195FB94FF183626EB1D1F157 /* parsing.cpp in Sources */,
+				DDD27B68A82097755C39188E /* sensor_http.cpp in Sources */,
+				CD93161A42282A4CC657B60A /* sensor_http_imp.cpp in Sources */,
+				C466EBC8501C917D1BC65FCD /* sensor_tcp_imp.cpp in Sources */,
 				BBFD2BE06489E5842C8AA814 /* types.cpp in Sources */,
 				EFDD114FA968D21918D223A1 /* ofxOuster.cpp in Sources */,
 				8D564F2CAAADC44DD4529239 /* ofxOusterClient.cpp in Sources */,
@@ -4093,19 +4142,18 @@
 				52B2EFEFF26E58CF2E74D701 /* ofxPointShader.cpp in Sources */,
 				5EE821DB95CDFBB2A1A3D694 /* ConfidenceEstimators.cxx in Sources */,
 				F4C879545284ECB479E63287 /* ExternalSensorManagers.cxx in Sources */,
-				98FB02F17A689628183C4012 /* GlobalTrajectoriesRegistration.cxx in Sources */,
 				A7CEF5A852B56D94631E7E7D /* KeypointsMatcher.cxx in Sources */,
 				07E63DB61E1231982D5B1B6B /* LocalOptimizer.cxx in Sources */,
 				226481CF5D5DD71EFBF18DEE /* MotionModel.cxx in Sources */,
-				663E310F6132D427497C69CF /* PoseGraphOptimization.cxx in Sources */,
 				883EDAE0154631595DCDCA3B /* PoseGraphOptimizer.cxx in Sources */,
 				34A9B6CE62C45C8E55F42FA5 /* RollingGrid.cxx in Sources */,
 				13D15DD232F85DC793243219 /* Slam.cxx in Sources */,
 				AEA289030850BCD6E4EDDD59 /* SpinningSensorKeypointExtractor.cxx in Sources */,
-				1E9DE0A6E0B0E6D1F3D3E129 /* Transform.cxx in Sources */,
 				94F755BBD297A83F36145664 /* Utilities.cxx in Sources */,
+				7229530117650AD6789C5524 /* VoxelGrid.cxx in Sources */,
 				EEC0B4ECBF296B20D4CAB7E9 /* ofxLidarSlam.cpp in Sources */,
 				E05C2CDBF5D330642067DE44 /* ofxLidarSlamParameters.cpp in Sources */,
+				13B7E845E734CDB3E39FFC13 /* ofxLidarSlamTrajectoryPoint.cpp in Sources */,
 				5BF2F371E0490ED12AF5BC50 /* ofxSpinningSensorKeypointExtractor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4147,6 +4195,7 @@
 					"../../../addons/ofxCeresLib/libs/ceres/include-osx",
 					../../../addons/ofxDropdown/src,
 					../../../addons/ofxGui/src,
+					../../../addons/ofxGuiTabs/src,
 					../../../addons/ofxOusterLidar/libs/eigen/include,
 					../../../addons/ofxOusterLidar/libs/ouster/include,
 					"../../../addons/ofxOusterLidar/libs/optional-lite",
@@ -4195,6 +4244,7 @@
 					"../../../addons/ofxCeresLib/libs/ceres/include-osx",
 					../../../addons/ofxDropdown/src,
 					../../../addons/ofxGui/src,
+					../../../addons/ofxGuiTabs/src,
 					../../../addons/ofxOusterLidar/libs/eigen/include,
 					../../../addons/ofxOusterLidar/libs/ouster/include,
 					"../../../addons/ofxOusterLidar/libs/optional-lite",
@@ -4242,6 +4292,7 @@
 					/usr/local/lib/libg2o_types_slam2d_addons.dylib,
 					/usr/local/lib/libg2o_types_slam3d.dylib,
 					/usr/local/lib/libg2o_types_slam3d_addons.dylib,
+					/usr/local/lib/libboost_filesystem.dylib,
 					/usr/local/lib/libpcl_common.dylib,
 					/usr/local/lib/libpcl_features.dylib,
 					/usr/local/lib/libpcl_filters.dylib,
@@ -4303,6 +4354,7 @@
 					"../../../addons/ofxCeresLib/libs/ceres/include-osx",
 					../../../addons/ofxDropdown/src,
 					../../../addons/ofxGui/src,
+					../../../addons/ofxGuiTabs/src,
 					../../../addons/ofxOusterLidar/libs/eigen/include,
 					../../../addons/ofxOusterLidar/libs/ouster/include,
 					"../../../addons/ofxOusterLidar/libs/optional-lite",
@@ -4360,6 +4412,7 @@
 					"../../../addons/ofxCeresLib/libs/ceres/include-osx",
 					../../../addons/ofxDropdown/src,
 					../../../addons/ofxGui/src,
+					../../../addons/ofxGuiTabs/src,
 					../../../addons/ofxOusterLidar/libs/eigen/include,
 					../../../addons/ofxOusterLidar/libs/ouster/include,
 					"../../../addons/ofxOusterLidar/libs/optional-lite",
@@ -4408,6 +4461,7 @@
 					"../../../addons/ofxCeresLib/libs/ceres/include-osx",
 					../../../addons/ofxDropdown/src,
 					../../../addons/ofxGui/src,
+					../../../addons/ofxGuiTabs/src,
 					../../../addons/ofxOusterLidar/libs/eigen/include,
 					../../../addons/ofxOusterLidar/libs/ouster/include,
 					"../../../addons/ofxOusterLidar/libs/optional-lite",
@@ -4455,6 +4509,7 @@
 					/usr/local/lib/libg2o_types_slam2d_addons.dylib,
 					/usr/local/lib/libg2o_types_slam3d.dylib,
 					/usr/local/lib/libg2o_types_slam3d_addons.dylib,
+					/usr/local/lib/libboost_filesystem.dylib,
 					/usr/local/lib/libpcl_common.dylib,
 					/usr/local/lib/libpcl_features.dylib,
 					/usr/local/lib/libpcl_filters.dylib,
@@ -4476,7 +4531,6 @@
 					/usr/local/lib/libpcl_stereo.dylib,
 					/usr/local/lib/libpcl_surface.dylib,
 					/usr/local/lib/libpcl_tracking.dylib,
-					/usr/local/lib/libboost_filesystem.dylib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)Debug";
 				WRAPPER_EXTENSION = app;
@@ -4506,6 +4560,7 @@
 					"../../../addons/ofxCeresLib/libs/ceres/include-osx",
 					../../../addons/ofxDropdown/src,
 					../../../addons/ofxGui/src,
+					../../../addons/ofxGuiTabs/src,
 					../../../addons/ofxOusterLidar/libs/eigen/include,
 					../../../addons/ofxOusterLidar/libs/ouster/include,
 					"../../../addons/ofxOusterLidar/libs/optional-lite",
@@ -4553,6 +4608,7 @@
 					/usr/local/lib/libg2o_types_slam2d_addons.dylib,
 					/usr/local/lib/libg2o_types_slam3d.dylib,
 					/usr/local/lib/libg2o_types_slam3d_addons.dylib,
+					/usr/local/lib/libboost_filesystem.dylib,
 					/usr/local/lib/libpcl_common.dylib,
 					/usr/local/lib/libpcl_features.dylib,
 					/usr/local/lib/libpcl_filters.dylib,
@@ -4574,7 +4630,6 @@
 					/usr/local/lib/libpcl_stereo.dylib,
 					/usr/local/lib/libpcl_surface.dylib,
 					/usr/local/lib/libpcl_tracking.dylib,
-					/usr/local/lib/libboost_filesystem.dylib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
