@@ -9,7 +9,7 @@
 // PCL
 #include <pcl/common/transforms.h>
 
-#include "ofxTimeMeasurements.h"
+//#include "ofxTimeMeasurements.h"
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
@@ -20,11 +20,11 @@ listeners.push(params.param.newListener([&](type & _arg){\
 this->SlamAlgo->Set##param(_arg);\
 }));
 
-#define GET_MAP(map, type) if(params.bDraw##map) {PclToOf(this->SlamAlgo->GetMap(type), results.map);}
+//#define GET_MAP(map, type) if(params.bDraw##map) {PclToOf(this->SlamAlgo->GetMap(type), results.map);}
 
-#define GET_SUBMAP(map, type) if(params.bDraw##map) {PclToOf(this->SlamAlgo->GetTargetSubMap(type), results.map);}
+//#define GET_SUBMAP(map, type) if(params.bDraw##map) {PclToOf(this->SlamAlgo->GetTargetSubMap(type), results.map);}
 
-#define GET_KEYPOINTS(keypoints, type) if(params.bDraw##keypoints) {PclToOf(this->SlamAlgo->GetKeypoints(type, params.OutputKeypointsInWorldCoordinates.get()), results.keypoints);}
+//#define GET_KEYPOINTS(keypoints, type) if(params.bDraw##keypoints) {PclToOf(this->SlamAlgo->GetKeypoints(type, params.OutputKeypointsInWorldCoordinates.get()), results.keypoints);}
 
 
 
@@ -63,7 +63,7 @@ void AddPclToOf( LidarSlam::Slam::PointCloud::Ptr pc, ofVboMesh& mesh){
 
 
 //-----------------------------------------------------------------------------
-ofxLidarSlam::ofxLidarSlam():pointShader("SLAM")
+ofxLidarSlam::ofxLidarSlam():pointShader("Points Shader")
 {
  
     bMarkCurrent = false;
@@ -77,7 +77,7 @@ ofxLidarSlam::ofxLidarSlam():pointShader("SLAM")
     
     this->reset();
     
-    params.gui.add(getKeyPointExtractor().parameters);
+    params.guiGroups[ofxLidarSlamParameters::GUI_KEYPOINTS]->add(getKeyPointExtractor().parameters);
     
 
     cam.setFarClip(1000000);
@@ -116,7 +116,11 @@ void ofxLidarSlam::setup(std::shared_ptr<ofxOuster>& lidar){
     pointShader.loadShaderFromFiles(ofToDataPath("shaders/shader.vert"),ofToDataPath("shaders/shader.frag"));
 //    pointShader.colorMap.makeColorMap("GRAY SCALE", {ofFloatColor::black, ofFloatColor::white});
     
-    pointShader.setGuiPosition( glm::vec2(ofGetWidth() - 600,10) );
+//    pointShader.setGuiPosition( glm::vec2(ofGetWidth() - 600,10) );
+    
+    params.guiGroups[ofxLidarSlamParameters::GUI_DRAW]->add(&pointShader.gui);
+    
+    pointShader.colorMap.colorMapGui->colorMapDropdown->setDropDownPosition(ofxIntDropdown::DD_LEFT);
     
     startThread();
 }
@@ -125,7 +129,7 @@ void ofxLidarSlam::setup(std::shared_ptr<ofxOuster>& lidar){
 void ofxLidarSlam::reset()
 {
     this->SlamAlgo->Reset(true);
-    this->SlamAlgo->ClearSensorMeasurements();
+    this->SlamAlgo->ResetSensors(true);
     this->SlamAlgo->SetSensorMaxMeasures(10000);
     
     
@@ -294,39 +298,73 @@ void ofxLidarSlam::processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults
         if (updateMaps && (params.OutputKeypointsMaps == OutputKeypointsMapsMode::FULL_MAPS && this->SlamAlgo->GetMapUpdate() != LidarSlam::MappingMode::NONE))
         {
             //TS_START("Get Full Maps");
-            GET_MAP(EdgeMap, LidarSlam::EDGE)
-            GET_MAP(PlanarMap, LidarSlam::PLANE)
-            GET_MAP(BlobMap, LidarSlam::BLOB)
-            this->PreviousMapOutputMode = params.OutputKeypointsMaps.get();
+//            GET_MAP(EdgeMap, LidarSlam::EDGE)
+//            GET_MAP(PlanarMap, LidarSlam::PLANE)
+//            GET_MAP(BlobMap, LidarSlam::BLOB)
+            
+            for(auto k : LidarSlam::KeypointTypes){
+                if(params.bDrawMaps[k] && params.bDrawMaps[k]->get()) {
+                    PclToOf(this->SlamAlgo->GetMap(k), results.maps[k]);
+                }
+            }
+            
+            
+            
+            
+//            this->PreviousMapOutputMode = params.OutputKeypointsMaps.get();
             //TS_STOP("Get Full Maps");
         }
         else if (updateMaps && (params.OutputKeypointsMaps == OutputKeypointsMapsMode::SUB_MAPS || this->SlamAlgo->GetMapUpdate() == LidarSlam::MappingMode::NONE))
         {
+            
+            
+            for(auto k : LidarSlam::KeypointTypes){
+                if(params.bDrawMaps[k] && params.bDrawMaps[k]->get()) {
+                    PclToOf(this->SlamAlgo->GetTargetSubMap(k), results.maps[k]);
+                }
+            }
+            
+            
+            
             //TS_START("Get Sub Maps");
-            GET_SUBMAP(EdgeMap, LidarSlam::EDGE)
-            GET_SUBMAP(PlanarMap, LidarSlam::PLANE)
-            GET_SUBMAP(BlobMap, LidarSlam::BLOB)
+//            GET_SUBMAP(EdgeMap, LidarSlam::EDGE)
+//            GET_SUBMAP(PlanarMap, LidarSlam::PLANE)
+//            GET_SUBMAP(BlobMap, LidarSlam::BLOB)
             //TS_STOP("Get Sub Maps");
             
-            this->PreviousMapOutputMode = params.OutputKeypointsMaps.get();
+//            this->PreviousMapOutputMode = params.OutputKeypointsMaps.get();
         }
         // If the output is disabled, reset it.
         else if (params.OutputKeypointsMaps != this->PreviousMapOutputMode && params.OutputKeypointsMaps == OutputKeypointsMapsMode::NONE)
         {
-            results.EdgeMap.clear();
-            results.PlanarMap.clear();
-            results.BlobMap.clear();
-            this->PreviousMapOutputMode = params.OutputKeypointsMaps.get();
+            for(auto & m : results.maps){
+                m.clear();
+            }
+//            results.EdgeMap.clear();
+//            results.PlanarMap.clear();
+//            results.BlobMap.clear();
+            
+//            this->PreviousMapOutputMode = params.OutputKeypointsMaps.get();
         }
         
+        this->PreviousMapOutputMode = params.OutputKeypointsMaps.get();
         // ===== Extracted keypoints from current frame =====
 
         if (params.OutputCurrentKeypoints)
         {
+            
+            for(auto k : LidarSlam::KeypointTypes){
+                if(params.bDrawKeypoints[k] && params.bDrawKeypoints[k]->get()) {
+                    PclToOf(this->SlamAlgo->GetKeypoints(k, params.OutputKeypointsInWorldCoordinates.get()), results.keypoints[k]);
+                }
+            }
+            
+            
+            
             //TS_START("Get KeyPoints");
-            GET_KEYPOINTS(EdgeKeypoints, LidarSlam::EDGE)
-            GET_KEYPOINTS(PlanarKeypoints, LidarSlam::PLANE)
-            GET_KEYPOINTS(BlobKeypoints, LidarSlam::BLOB)
+//            GET_KEYPOINTS(EdgeKeypoints, LidarSlam::EDGE)
+//            GET_KEYPOINTS(PlanarKeypoints, LidarSlam::PLANE)
+//            GET_KEYPOINTS(BlobKeypoints, LidarSlam::BLOB)
             //TS_STOP("Get KeyPoints");
         }
         results.bValid = true;
@@ -445,7 +483,7 @@ void ofxLidarSlam::AddCurrentPoseToTrajectory()
     LidarSlam::LidarState& currentState = this->SlamAlgo->GetLastState();
     
     
-    trajectory.push_back(TrajectoryPoint());
+    trajectory.push_back(ofxLidarSlamTrajectoryPoint());
     auto& p = trajectory.back();
     if(trajectory.size()> 1){
         p.prev = &trajectory[trajectory.size()-2];
@@ -667,8 +705,20 @@ ofxSpinningSensorKeypointExtractor& ofxLidarSlam::getKeyPointExtractor(){
     return *extractor;
 }
 
-#define DRAW_MESH(mesh) \
+//#define DRAW_MESH(mesh) \
 if(params.bDraw##mesh) { ofSetColor(params.mesh##Color.get()); slamResults.mesh.draw(); }
+
+void ofxLidarSlam::drawMesh(vector<unique_ptr<ofParameter<bool>>>& bDraw ,  vector<ofVboMesh>& mesh, vector<unique_ptr<ofParameter<ofColor>>>& color){
+    for(auto k : LidarSlam::KeypointTypes){
+        if(bDraw[k] && bDraw[k]->get()) {
+            pointShader.begin();
+            pointShader.shader.setUniform3f("offset", 0,0,0);
+            if(color[k]) ofSetColor(color[k]->get());
+            mesh[k].draw();
+            pointShader.end();
+        }
+    }
+}
 
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::draw(){
@@ -708,17 +758,14 @@ void ofxLidarSlam::draw(){
         slamResults.RegisteredMap.draw();
         pointShader.end();
     }
-    pointShader.begin(); pointShader.shader.setUniform3f("offset", 0,0,0);
-    DRAW_MESH(EdgeMap)
-    pointShader.end();
+
     
-    pointShader.begin(); pointShader.shader.setUniform3f("offset", 0,0,0);
-    DRAW_MESH(PlanarMap)
-    pointShader.end();
+    drawMesh(params.bDrawMaps ,  slamResults.maps, params.mapColor);
+    if (params.OutputCurrentKeypoints){
+        drawMesh(params.bDrawKeypoints ,  slamResults.keypoints, params.keypointColor);
+    }
     
-    pointShader.begin(); pointShader.shader.setUniform3f("offset", 0,0,0);
-    DRAW_MESH(BlobMap)
-    pointShader.end();
+    
     
     if(trajectory.size() > 0 && params.bDrawTrajectoryLine) {
         ofSetColor(params.TrajectoryLineColor.get());
@@ -770,8 +817,8 @@ void ofxLidarSlam::draw(){
 }
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::drawGui(){
-    params.gui.draw();
-    pointShader.gui.draw();
+    params.draw();
+//    pointShader.gui.draw();
     if(params.bDrawLidarFeed){
         if(renderer){
             renderer->drawGui();
@@ -906,7 +953,7 @@ void ofxLidarSlam::setParamsListeners(){
 //    addListenerMacro(TimeWindowDuration, float)
     addListenerMacro(GravityWeight, double)
     listeners.push(params.OverlapSamplingRatio.newListener(this, &ofxLidarSlam::_overlapSamplingRatioChanged));
-    addListenerMacro(UseBlobs, bool)
+//    addListenerMacro(UseBlobs, bool)
     
     listeners.push(params.TimeWindowDuration.newListener(this, &ofxLidarSlam::_timeWindowDurationChanged));
     
@@ -917,9 +964,9 @@ void ofxLidarSlam::setParamsListeners(){
         SetVoxelGridLeafSizePlanes(f);
         
     }));
-    listeners.push(params.LeafSizeBlobs.newListener([&](float& f){
-        SetVoxelGridLeafSizeBlobs(f);
-    }));
+//    listeners.push(params.LeafSizeBlobs.newListener([&](float& f){
+//        SetVoxelGridLeafSizeBlobs(f);
+//    }));
     
     listeners.push(params.saveMaps.newListener([&](){
         auto ts = ofGetTimestampString();

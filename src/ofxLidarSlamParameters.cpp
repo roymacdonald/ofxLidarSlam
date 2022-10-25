@@ -6,19 +6,68 @@
 //
 
 #include "ofxLidarSlamParameters.h"
+#include "LidarSlam/Enums.h"
+
 
 ofxLidarSlamParameters::ofxLidarSlamParameters(){
     
-    string settingsFile = "Slam_settings.json";
-    makeDropdowns();
-    gui.setup("Lidar SLAM",settingsFile);
-    gui.setWidthElements(300);
-    gui.add(bEnableSlam);
-    gui.add(NbThreads);
-    gui.add(bUseImuData);
-    gui.add(bDrawColorsGui);
-//    gui.add(destaggerSignal);
     
+    makeDropdowns();
+    setupGuiGroups();
+
+    setupGui();
+    
+    loadGui(&gui, settingsFile);
+    
+    setupColorsGui();
+    setGuisPositions();
+    
+    windowSizeListener = ofEvents().windowResized.newListener([&](ofResizeEventArgs& args){
+        setGuisPositions();
+    });
+    setGuisPositions();
+    
+}
+
+void ofxLidarSlamParameters::setupColorsGui(){
+    string colorsSettingsFile = "colorSettings.json";
+    
+    guiColors.setup("Colors", colorsSettingsFile);
+    
+    initAndAddColorParam(TrajectoryLineColor, "Trajectory Line", ofColor::red);
+    initAndAddColorParam(RegisteredMapColor, "Registered Map", ofColor::yellow);
+    
+    for(auto k : LidarSlam::KeypointTypes){
+        guiColors.add(*mapColor[k].get());
+    }
+
+    for(auto k : LidarSlam::KeypointTypes){
+        guiColors.add(*keypointColor[k].get());
+    }
+    loadGui(&guiColors, colorsSettingsFile);
+}
+
+void ofxLidarSlamParameters::setupGuiGroups(){
+    selectedTab.setName("selected tab");
+    tabs = make_unique<ofxGuiIntTabs>(selectedTab);
+    
+    guiGroups.resize(GuiTypesNames.size());
+    for(size_t i = 0; i < GuiTypesNames.size(); i ++){
+        guiGroups[i] = make_unique<ofxGuiGroup>();
+        guiGroups[i]->setup(GuiTypesNames[i]);
+        tabs->add(i, GuiTypesNames[i]);
+    }
+    
+    selectedTabListener = selectedTab.newListener([&](int& i){
+        setCurrentGuiGroup((GuiTypes)i);
+    });
+    
+    
+    
+    
+    guiGroups[GUI_INPUT]->add(undistortionModeDropdown.get());
+    
+    guiGroups[GUI_DRAW]->add(bDrawColorsGui);
     
     accumulateParams.add(saveMaps);
     accumulateParams.add(saveMarkersOnly);
@@ -29,60 +78,81 @@ ofxLidarSlamParameters::ofxLidarSlamParameters(){
     accumulateParams.add(drawAccumMax);
     
     
-    gui.add(accumulateParams);
-    
-    gui.getGroup(accumulateParams.getName()).add(accumulateByDropdown.get());
-    
+    guiGroups[GUI_OUTPUT]->add(accumulateParams);
+    guiGroups[GUI_OUTPUT]->add(accumulateByDropdown.get());
     
     
+    size_t n = LidarSlam::KeypointTypes.size();
+    bDrawMaps.resize(n);
+    bDrawKeypoints.resize(n);
+    keypointColor.resize(n);
+    mapColor.resize(n);
+    
+    int i = 0;
+    for(auto k : LidarSlam::KeypointTypes){
+        bDrawMaps[k] = make_unique<ofParameter<bool>>("Draw " + LidarSlam::KeypointTypeNames.at(k) + " Map", true);
+        bDrawKeypoints[k] = make_unique<ofParameter<bool>>("Draw " + LidarSlam::KeypointTypeNames.at(k) + " Keypoints", true);
+        
+        ofColor c;
+        c.setHsb( (i*2) * 255.0f/ LidarSlam::KeypointTypes.size()*2 , 255, 255);
+        mapColor[k] = make_unique<ofParameter<ofColor>>(LidarSlam::KeypointTypeNames.at(k) + " Map Color", c,ofColor(0,0,0,0), ofColor(255,255,255,255));
+        c.setHsb( (i*2 + 1) * 255.0f/ LidarSlam::KeypointTypes.size()*2 , 255, 255);
+        keypointColor[k] = make_unique<ofParameter<ofColor>>(LidarSlam::KeypointTypeNames.at(k) + " Keypoint Color", c,ofColor(0,0,0,0), ofColor(255,255,255,255));
+        i++;
+    }
+    
+    guiGroups[GUI_KEYPOINTS]->add(OutputCurrentKeypoints);
+    guiGroups[GUI_KEYPOINTS]->add(MapsUpdateStep);
+    guiGroups[GUI_KEYPOINTS]->add(OutputKeypointsInWorldCoordinates);
+    guiGroups[GUI_KEYPOINTS]->add(UseBlobs);
+    guiGroups[GUI_KEYPOINTS]->add(OutputKeypointsMapsDropdown.get());
+    //    gui.add(TimestampFirstPacket);
+//    guiGroups[GUI_KEYPOINTS]->add(samplingModesParams);
+//    auto& g = gui.getGroup(samplingModesParams.getName());
+    guiGroups[GUI_KEYPOINTS]->add(samplingModeEdgesDropdown.get());
+    guiGroups[GUI_KEYPOINTS]->add(samplingModePlanesDropdown.get());
+    guiGroups[GUI_KEYPOINTS]->add(samplingModeBlobsDropdown.get());
     
     
     
+    rollingGridParams.add(VoxelGridDecayingThreshold);
+    rollingGridParams.add(VoxelGridSize);
+    rollingGridParams.add(VoxelGridResolution);
+    rollingGridParams.add(VoxelGridMinFramesPerVoxel);
+    rollingGridParams.add(LeafSizeEdges);
+    rollingGridParams.add(LeafSizePlanes);
+//    rollingGridParams.add(LeafSizeBlobs);
     
-    gui.add(verboseLevel);
-//    gui.add(bUseMillimeters);
-    gui.add(reset);
+    guiGroups[GUI_KEYPOINTS]->add(rollingGridParams);
+    guiGroups[GUI_KEYPOINTS]->add(OverlapSamplingRatio);
     
     
-    gui.add(AdvancedReturnMode);
-    gui.add(OutputCurrentKeypoints);
-    gui.add(MapsUpdateStep);
-    gui.add(OutputKeypointsInWorldCoordinates);
-//    gui.add(OutputKeypointsMaps);
-    gui.add(UseBlobs);
-    
-    gui.add(TimestampFirstPacket);
-
-    gui.add(OutputKeypointsMapsDropdown.get());
-
-    gui.add(undistortionModeDropdown.get());
-    gui.add(mappingModeDropdown.get());
-    gui.add(egoMotionModeDropdown.get());
-    gui.add(samplingModesParams);
-    auto& g = gui.getGroup(samplingModesParams.getName());
-    g.add(samplingModeEdgesDropdown.get());
-    g.add(samplingModePlanesDropdown.get());
-    g.add(samplingModeBlobsDropdown.get());
     
     drawParams.add(bUseDepthTest);
     drawParams.add(bDrawLidarFeed);
     drawParams.add(bDrawTrajectoryLine);
     drawParams.add(bDrawRegisteredMap);
-    drawParams.add(bDrawEdgeMap);
-    drawParams.add(bDrawPlanarMap);
-    drawParams.add(bDrawBlobMap);
-    drawParams.add(bDrawEdgeKeypoints);
-    drawParams.add(bDrawPlanarKeypoints);
-    drawParams.add(bDrawBlobKeypoints);
+
+    for(auto& p : bDrawMaps){
+        if(p){
+            drawParams.add(*p.get());
+        }
+    }
+    for(auto& p : bDrawKeypoints){
+        if(p){
+            drawParams.add(*p.get());
+        }
+    }
+        
     drawParams.add(bDrawMarkers);
     drawParams.add(bDrawAccum);
     
+    guiGroups[GUI_DRAW]->add(drawParams);
     
-    gui.add(drawParams);
     
-    
-    optimizationParams.add(TwoDMode);
+//    optimizationParams.add(TwoDMode);
     // Get/Set EgoMotion
+    egoMotionParams.add(TwoDMode);
     egoMotionParams.add(EgoMotionLMMaxIter);
     egoMotionParams.add(EgoMotionICPMaxIter);
     egoMotionParams.add(EgoMotionMaxNeighborsDistance);
@@ -95,7 +165,10 @@ ofxLidarSlamParameters::ofxLidarSlamParameters(){
     egoMotionParams.add(EgoMotionInitSaturationDistance);
     egoMotionParams.add(EgoMotionFinalSaturationDistance);
     
-    optimizationParams.add(egoMotionParams);
+    
+    guiGroups[GUI_MOTION]->add(egoMotionModeDropdown.get());
+    guiGroups[GUI_MOTION]->add(egoMotionParams);
+    
     
     // Get/Set Localization
     localizationParams.add(LocalizationLMMaxIter);
@@ -110,42 +183,27 @@ ofxLidarSlamParameters::ofxLidarSlamParameters(){
     localizationParams.add(LocalizationBlobNbNeighbors);
     localizationParams.add(LocalizationInitSaturationDistance);
     localizationParams.add(LocalizationFinalSaturationDistance);
-    localizationParams.add(WheelOdomWeight);
-    localizationParams.add(WheelOdomRelative);
+//    localizationParams.add(WheelOdomWeight);
+//    localizationParams.add(WheelOdomRelative);
     localizationParams.add(GravityWeight);
     localizationParams.add(SensorTimeOffset);
     localizationParams.add(SensorTimeThreshold);
     localizationParams.add(SensorMaxMeasures);
     
-    optimizationParams.add(localizationParams);
+    guiGroups[GUI_LOCALIZATION]->add(localizationParams);
     
-    gui.add(optimizationParams);
+//    gui.add(optimizationParams);
     
     
     // Key frames
-    keyframesParams.add(KfDistanceThreshold);
-    keyframesParams.add(KfAngleThreshold);
     
-    gui.add(keyframesParams);
-    
-    
-    
-    
-    
-    rollingGridParams.add(VoxelGridDecayingThreshold);
-    rollingGridParams.add(VoxelGridSize);
-    rollingGridParams.add(VoxelGridResolution);
-    rollingGridParams.add(VoxelGridMinFramesPerVoxel);
-    rollingGridParams.add(LeafSizeEdges);
-    rollingGridParams.add(LeafSizePlanes);
-    rollingGridParams.add(LeafSizeBlobs);
-    
-    gui.add(rollingGridParams);
+    guiGroups[GUI_KEYFRAMES]->add(OutputKeypointsMaps);
+    guiGroups[GUI_KEYFRAMES]->add(mappingModeDropdown.get());
+
+    guiGroups[GUI_KEYFRAMES]->add(KfDistanceThreshold);
+    guiGroups[GUI_KEYFRAMES]->add(KfAngleThreshold);
     
     
-    
-    
-    confidenceParams.add(OverlapSamplingRatio);
     
     
     // Motion constraints
@@ -155,36 +213,33 @@ ofxLidarSlamParameters::ofxLidarSlamParameters(){
     motionConstraintParams.add(angularAccLimit);
     motionConstraintParams.add(linearVelLimit);
     motionConstraintParams.add(angularVelLimit);
-    
-    
-    confidenceParams.add(motionConstraintParams);
-    confidenceParams.add(TimeWindowDuration);
-    
-    gui.add(confidenceParams);
-    
-    
-    if(ofFile::doesFileExist(settingsFile)){
-        gui.loadFromFile(settingsFile);
-    }
-    
-    string colorsSettingsFile = "colorSettings.json";
-    
-    guiColors.setup("Colors", colorsSettingsFile);
-    
-    initAndAddColorParam(TrajectoryLineColor, "Trajectory Line", ofColor::red);
-    initAndAddColorParam(RegisteredMapColor, "Registered Map", ofColor::yellow);
-    initAndAddColorParam(EdgeMapColor, "Edge Map", ofColor::cyan);
-    initAndAddColorParam(PlanarMapColor, "Planar Map", ofColor::magenta);
-    initAndAddColorParam(BlobMapColor, "Blob Map", ofColor::green);
-    initAndAddColorParam(EdgeKeypointsColor, "Edge Keypoints", ofColor::fireBrick);
-    initAndAddColorParam(PlanarKeypointsColor, "Planar Keypoints", ofColor::blueSteel);
-    initAndAddColorParam(BlobKeypointsColor, "Blob Keypoints", ofColor::aliceBlue);
+
+    guiGroups[GUI_MOTION]->add(motionConstraintParams);
+    guiGroups[GUI_MOTION]->add(TimeWindowDuration);
         
-    
-    if(ofFile::doesFileExist(colorsSettingsFile)){
-        gui.loadFromFile(colorsSettingsFile);
-    }
 }
+void ofxLidarSlamParameters::setupGui(){
+    
+    gui.setup("Lidar SLAM",settingsFile);
+    gui.setWidthElements(300);
+    gui.add(bEnableSlam);
+    gui.add(NbThreads);
+    gui.add(bUseImuData);
+    gui.add(verboseLevel);
+    gui.add(reset);
+    gui.add(AdvancedReturnMode);
+
+    gui.add(tabs.get());
+//    gui.add(TimestampFirstPacket);
+    if((int)current_gui < guiGroups.size()){
+        gui.add(guiGroups[(int)current_gui].get());
+    }
+    setGuisPositions();
+    
+    
+}
+
+
 
 void ofxLidarSlamParameters::draw(){
     gui.draw();
@@ -227,7 +282,8 @@ void ofxLidarSlamParameters::makeDropdowns(){
     undistortionModeDropdown = makeDropdown({
         "NONE" ,
         "ONCE" ,
-        "REFINED" }, undistortionMode);
+        "REFINED",
+        "EXTERNAL" }, undistortionMode);
     
     mappingModeDropdown = makeDropdown({
         "NONE" ,
@@ -259,4 +315,38 @@ void ofxLidarSlamParameters::makeDropdowns(){
     
     
     
+}
+
+string ofxLidarSlamParameters::getCurrentGuiFilename(){
+    return "settings_"+GuiTypesNames[current_gui]+".json";
+}
+
+void ofxLidarSlamParameters::setTab(int tabIndex){
+    if(tabIndex >= 0 && tabIndex < GuiTypesNames.size()){
+        selectedTab = tabIndex;
+    }
+}
+
+void ofxLidarSlamParameters::setCurrentGuiGroup(GuiTypes group){
+    if(group != current_gui){
+//        cout <<"ofxLidarSlamParameters::setCurrentGuiGroup " << GuiTypesNames[group] << " -> " << GuiTypesNames[current_gui] <<endl;
+        guiGroups[current_gui]->saveToFile(getCurrentGuiFilename());
+        current_gui = group ;
+        setupGui();
+        loadGui(guiGroups[current_gui].get(), getCurrentGuiFilename());
+        
+    }
+}
+bool ofxLidarSlamParameters::loadGui(ofxGuiGroup* g, const string& filepath){
+    if(!g)return false;
+    if(ofFile::doesFileExist(filepath)){
+        g->loadFromFile(filepath);
+        return true;
+    }
+    return false;
+}
+
+void ofxLidarSlamParameters::setGuisPositions(){
+    gui.setPosition(ofGetWidth() - gui.getShape().width, 0);
+    guiColors.setPosition(gui.getShape().getMinX() - guiColors.getWidth(), 0);
 }

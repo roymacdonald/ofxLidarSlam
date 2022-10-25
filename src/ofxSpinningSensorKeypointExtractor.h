@@ -28,12 +28,14 @@ class ofxSpinningSensorKeypointExtractor
 public:
     ofxSpinningSensorKeypointExtractor();
     
+    /// Max number of threads to use to process points in parallel
+    ofParameter<int> NbThreads = {"Max num threads", 1,1, 8};
+
     
-    ///  Number of neighbors to use on each side of current point to estimate
-    ///  the keypoints scores (curvature, planarity, depth gap, ...) in each
-    ///  scan line.
     
-    ofParameter<int> NeighborWidth = {"Neighborhood width", 4, 1, 10};
+    /// Minimum number of points used on each side of the studied point to compute its curvature
+    
+    ofParameter<int> MinNeighNb = {"Min Num Neighbours", 4, 1, 10};
     
     
     ///  Minimum distance between a point and the sensor to be processed for
@@ -63,12 +65,6 @@ public:
     ofParameter<float> EdgeSinAngleThreshold = {"Edge min sinus angle", 0.86, 0, 1};
     
     
-    ///  One strategy to consider a point as an edge keypoint is to compute
-    ///  the depth gap between the point and its far background neighborhood.
-    ///  If the gap is big enough, we consider the point as an edge keypoint.
-    ofParameter<float> EdgeSaliencyThreshold = {"Edge min saliency distance", 1.5, 0, 10};
-    
-    
     
     ///  One strategy to consider a point as an edge keypoint is to compute
     ///  the intensity gap between the point and its left and right neighbors.
@@ -84,6 +80,30 @@ public:
     ///  edge keypoint.
     ofParameter<float> EdgeDepthGapThreshold = {"Edge min depth gap", 0.15};
     
+    
+    /// Maximum number of keypoints to extract
+    ofParameter<int> MaxPoints = {"Max Points", INT_MAX, 0, INT_MAX};
+
+    /// Sampling ratio to perform for real time issues
+    ofParameter<float> InputSamplingRatio = {"Input Sampling Ratio", 1., 0, 1};
+
+
+    /// Minimum radius to define the neighborhood to compute curvature of a studied point
+    ofParameter<float> MinNeighRadius = {"Min Neigh Radius", 0.05f, 0.0001, 1};
+    
+    /// Minimum azimuth angle in degrees
+    ofParameter<float> AzimuthMin = {"Azimuth Min", 0, 0,360};
+    
+    /// Maximum azimuth angle in degrees
+    ofParameter<float> AzimuthMax = {"Azimuth Max", 360, 0, 360};
+    
+    /// Nb of points missed to define a space gap
+    ofParameter<int> EdgeNbGapPoints = {"Edge Nb Gap Points", 5, 1,20};
+
+    /// Size of a voxel used to downsample the keypoints
+    /// It corresponds approx to the mean distance in meters between closest neighbors in the output keypoints cloud.
+    ofParameter<float> VoxelResolution = {"Voxel Resolution", 0.1, 0.001, 1};
+
     
     ofParameterGroup parameters = {"Keypoint Extractor"};
     

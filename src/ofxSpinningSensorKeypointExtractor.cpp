@@ -30,21 +30,47 @@ listeners.push( name .newListener([&](type & _arg){extractor->Set##name(_arg);})
 ofxSpinningSensorKeypointExtractor::ofxSpinningSensorKeypointExtractor()
 : extractor(std::make_shared<LidarSlam::SpinningSensorKeypointExtractor>())
 {
-    parameters.add(NeighborWidth);
+    
+    parameters.add(NbThreads);
+    parameters.add(InputSamplingRatio);
+    
+    parameters.add(AzimuthMin);
+    parameters.add(AzimuthMax);
+    
+    parameters.add(MinNeighNb);
+    parameters.add(MinNeighRadius);
+    
     parameters.add(MinDistanceToSensor);
     parameters.add(MinBeamSurfaceAngle);
     parameters.add(PlaneSinAngleThreshold);
     parameters.add(EdgeSinAngleThreshold);
     parameters.add(EdgeDepthGapThreshold);
-    parameters.add(EdgeSaliencyThreshold);
     parameters.add(EdgeIntensityGapThreshold);
-  ADD_PARAM_LISTENER_MACRO(NeighborWidth, int)
-  ADD_PARAM_LISTENER_MACRO(MinDistanceToSensor, float)
-  ADD_PARAM_LISTENER_MACRO(MinBeamSurfaceAngle, float)
-  ADD_PARAM_LISTENER_MACRO(PlaneSinAngleThreshold, float)
-  ADD_PARAM_LISTENER_MACRO(EdgeSinAngleThreshold, float)
-  ADD_PARAM_LISTENER_MACRO(EdgeDepthGapThreshold, float)
-  ADD_PARAM_LISTENER_MACRO(EdgeSaliencyThreshold, float)
-  ADD_PARAM_LISTENER_MACRO(EdgeIntensityGapThreshold, float)
-
+    parameters.add(EdgeNbGapPoints);
+    
+    parameters.add(MaxPoints);
+    parameters.add(VoxelResolution);
+    
+    
+    
+    
+    ADD_PARAM_LISTENER_MACRO(NbThreads, int);
+    ADD_PARAM_LISTENER_MACRO(MaxPoints, int);
+    ADD_PARAM_LISTENER_MACRO(InputSamplingRatio, float);
+    ADD_PARAM_LISTENER_MACRO(MinNeighRadius, float);
+    ADD_PARAM_LISTENER_MACRO(AzimuthMin, float);
+    ADD_PARAM_LISTENER_MACRO(AzimuthMax, float);
+    ADD_PARAM_LISTENER_MACRO(EdgeNbGapPoints, int);
+    ADD_PARAM_LISTENER_MACRO(VoxelResolution, float);
+    ADD_PARAM_LISTENER_MACRO(MinNeighNb, int)
+    ADD_PARAM_LISTENER_MACRO(MinDistanceToSensor, float)
+    ADD_PARAM_LISTENER_MACRO(MinBeamSurfaceAngle, float)
+    ADD_PARAM_LISTENER_MACRO(PlaneSinAngleThreshold, float)
+    ADD_PARAM_LISTENER_MACRO(EdgeSinAngleThreshold, float)
+    ADD_PARAM_LISTENER_MACRO(EdgeDepthGapThreshold, float)
+    ADD_PARAM_LISTENER_MACRO(EdgeIntensityGapThreshold, float)
+    
+    
+    
+    
 }

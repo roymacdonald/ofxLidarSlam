@@ -9,6 +9,7 @@
 #include "ofMain.h"
 // LOCAL
 #include "LidarSlam/Slam.h"
+#include "LidarSlam/Enums.h"
 
 #include "ouster/lidar_scan.h"
 #include "ofxSpinningSensorKeypointExtractor.h"
@@ -27,7 +28,7 @@
 #include "ofxGrabCam.h"
 #endif
 
-
+#include "ofxLidarSlamTrajectoryPoint.h"
 
 enum OutputKeypointsMapsMode : uint8_t
 {
@@ -45,117 +46,40 @@ enum AccumulateMode : uint8_t{
     FRAMES = 2
 };
 
-class TrajectoryPoint{
-public:
-    double x;
-    double y;
-    double z;
-    double time;
-    glm::dquat quaternion;
-    double axisAngle [4];
-    double covariance [36];
-    bool isMarker = false;
-    
-    TrajectoryPoint * prev = nullptr;
-    
-    const ofNode& getNode(bool scaled = false){
-        if(bNeedsSetNode){
-            bNeedsSetNode = false;
-            node.setOrientation(quaternion);
-            node.setPosition({x, y, z});
-            
-            scaledNode.setOrientation(quaternion);
-            scaledNode.setPosition({x*1000.0, y*1000.0, z*1000.0});
-            
-        }
-        if(scaled ){
-            return scaledNode;
-        }
-        return node;
-    }
-    
-    
-    ofVboMesh mesh;
-    
-    void copyMesh(ofVboMesh& m){
-        mesh.setMode(OF_PRIMITIVE_POINTS);
-        mesh.addVertices(m.getVertices());
-        
-        
-    }
-    
-    bool save(string savePath, size_t index, bool saveMesh = false){
-        if(saveMesh && mesh.getVertices().size()){
-            mesh.save(savePath + "/" + ofToString(index) + ".ply");
-        }
-            ofJson j;
-            j["x"] = x;
-            j["y"] = y;
-            j["z"] = z;
-            j["time"] = time;
-            j["quaternion"] = {
-                        {"w", quaternion.w},
-                        {"x", quaternion.x},
-                        {"y", quaternion.y},
-                        {"z", quaternion.z}};
-            j["axisAngle"] = axisAngle;
-            j["covariance"] = covariance;
-            j["isMarker"] = isMarker;
-            
-        
-        return ofSaveJson(savePath + "/metadata/"+ofToString(index) + ".json", j);
-            
-    }
-    
-protected:
-    
-    
-private:
-    
-    ofNode node, scaledNode;
-    bool bNeedsSetNode = true;
-        
-};
 
 
 class ofxLidarSlamResults{
 public:
-    TrajectoryPoint trajectoryPoint;
+    ofxLidarSlamResults(){
+        maps.resize(LidarSlam::nKeypointTypes);
+        keypoints.resize(LidarSlam::nKeypointTypes);
+    }
+    ofxLidarSlamTrajectoryPoint trajectoryPoint;
     
     ofVboMesh RegisteredMap;
-    ofVboMesh EdgeMap;
-    ofVboMesh PlanarMap;
-    ofVboMesh BlobMap;
-    ofVboMesh EdgeKeypoints;
-    ofVboMesh PlanarKeypoints;
-    ofVboMesh BlobKeypoints;
-    
+    vector<ofVboMesh> maps;
+
+    vector<ofVboMesh> keypoints;
+        
     bool bValid = false;
     
     void saveMaps(string timestamp){
     
-        if(EdgeMap.getVertices().size()) {
-            EdgeMap.save("EdgeMap_" + timestamp + ".ply" );
+        for(auto k : LidarSlam::KeypointTypes){
+            if(maps[k].getVertices().size()) {
+                maps[k].save(LidarSlam::KeypointTypeNames.at(k) + "_" + timestamp + ".ply" );
+            }
         }
-        if(PlanarMap.getVertices().size()) {
-            PlanarMap.save("PlanarMap_" + timestamp + ".ply" );
-        }
-        if(BlobMap.getVertices().size()) {
-            BlobMap.save("BlobMap_" + timestamp + ".ply" );
-        }
-        
     }
 
     void clear(){
         RegisteredMap.clear();
-        EdgeMap.clear();
-        PlanarMap.clear();
-        BlobMap.clear();
-        EdgeKeypoints.clear();
-        PlanarKeypoints.clear();
-        BlobKeypoints.clear();
-
-        
+        for(auto &m : maps){
+            m.clear();
+        }
+        for(auto &k : keypoints){
+            k.clear();
+        }
     }
 };
 
@@ -228,7 +152,7 @@ public:
     void SetVoxelGridLeafSizePlanes(double s) { this->SetVoxelGridLeafSize(LidarSlam::Keypoint::PLANE, s); }
 
     // For blobs
-    void SetVoxelGridLeafSizeBlobs(double s)  { this->SetVoxelGridLeafSize(LidarSlam::Keypoint::BLOB, s);  }
+//    void SetVoxelGridLeafSizeBlobs(double s)  { this->SetVoxelGridLeafSize(LidarSlam::Keypoint::BLOB, s);  }
     
     
     // ---------------------------------------------------------------------------
@@ -248,7 +172,7 @@ public:
     void printParams();
     string getCurrentSlamParamsAsString();
     
-    const vector<TrajectoryPoint>& getTrajectory(){return trajectory;};
+    const vector<ofxLidarSlamTrajectoryPoint>& getTrajectory(){return trajectory;};
     
     void saveRegisteredMeshes(string timestamp);
     
@@ -317,6 +241,8 @@ protected:
     
 private:
     
+    void drawMesh(vector<unique_ptr<ofParameter<bool>>>& bDraw ,  vector<ofVboMesh>& mesh, vector<unique_ptr<ofParameter<ofColor>>>& color);
+    
     
     ofThreadChannel<ouster::LidarScan > toRenderer;
     
@@ -341,7 +267,7 @@ private:
     
     std::shared_ptr<ofxOuster> lidar = nullptr;
     
-    vector<TrajectoryPoint> trajectory;
+    vector<ofxLidarSlamTrajectoryPoint> trajectory;
 
     ofPolyline TrajectoryLine;
         

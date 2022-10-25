@@ -12,16 +12,35 @@
 #include "ofxGui.h"
 
 #include "ofxDropdown.h"
-
+#include "ofxGuiTabs.h"
 
 class ofxLidarSlamParameters{
     
+    
 public:
 
+    enum GuiTypes{
+        GUI_INPUT = 0,
+        GUI_KEYPOINTS,
+        GUI_MOTION,
+        GUI_LOCALIZATION,
+        GUI_KEYFRAMES,
+        GUI_FINE_TUNE,
+        GUI_MARKERS,
+        GUI_OUTPUT,
+        GUI_DRAW
+    }current_gui = GUI_INPUT;
+    
+    
+    const vector<string>  GuiTypesNames = { "Input", "Keypoints", "Motion", "Localization", "Keyframes", "FineTune", "Markers", "Output", "Draw" };
+    vector<unique_ptr<ofxGuiGroup>> guiGroups;
+    
     ofxLidarSlamParameters();
     
     
     void draw();
+    
+    void setCurrentGuiGroup(GuiTypes group);
     
     
     // ---------------------------------------------------------------------------
@@ -88,7 +107,7 @@ public:
     // Allows to choose which map keypoints to output
     ofParameter<uint8_t> OutputKeypointsMaps = {"Output Keypoints Maps", 1, 0, 3};
     
-    ofParameter<uint8_t> undistortionMode = {"UndistortionMode",  0, 0, 3};
+    ofParameter<uint8_t> undistortionMode = {"UndistortionMode",  0, 0, 4};
     
     ofParameter<uint8_t> mappingMode = {"MappingMode",  0, 0, 3};
     
@@ -134,6 +153,7 @@ public:
     ofParameter< double> SensorTimeThreshold = {"Sensor Time Threshold", 0,0, 4000};
     ofParameter< unsigned int> SensorMaxMeasures = {"Sensor Max Measures", 0, 0, 10000};
     
+    
     // ---------------------------------------------------------------------------
     //   Key frames
     // ---------------------------------------------------------------------------
@@ -156,7 +176,7 @@ public:
 
     ofParameter<float> LeafSizeEdges = {"Leaf Size Edges", 0.30, 0, 10};
     ofParameter<float> LeafSizePlanes = {"Leaf Size Planes", 0.60, 0, 10};
-    ofParameter<float> LeafSizeBlobs = {"Leaf Size Blobs", 0.30, 0, 10};
+//    ofParameter<float> LeafSizeBlobs = {"Leaf Size Blobs", 0.30, 0, 10};
     
 
     // ---------------------------------------------------------------------------
@@ -189,12 +209,15 @@ public:
     ofParameter<bool> bDrawLidarFeed = {"Draw Lidar Feed", true};
     ofParameter<bool> bDrawTrajectoryLine = {"Draw Trajectory Line", true};
     ofParameter<bool> bDrawRegisteredMap = {"Draw Registered Map", true};
-    ofParameter<bool> bDrawEdgeMap = {"Draw Edge Map", true};
-    ofParameter<bool> bDrawPlanarMap = {"Draw Planar Map", true};
-    ofParameter<bool> bDrawBlobMap = {"Draw Blob Map", true};
-    ofParameter<bool> bDrawEdgeKeypoints = {"Draw Edge KeyPoints", true};
-    ofParameter<bool> bDrawPlanarKeypoints = {"Draw Planar KeyPoints", true};
-    ofParameter<bool> bDrawBlobKeypoints = {"Draw Blob KeyPoints", true};
+//    ofParameter<bool> bDrawEdgeMap = {"Draw Edge Map", true};
+//    ofParameter<bool> bDrawPlanarMap = {"Draw Planar Map", true};
+//    ofParameter<bool> bDrawBlobMap = {"Draw Blob Map", true};
+//    ofParameter<bool> bDrawEdgeKeypoints = {"Draw Edge KeyPoints", true};
+//    ofParameter<bool> bDrawPlanarKeypoints = {"Draw Planar KeyPoints", true};
+//    ofParameter<bool> bDrawBlobKeypoints = {"Draw Blob KeyPoints", true};
+    
+    vector<unique_ptr<ofParameter<bool>>> bDrawKeypoints;
+    vector<unique_ptr<ofParameter<bool>>> bDrawMaps;
     
 
     // ---------------------------------------------------------------------------
@@ -204,12 +227,12 @@ public:
     /// parameter group which contains all the parameters.
     
     ofParameterGroup accumulateParams = {"Accumulate Registered"};
-    ofParameterGroup optimizationParams = {"Optimization"};
-    ofParameterGroup egoMotionParams = {"Ego Motion"};
+//    ofParameterGroup optimizationParams = {"Optimization"};
+    ofParameterGroup egoMotionParams = {"Motion"};
     ofParameterGroup localizationParams = {"Localization"};
-    ofParameterGroup keyframesParams = {"Keyframes"};
+//    ofParameterGroup keyframesParams = {"Keyframes"};
     ofParameterGroup rollingGridParams = {"Rolling Grid"};
-    ofParameterGroup confidenceParams = {"Confidence"};
+//    ofParameterGroup confidenceParams = {"Confidence"};
     ofParameterGroup motionConstraintParams = {"Motion Constraint"};    
 
     ofParameterGroup samplingModesParams= {"Sampling modes"};
@@ -223,12 +246,15 @@ public:
     
     ofParameter<ofColor> TrajectoryLineColor;
     ofParameter<ofColor> RegisteredMapColor;
-    ofParameter<ofColor> EdgeMapColor;
-    ofParameter<ofColor> PlanarMapColor;
-    ofParameter<ofColor> BlobMapColor;
-    ofParameter<ofColor> EdgeKeypointsColor;
-    ofParameter<ofColor> PlanarKeypointsColor;
-    ofParameter<ofColor> BlobKeypointsColor;
+//    ofParameter<ofColor> EdgeMapColor;
+//    ofParameter<ofColor> PlanarMapColor;
+//    ofParameter<ofColor> BlobMapColor;
+//    ofParameter<ofColor> EdgeKeypointsColor;
+//    ofParameter<ofColor> PlanarKeypointsColor;
+//    ofParameter<ofColor> BlobKeypointsColor;
+    vector<unique_ptr<ofParameter<ofColor>>> mapColor;
+    vector<unique_ptr<ofParameter<ofColor>>> keypointColor;
+    
     
     ofxPanel guiColors;
 
@@ -242,8 +268,15 @@ public:
     // 5: 4 + logging/maps memory usage
     ofParameter<uint8_t> verboseLevel = {"Verbose Level", 3, 0, 5};
 
+    
+    
+    void setTab(int tabIndex);
+    
 protected:
 
+    unique_ptr<ofxGuiIntTabs> tabs;
+    ofParameter<int> selectedTab;
+    
     shared_ptr<ofxDropdown_<uint8_t>> makeDropdown(const vector<string>& names, ofParameter<uint8_t> & param , bool bMultiselect = false, bool bCollapseOnSelect = true);
 
     shared_ptr<ofxDropdown_<uint8_t>> OutputKeypointsMapsDropdown = nullptr;
@@ -260,6 +293,22 @@ protected:
     void makeDropdowns();
  
     void initAndAddColorParam(ofParameter<ofColor>& param, string name,const ofColor& color);
+    
+    
+    void setupGui();
+    void setupGuiGroups();
+    void setupColorsGui();
+    string settingsFile = "Slam_settings.json";
+    
+    bool loadGui(ofxGuiGroup* g, const string& filepath);
+    string getCurrentGuiFilename();
+    
+    ofEventListener selectedTabListener;
+    
+    
+    ofEventListener windowSizeListener;
+    void setGuisPositions();
+    
     
 };
 
