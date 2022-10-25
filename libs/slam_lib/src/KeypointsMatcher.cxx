@@ -41,6 +41,8 @@ KeypointsMatcher::MatchingResults KeypointsMatcher::BuildMatchResiduals(const Po
     {
       case Keypoint::EDGE:
         return this->BuildLineMatch(prevPoints, currentPoint);
+      case Keypoint::INTENSITY_EDGE:
+        return this->BuildLineMatch(prevPoints, currentPoint);
       case Keypoint::PLANE:
         return this->BuildPlaneMatch(prevPoints, currentPoint);
       case Keypoint::BLOB:
@@ -92,7 +94,7 @@ CeresTools::Residual KeypointsMatcher::BuildResidual(const Eigen::Matrix3d& A, c
   // Weight the contribution of the given match by its reliability
   // WARNING : in CERES version < 2.0.0, the Tukey loss is badly implemented, so we have to correct the weight by a factor 2
   // See https://github.com/ceres-solver/ceres-solver/commit/6da364713f5b78ddf15b0e0ad92c76362c7c7683 for details
-  // This is important for covariance scaling 
+  // This is important for covariance scaling
   #if (CERES_VERSION_MAJOR < 2)
     res.Robustifier.reset(new ceres::ScaledLoss(robustifier, 2.0 * weight, ceres::TAKE_OWNERSHIP));
   // If Ceres version >= 2.0.0, the Tukey loss is corrected.

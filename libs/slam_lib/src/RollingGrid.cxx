@@ -291,6 +291,9 @@ void RollingGrid::Add(const PointCloud::Ptr& pointcloud, bool fixed, double curr
             // Compute mean point of current added points in the voxel
             v.point.getVector3fMap() = (v.point.getVector3fMap() * v.count + point.getVector3fMap()) / (v.count + 1);
             ++v.count;
+
+            // Notify that the voxel point has been updated
+            updated = true;
             break;
           }
         }
@@ -322,6 +325,7 @@ void RollingGrid::Add(const PointCloud::Ptr& pointcloud, bool fixed, double curr
         voxel.point.label = 1;
       else
         voxel.point.label = 0;
+
       if (!seen.count(idxOut) || !seen[idxOut].count(idxIn))
       {
         ++voxel.count;

@@ -30,13 +30,14 @@ namespace LidarSlam
 enum Keypoint
 {
   EDGE  = 0,   ///< edge keypoint (sharp local structure)
-  PLANE = 1,   ///< plane keypoint (flat local structure)
-  BLOB  = 2,   ///< blob keypoint (spherical local structure)
+  INTENSITY_EDGE  = 1,   ///< intensity edge keypoint (sharp local intensity)
+  PLANE = 2,   ///< plane keypoint (flat local structure)
+  BLOB  = 3,   ///< blob keypoint (spherical local structure)
   nKeypointTypes
 };
 
-static const std::vector<Keypoint> KeypointTypes = { EDGE, PLANE, BLOB };
-static const std::map<Keypoint, std::string> KeypointTypeNames = { {EDGE, "edge"}, {PLANE, "plane"}, {BLOB, "blob"} };
+static const std::vector<Keypoint> KeypointTypes = { EDGE, INTENSITY_EDGE, PLANE, BLOB };
+static const std::map<Keypoint, std::string> KeypointTypeNames = { {EDGE, "edge"}, {INTENSITY_EDGE, "intensity_edge"}, {PLANE, "plane"}, {BLOB, "blob"} };
 
 //------------------------------------------------------------------------------
 //! How to deal with undistortion
@@ -60,7 +61,10 @@ enum UndistortionMode
   //!  - Scan pose is optimized using rigid registration of undistorted scan and map.
   //!  - Iterate the three previous steps with updated ego-motion and poses.
   //!  - Undistorted scan is added to map.
-  REFINED = 2
+  REFINED = 2,
+
+  //! Undistort once with external pose information
+  EXTERNAL = 3
 };
 
 //------------------------------------------------------------------------------
@@ -89,7 +93,13 @@ enum class EgoMotionMode
   //! registering new frame on previous frame.
   //! Slower and need textured enough environment, but should be more precise
   //! and rely less on constant motion hypothesis.
-  MOTION_EXTRAPOLATION_AND_REGISTRATION = 3
+  MOTION_EXTRAPOLATION_AND_REGISTRATION = 3,
+
+  //! Use external pose as prior and none if external not available
+  EXTERNAL = 4,
+
+  //! Use external pose as prior and motion extrapolation if external not available
+  EXTERNAL_OR_MOTION_EXTRAPOLATION = 5
 };
 
 //------------------------------------------------------------------------------
@@ -140,5 +150,31 @@ enum class SamplingMode
   //! /!\ The sampling process is longer
   CENTROID = 4
 };
+
+//------------------------------------------------------------------------------
+//! External sensors' references
+enum ExternalSensor
+{
+  //! Wheel odometer
+  WHEEL_ODOM = 0,
+
+  //! IMU
+  IMU = 1,
+
+  //! Landmark detector
+  LANDMARK_DETECTOR = 2,
+
+  //! GPS
+  GPS = 3,
+
+  //! Pose sensor
+  POSE = 4
+};
+
+static const std::map<ExternalSensor, std::string> ExternalSensorNames = { {WHEEL_ODOM,"Wheel odometer"},
+                                                                           {IMU, "IMU"},
+                                                                           {LANDMARK_DETECTOR, "Landmark detector"},
+                                                                           {GPS, "GPS"},
+                                                                           {POSE, "POSE"} };
 
 } // end of LidarSlam namespace

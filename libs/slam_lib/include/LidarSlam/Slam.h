@@ -74,7 +74,6 @@
 #pragma once
 
 #include "LidarSlam/Utilities.h"
-#include "LidarSlam/Transform.h"
 #include "LidarSlam/LidarPoint.h"
 #include "LidarSlam/Enums.h"
 #include "LidarSlam/SpinningSensorKeypointExtractor.h"
@@ -119,6 +118,11 @@ public:
   // and current pose is set back to origin.
   // This keeps parameters and sensor data unchanged.
   void Reset(bool resetLog = true);
+
+  // Init map with default values
+  // This function is useful to keep a set of initial map parameters which are not SLAM members
+  // Maps can only be removed when reset is called but they don't depend on UseKeypoint
+  void InitMap(Keypoint k);
 
   // ---------------------------------------------------------------------------
   //   Main SLAM use
@@ -172,20 +176,22 @@ public:
   // Get information for each keypoint of the current frame (used/rejected keypoints, ...)
   std::unordered_map<std::string, std::vector<double>> GetDebugArray() const;
 
-  // Run pose graph optimization using GPS trajectory to improve SLAM maps and trajectory.
-  // Each GPS position must have an associated precision covariance.
-  // TODO : run that in a separated thread.
-  void RunPoseGraphOptimization(const std::vector<Transform>& gpsPositions,
-                                const std::vector<std::array<double, 9>>& gpsCovariances,
-                                Eigen::Isometry3d& gpsToSensorOffset,
-                                const std::string& g2oFileName = "");
+  // Update maps from beginning using new trajectory (after PGO)
+  void UpdateMaps();
 
   // Optimize graph containing lidar states with
   // landmarks' constraints as a postprocess
-  void OptimizeGraph();
+  bool OptimizeGraph();
 
   // Set world transform with an initial guess (usually from GPS after calibration).
   void SetWorldTransformFromGuess(const Eigen::Isometry3d& poseGuess);
+
+  // Initialize pose using pose measurements
+  // This allows to represent the maps and the trajectory of Lidar
+  // in an external frame (not first Lidar frame)
+  // the time of the synchronized pose is input so no Lidar frame needs
+  // to have been loaded to use this function
+  bool InitTworldWithPoseMeasurement(double time);
 
   // Save keypoints maps to disk for later use
   void SaveMapsToPCD(const std::string& filePrefix, PCDFormat pcdFormat = PCDFormat::BINARY_COMPRESSED, bool submap = true) const;
@@ -203,9 +209,6 @@ public:
   SetMacro(Verbosity, int)
   GetMacro(Verbosity, int)
 
-  void SetUseBlobs(bool ub) { this->UseKeypoints[BLOB] = ub; }
-  bool GetUseBlobs() const { return this->UseKeypoints.at(BLOB); }
-
   SetMacro(EgoMotion, EgoMotionMode)
   GetMacro(EgoMotion, EgoMotionMode)
 
@@ -218,9 +221,13 @@ public:
   SetMacro(LoggingStorage, PointCloudStorageType)
   GetMacro(LoggingStorage, PointCloudStorageType)
 
-  LidarState& GetLastState();
+  SetMacro(LogOnlyKeyframes, bool)
+  GetMacro(LogOnlyKeyframes, bool)
 
-  GetMacro(Latency, double);
+  LidarState& GetLastState();
+  GetMacro(LogStates, std::list<LidarState>)
+
+  GetMacro(Latency, double)
 
   // ---------------------------------------------------------------------------
   //   Graph parameters
@@ -234,6 +241,12 @@ public:
 
   GetMacro(FixLastVertex, bool)
   SetMacro(FixLastVertex, bool)
+
+  GetMacro(CovarianceScale, float)
+  SetMacro(CovarianceScale, float)
+
+  GetMacro(NbGraphIterations, int)
+  SetMacro(NbGraphIterations, int)
 
   // ---------------------------------------------------------------------------
   //   Coordinates systems parameters
@@ -262,6 +275,11 @@ public:
   // NOTE: If no base to lidar offset exists for the requested deviceId, the returned transform is identity.
   Eigen::Isometry3d GetBaseToLidarOffset(uint8_t deviceId = 0) const;
   void SetBaseToLidarOffset(const Eigen::Isometry3d& transform, uint8_t deviceId = 0);
+
+  // Set the keypoint types to use
+  void EnableKeypointType(Keypoint k, bool enabled = true);
+  // Get the keypoint types used
+  bool KeypointTypeEnabled(Keypoint k) const;
 
   // ---------------------------------------------------------------------------
   //   Optimization parameters
@@ -353,22 +371,26 @@ public:
   GetMacro(SensorMaxMeasures, unsigned int)
   void SetSensorMaxMeasures(unsigned int max);
 
-  void ClearSensorMeasurements();
+  void ResetSensors(bool emptyMeasurements = false);
 
   // Odometer
-  double GetWheelOdomWeight() const {return this->WheelOdomManager.GetWeight();}
-  void SetWheelOdomWeight(double weight) {this->WheelOdomManager.SetWeight(weight);}
+  double GetWheelOdomWeight() const;
+  void SetWheelOdomWeight(double weight);
 
-  bool GetWheelOdomRelative() const {return this->WheelOdomManager.GetRelative();}
-  void SetWheelOdomRelative(bool relative) {this->WheelOdomManager.SetRelative(relative);}
+  bool GetWheelOdomRelative() const;
+  void SetWheelOdomRelative(bool relative);
 
   void AddWheelOdomMeasurement(const ExternalSensors::WheelOdomMeasurement& om);
 
-  // IMU
-  double GetGravityWeight() const {return this->ImuManager.GetWeight();}
-  void SetGravityWeight(double weight) {this->ImuManager.SetWeight(weight);}
+  bool WheelOdomHasData() {return this->WheelOdomManager && this->WheelOdomManager->HasData();}
+
+  // Gravity from IMU
+  double GetGravityWeight() const;
+  void SetGravityWeight(double weight);
 
   void AddGravityMeasurement(const ExternalSensors::GravityMeasurement& gm);
+
+  bool GravityHasData() {return this->GravityManager && this->GravityManager->HasData();}
 
   // Landmark detector
   GetMacro(LandmarkWeight, double)
@@ -386,9 +408,38 @@ public:
   GetMacro(LandmarkConstraintLocal, bool)
   SetMacro(LandmarkConstraintLocal, bool)
 
+  void SetLmDetectorCalibration(const Eigen::Isometry3d& calib);
+
   void AddLandmarkManager(int id, const Eigen::Vector6d& absolutePose, const Eigen::Matrix6d& absolutePoseCovariance);
 
-  void AddLandmarkMeasurement(int id, const ExternalSensors::LandmarkMeasurement& lm);
+  void AddLandmarkMeasurement(const ExternalSensors::LandmarkMeasurement& lm, int id);
+
+  bool LmCanBeUsedLocally();
+  bool LmHasData();
+
+  // GPS
+  void AddGpsMeasurement(const ExternalSensors::GpsMeasurement& gpsMeas);
+
+  Eigen::Isometry3d GetGpsCalibration();
+  void SetGpsCalibration(const Eigen::Isometry3d& calib);
+
+  Eigen::Isometry3d GetGpsOffset();
+
+  bool GpsHasData() {return this->GpsManager && this->GpsManager->HasData();}
+
+  // Transform the whole trajectory (including current pose) to GPS reference frame (e.g. UTM)
+  // Warning : in trajectory, the position is remained odometric i.e. only the orientation
+  // is adapted for precision purposes but the offset position is stored in GPS manager
+  bool CalibrateWithGps();
+
+  // Pose
+  double GetPoseWeight() const;
+  void SetPoseWeight(double weight);
+
+  void AddPoseMeasurement(const ExternalSensors::PoseMeasurement& pm);
+  bool PoseHasData() {return this->PoseManager && this->PoseManager->HasData();}
+
+  void SetPoseCalibration(const Eigen::Isometry3d& calib);
 
   // ---------------------------------------------------------------------------
   //   Key frames and Maps parameters
@@ -403,14 +454,15 @@ public:
   GetMacro(MapUpdate, MappingMode)
   SetMacro(MapUpdate, MappingMode)
 
-  double GetVoxelGridDecayingThreshold();
+  double GetVoxelGridDecayingThreshold() const;
   void SetVoxelGridDecayingThreshold(double decay);
 
-  SamplingMode GetVoxelGridSamplingMode(Keypoint k);
+  SamplingMode GetVoxelGridSamplingMode(Keypoint k) const;
   void SetVoxelGridSamplingMode(Keypoint k, SamplingMode sm);
 
   // Set RollingGrid Parameters
   void ClearMaps();
+  double GetVoxelGridLeafSize(Keypoint k) const;
   void SetVoxelGridLeafSize(Keypoint k, double size);
   void SetVoxelGridSize(int size);
   void SetVoxelGridResolution(double resolution);
@@ -451,7 +503,8 @@ private:
   int NbThreads = 1;
 
   // Booleans to decide whether to extract the keypoints of the relative type or not
-  std::map<Keypoint, bool> UseKeypoints= {{EDGE, true}, {PLANE, true}, {BLOB, false}};
+  std::map<Keypoint, bool> UseKeypoints = {{EDGE, true}, {INTENSITY_EDGE, true}, {PLANE, true}, {BLOB, false}};
+  std::vector<Keypoint> UsableKeypoints = {EDGE, INTENSITY_EDGE, PLANE};
 
   // How to estimate Ego-Motion (approximate relative motion since last frame).
   // The ego-motion step aims to give a fast and approximate initialization of
@@ -483,6 +536,8 @@ private:
   // This reduces about 5 times the memory consumption, but slows down logging (and PGO).
   PointCloudStorageType LoggingStorage = PointCloudStorageType::PCL_CLOUD;
 
+  bool LogOnlyKeyframes = true;
+
   // Number of frames that have been processed by SLAM (number of poses in trajectory)
   unsigned int NbrFrameProcessed = 0;
 
@@ -501,13 +556,15 @@ private:
   // **** LOCALIZATION ****
 
   // Global transformation to map the current pointcloud to the previous one
-  Eigen::Isometry3d Trelative;
+  Eigen::Isometry3d Trelative = Eigen::Isometry3d::Identity();
 
   // Transformation to map the current pointcloud in the world coordinates
   // This pose is the pose of BASE in WORLD coordinates, at the time
   // corresponding to the timestamp in the header of input Lidar scan.
-  Eigen::Isometry3d Tworld;
-  Eigen::Isometry3d PreviousTworld;
+  Eigen::Isometry3d Tworld = Eigen::Isometry3d::Identity();
+  // Variable to store initial Tworld value (might be set by SetWorldTransformFromGuess)
+  // It is used to reset the pose in case of failure
+  Eigen::Isometry3d TworldInit = Eigen::Isometry3d::Identity();
 
   // Reflect the success of one SLAM iteration computation (used to log or not the state).
   bool Valid = true;
@@ -566,6 +623,9 @@ private:
   PointCloud::Ptr RegisteredFrame;
 
   // Raw extracted keypoints, in BASE coordinates (no undistortion)
+  // /!\ Warning these pointclouds may be modified by CurrentUndistortedKeypoints
+  // As we do not perform a deep copy to save time
+  // When one will want to use these points, a deep copy will be needed
   std::map<Keypoint, PointCloud::Ptr> CurrentRawKeypoints;
   std::map<Keypoint, PointCloud::Ptr> PreviousRawKeypoints;
 
@@ -620,13 +680,15 @@ private:
   // It computes the residual with a weight, a measurements list and
   // taking account of the acquisition time correspondance
   // The odometry measurements must be filled and cleared from outside this lib
-  ExternalSensors::WheelOdometryManager WheelOdomManager;
+  // using External Sensors interface
+  std::shared_ptr<ExternalSensors::WheelOdometryManager> WheelOdomManager;
 
   // IMU manager
   // Compute the residual with a weight, a measurements list and
   // taking account of the acquisition time correspondance
   // The IMU measurements must be filled and cleared from outside this lib
-  ExternalSensors::ImuManager ImuManager;
+  // using External Sensors interface
+  std::shared_ptr<ExternalSensors::ImuGravityManager> GravityManager;
 
   // Landmarks manager
   // Each landmark has its own manager and is identified by its ID.
@@ -635,7 +697,10 @@ private:
   // The managers compute the residuals with a weight, measurements lists and
   // taking account of the acquisition time correspondance
   // The tag measurements must be filled and cleared from outside this lib
-  std::unordered_map<int, ExternalSensors::LandmarkManager> LandmarksManagers;
+  // using External Sensors interface
+  std::map<int, ExternalSensors::LandmarkManager> LandmarksManagers;
+  // Calibration
+  Eigen::Isometry3d LmDetectorCalibration = Eigen::Isometry3d::Identity();
   // Variable to store the landmark weight to init correctly the landmark managers
   float LandmarkWeight = 0.f;
   // Boolean to choose whether to compute the reference pose of
@@ -651,6 +716,21 @@ private:
   // during measures interpolation or not. Covariances are only used
   // in pose graph optimization, not in local optimization
   bool LandmarkCovarianceRotation = true;
+
+  // GPS manager
+  // The GPS measurements must be filled and cleared from outside this lib
+  // using External Sensors interface
+  std::shared_ptr<ExternalSensors::GpsManager> GpsManager;
+  // Calibration
+  Eigen::Isometry3d GpsCalibration = Eigen::Isometry3d::Identity();
+
+  // Pose Manager
+  // Manager for the acquisition of pose measurements (e.g. from GNNS system, pre-integrated
+  // IMU or any other device able to give absolute pose.)
+  // It computes a residual with a weight taking into account the timing at which it is captured
+  // The Pose measurements must be filled and cleared from outside this lib
+  // using External Sensors interface
+  std::shared_ptr<ExternalSensors::PoseManager> PoseManager;
 
   // Time difference between Lidar's measurements and external sensors'
   // not null if they are not expressed relatively to the same time reference
@@ -739,6 +819,9 @@ private:
   // Boolean to decide if we want to some vertices of the graph
   bool FixFirstVertex = false;
   bool FixLastVertex = false;
+  // Scale to increase or decrease SLAM pose covariances
+  float CovarianceScale = 1.f;
+  int NbGraphIterations = 100;
 
   // ---------------------------------------------------------------------------
   //   Confidence estimation
@@ -823,7 +906,7 @@ private:
   bool CheckKeyFrame();
 
   // Log current frame processing results : pose, covariance and keypoints.
-  void LogCurrentFrameState(double time);
+  void LogCurrentFrameState();
 
   // ---------------------------------------------------------------------------
   //   Undistortion helpers
@@ -834,7 +917,7 @@ private:
   // input scan header. This can be done using estimated egomotion and assuming
   // a constant velocity during a sweep.
 
-  // Extra/Interpolate scan pose using previous motion from PreviousTworld and Tworld.
+  // Extra/Interpolate scan pose using previous motion from previous and current poses.
   // 'time' arg is the time offset in seconds to current frame header.stamp.
   Eigen::Isometry3d InterpolateScanPose(double time);
 
@@ -844,6 +927,9 @@ private:
   // Update the undistortion interpolator poses bounds,
   // and refine the undistortion of the current keypoints clouds.
   void RefineUndistortion();
+
+  // Undistort the keypoints using external pose measurement information
+  void UndistortWithPoseMeasurement();
 
   // ---------------------------------------------------------------------------
   //   Confidence estimator helpers
@@ -872,6 +958,20 @@ private:
   // NOTE: If transforming to WORLD coordinates, be sure that Tworld/WithinFrameMotion have been updated
   //       (updated during the Localization step).
   PointCloud::Ptr AggregateFrames(const std::vector<PointCloud::Ptr>& frames, bool worldCoordinates) const;
+
+  // ---------------------------------------------------------------------------
+  //   External sensor helpers
+  // ---------------------------------------------------------------------------
+  // All external sensors are shared ptr.
+  // The init function creates the objects with known parameters
+  void InitWheelOdom();
+  void InitGravity();
+  // WARNING : If the calibration has not been set for the landmarks detector (cf SetLmDetectorCalibration),
+  // default identity calibration is set to the current landmark.
+  // This way, data can be stored before receiving the calibration.
+  void InitLandmarkManager(int id);
+  void InitGps();
+  void InitPoseSensor();
 };
 
 } // end of LidarSlam namespace

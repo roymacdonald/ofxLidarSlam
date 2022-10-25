@@ -27,7 +27,7 @@ namespace LidarSlam
 /**
  * \struct LinearTransformInterpolator
  * \brief Linear interpolator to estimate an intermediate transform between two isometries.
- * 
+ *
  * At t=t0, the first isometry is returned, at t=t1 the second.
  * The translation will be interpolated linearly and the rotation spherical linearly.
  *
@@ -137,7 +137,7 @@ private:
 
 /**
  * \brief Interpolate spherical linearly between two isometries.
- * 
+ *
  * At t=t0, the first isometry is returned, at t=t1 the second.
  * The translation will be interpolated linearly and the rotation spherical linearly.
  */

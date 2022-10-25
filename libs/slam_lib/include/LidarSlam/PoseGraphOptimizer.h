@@ -54,9 +54,22 @@ public:
   void AddLandmark(const Eigen::Isometry3d& lmPose, unsigned int index, bool onlyPosition = false);
 
   //! Add a constraint from a landmark detection
-  //! landmarkStates contains the relative poses between landmark (defined by the SensorState index) and
-  //! the relative pose defined by the corresponding index in poseIndices
   void AddLandmarkConstraint(int lidarIdx, int lmIdx, const ExternalSensors::LandmarkMeasurement& lm, bool onlyPosition = false);
+
+  //! Add a constraint from a gps measure
+  //! The offset allows to represent the GPS positions in the same world frame as Lidar poses
+  //! This odometry reference frame minimize some angle errors
+  void AddGpsConstraint(int lidarIdx, const ExternalSensors::GpsMeasurement& gpsMeas);
+
+  //! Modify all Lidar poses to be in GPS reference frame
+  //! Offset is the translation to perform to align trajectories (GPS/Lidar)
+  //! GPS data are provided in an external global reference frame
+  //! We can set the Lidar positions in this frame using the first corresponding GPS/Lidar poses
+  //! As GPS does not provide orientation, we cannot set Lidar orientation in this frame
+  //! so, a new vertex with the reference frame is created and the first Lidar pose orientation is freed
+  //! to be modified so it fits the GPS data the best it can
+  //! WARNING : if the trajectory is rectilinear, roll angle might be wrong after optimization
+  void InitForGps(const Eigen::Vector3d& offset);
 
   SetMacro(SaveG2OFile, bool)
 
@@ -81,11 +94,13 @@ private:
   std::string G2OFileName = "";
   int NbIteration = 200;
   bool Verbose = false;
-  int LandmarkIdx = INT_MAX;
+  int ExtIdx = INT_MAX;
   // Boolean to decide whether to fix the first pose or not
   bool FixFirst = false;
   // Boolean to decide whether to fix the last pose or not
   bool FixLast = false;
+  // Saturation distance to remove outliers (used in robustifier)
+  float SaturationDistance = 5.f;
 
   // Linking between external sensor supplied indices and graph indices
   std::unordered_map<int, int> LMIndicesLinking;
