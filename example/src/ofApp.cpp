@@ -130,7 +130,7 @@ void ofApp::draw(){
     
     slam.draw();
     
-    lidar->drawGui();
+//    lidar->drawGui();
     gui.draw();
     slam.drawGui();
     
@@ -151,12 +151,9 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-    int numKey = key - '1';
-    if(numKey >= 0 && numKey <= ofxLidarSlamParameters::GUI_DRAW){
-        slam.params.setTab(numKey);
-    }
     
-    else if(key == 'p'){
+    
+     if(key == 'p'){
         bShowParams ^= true;
         if(bShowParams){
             currentParams = slam.getCurrentSlamParamsAsString();

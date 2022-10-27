@@ -826,6 +826,7 @@
 		B040544EBD10892BF59F57DB /* PacketMath.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = PacketMath.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/Eigen/src/Core/arch/SVE/PacketMath.h; sourceTree = SOURCE_ROOT; };
 		B0D26574ABF5B8D096006FB5 /* KroneckerTensorProduct.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = KroneckerTensorProduct.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/src/KroneckerProduct/KroneckerTensorProduct.h; sourceTree = SOURCE_ROOT; };
 		B0D72DB109375F6FDD2E162B /* EventCount.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = EventCount.h; path = ../../../addons/ofxOusterLidar/libs/eigen/include/unsupported/Eigen/CXX11/src/ThreadPool/EventCount.h; sourceTree = SOURCE_ROOT; };
+		B0EC60EE2909EF3500E96525 /* ofxLidarSlamUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ofxLidarSlamUtils.h; path = ../src/ofxLidarSlamUtils.h; sourceTree = "<group>"; };
 		B14F3D988BBCF42692A32B6A /* ofxSpinningSensorKeypointExtractor.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxSpinningSensorKeypointExtractor.cpp; path = ../../../addons/ofxLidarSlam/src/ofxSpinningSensorKeypointExtractor.cpp; sourceTree = SOURCE_ROOT; };
 		B1A52D3C68C18DD6188C3D3B /* sized_cost_function.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = sized_cost_function.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/sized_cost_function.h"; sourceTree = SOURCE_ROOT; };
 		B1B3045B312FC43CBCF7D162 /* normal_prior.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = normal_prior.h; path = "../../../addons/ofxCeresLib/libs/ceres/include-osx/ceres/normal_prior.h"; sourceTree = SOURCE_ROOT; };
@@ -2870,6 +2871,7 @@
 				E2234F4CF733E5338B0EF162 /* ofxMeshSaver.h */,
 				B14F3D988BBCF42692A32B6A /* ofxSpinningSensorKeypointExtractor.cpp */,
 				1BF1822DA79C77987E50B62B /* ofxSpinningSensorKeypointExtractor.h */,
+				B0EC60EE2909EF3500E96525 /* ofxLidarSlamUtils.h */,
 			);
 			name = src;
 			sourceTree = "<group>";

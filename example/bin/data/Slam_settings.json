@@ -42,6 +42,41 @@
             "Neighborhood_width": "4",
             "Plane_max_sinus_angle": "0.5"
         },
+        "Keypoints": {
+            "Keypoint_Extractor": {
+                "Azimuth_Max": "360",
+                "Azimuth_Min": "0",
+                "Edge_Nb_Gap_Points": "5",
+                "Edge_min_depth_gap": "0.15",
+                "Edge_min_intensity_gap": "50",
+                "Edge_min_sinus_angle": "0.86",
+                "Input_Sampling_Ratio": "1",
+                "Max_Points": "2147483647",
+                "Max_num_threads": "3",
+                "Min_Neigh_Radius": "0.05",
+                "Min_Num_Neighbours": "4",
+                "Min_distance_to_sensor": "1.5",
+                "Min_laser_beam_to_surface_angle": "10",
+                "Plane_max_sinus_angle": "0.5",
+                "Voxel_Resolution": "0.1"
+            },
+            "Maps_Update_Step": "1",
+            "Output_Current_Keypoints": "1",
+            "Output_Keypoints_In_World_Coordinates": "1",
+            "Output_Keypoints_Maps": "\u0001",
+            "Rolling_Grid": {
+                "Leaf_Size_edge": "0.3",
+                "Leaf_Size_intensity_edge": "0.3",
+                "Leaf_Size_plane": "0.6",
+                "Voxel_Grid_Decaying_Threshold": "0.684932",
+                "Voxel_Grid_Min_Frames_Per_Voxel": "0",
+                "Voxel_Grid_Resolution": "1.71233",
+                "Voxel_Grid_Size": "291"
+            },
+            "Sampling_Mode_edge": "\u0002",
+            "Sampling_Mode_intensity_edge": "\u0002",
+            "Sampling_Mode_plane": "\u0002"
+        },
         "MappingMode": "\u0001",
         "Maps_Update_Step": "1",
         "Num_Thrads": "4",
@@ -104,6 +139,7 @@
         "UndistortionMode": "\u0002",
         "UseBlobs": "1",
         "Use_IMU_data": "1",
-        "Verbose_Level": "\u0000"
+        "Verbose_Level": "\u0000",
+        "selected_tab": "4"
     }
 }
