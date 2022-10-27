@@ -40,7 +40,7 @@ public:
     
     void draw();
     
-    void setCurrentGuiGroup(GuiTypes group);
+    void setCurrentGuiGroup(GuiTypes group, bool bForceUpdate = false);
     
     
     // ---------------------------------------------------------------------------
@@ -101,7 +101,7 @@ public:
     ofParameter<bool> OutputKeypointsInWorldCoordinates = {"Output Keypoints In World Coordinates", true};
     
     
-    ofParameter<bool> UseBlobs = {"UseBlobs", false};
+//    ofParameter<bool> UseBlobs = {"UseBlobs", false};
     
     
     // Allows to choose which map keypoints to output
@@ -165,17 +165,20 @@ public:
     //   Rolling Grid
     // ---------------------------------------------------------------------------
     
-    ofParameter<uint8_t> samplingModeEdges = {"Sampling Mode Edges",  0, 0, 5};
-    ofParameter<uint8_t> samplingModePlanes = {"Sampling Mode Planes",  0, 0, 5};
-    ofParameter<uint8_t> samplingModeBlobs = {"Sampling Mode Blobs",  0, 0, 5};
+    vector<ofParameter<uint8_t>>samplingMode;
+    
+//    ofParameter<uint8_t> samplingModeEdges = {"Sampling Mode Edges",  0, 0, 5};
+//    ofParameter<uint8_t> samplingModePlanes = {"Sampling Mode Planes",  0, 0, 5};
+//    ofParameter<uint8_t> samplingModeBlobs = {"Sampling Mode Blobs",  0, 0, 5};
     
     ofParameter< double> VoxelGridDecayingThreshold = {"Voxel Grid Decaying Threshold", 0, 0, 100};
     ofParameter<int> VoxelGridSize = {"Voxel Grid Size", 0, 0, 1000};
     ofParameter<double> VoxelGridResolution = {"Voxel Grid Resolution", 0,0, 100};
     ofParameter<unsigned int> VoxelGridMinFramesPerVoxel = {"Voxel Grid Min Frames Per Voxel",0,0, 10};
 
-    ofParameter<float> LeafSizeEdges = {"Leaf Size Edges", 0.30, 0, 10};
-    ofParameter<float> LeafSizePlanes = {"Leaf Size Planes", 0.60, 0, 10};
+    vector<ofParameter<float>> LeafSize;
+//    ofParameter<float> LeafSizeEdges = {"Leaf Size Edges", 0.30, 0, 10};
+//    ofParameter<float> LeafSizePlanes = {"Leaf Size Planes", 0.60, 0, 10};
 //    ofParameter<float> LeafSizeBlobs = {"Leaf Size Blobs", 0.30, 0, 10};
     
 
@@ -239,6 +242,8 @@ public:
     
     ofParameterGroup drawParams = {"Draw"};
     
+    ofParameterGroup advancedReturnParams = {"Advanced params"};
+    
     ofxPanel gui;
 
     
@@ -283,9 +288,10 @@ protected:
     shared_ptr<ofxDropdown_<uint8_t>> undistortionModeDropdown = nullptr;
     shared_ptr<ofxDropdown_<uint8_t>> mappingModeDropdown = nullptr;
     shared_ptr<ofxDropdown_<uint8_t>> egoMotionModeDropdown = nullptr;
-    shared_ptr<ofxDropdown_<uint8_t>> samplingModeEdgesDropdown = nullptr;
-    shared_ptr<ofxDropdown_<uint8_t>> samplingModePlanesDropdown = nullptr;
-    shared_ptr<ofxDropdown_<uint8_t>> samplingModeBlobsDropdown = nullptr;
+    
+    vector<shared_ptr<ofxDropdown_<uint8_t>>> samplingModeDropdown;
+//    shared_ptr<ofxDropdown_<uint8_t>> samplingModePlanesDropdown = nullptr;
+//    shared_ptr<ofxDropdown_<uint8_t>> samplingModeBlobsDropdown = nullptr;
     
     shared_ptr<ofxDropdown_<uint8_t>> accumulateByDropdown = nullptr;
     
@@ -304,7 +310,7 @@ protected:
     string getCurrentGuiFilename();
     
     ofEventListener selectedTabListener;
-    
+    ofEventListener advancedReturnListener;
     
     ofEventListener windowSizeListener;
     void setGuisPositions();

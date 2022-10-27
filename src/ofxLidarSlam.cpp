@@ -6,6 +6,7 @@
 //
 
 #include "ofxLidarSlam.h"
+#include "ofxLidarSlamUtils.h"
 // PCL
 #include <pcl/common/transforms.h>
 
@@ -33,39 +34,63 @@ this->SlamAlgo->Set##param(_arg);\
 
 #define PrintMacro(param) ss << #param  << " : " << this->SlamAlgo->Get##param() << "\n";
 
-void PclToOf( LidarSlam::Slam::PointCloud::Ptr pc, ofVboMesh& mesh){
-    size_t np = pc->size();
-    mesh.setMode(OF_PRIMITIVE_POINTS);
-    auto & v = mesh.getVertices();
-    v.resize(np);
-    for(size_t i = 0; i < np; i++){
-        auto& pp = pc->at(i);
-        v[i].x = pp.x;
-        v[i].y = pp.y;
-        v[i].z = pp.z;
+
+
+
+const std::map<LidarSlam::Keypoint, bool> ofxLidarSlam::UseKeypoints = {{LidarSlam::EDGE, true}, {LidarSlam::INTENSITY_EDGE, true}, {LidarSlam::PLANE, true}, {LidarSlam::BLOB, false}};
+const std::vector<LidarSlam::Keypoint> ofxLidarSlam::UsableKeypoints = {LidarSlam::EDGE, LidarSlam::INTENSITY_EDGE, LidarSlam::PLANE};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+ofxLidarSlamResults::ofxLidarSlamResults(){
+    maps.resize(ofxLidarSlam::UsableKeypoints.size());
+    keypoints.resize(ofxLidarSlam::UsableKeypoints.size());
+}
+//-----------------------------------------------------------------------------
+void ofxLidarSlamResults::saveMaps(string timestamp){
+    for(auto k : ofxLidarSlam::UsableKeypoints){
+        if(maps[k].getVertices().size()) {
+            maps[k].save(LidarSlam::KeypointTypeNames.at(k) + "_" + timestamp + ".ply" );
+        }
     }
 }
-void AddPclToOf( LidarSlam::Slam::PointCloud::Ptr pc, ofVboMesh& mesh){
-    size_t np = pc->size();
-    mesh.setMode(OF_PRIMITIVE_POINTS);
-    auto & v = mesh.getVertices();
-    size_t startSize = v.size();
-    v.resize(startSize + np);
-    size_t n = startSize + np;
-    for(size_t i = startSize; i < n; i++){
-        auto& pp = pc->at(i-startSize);
-        v[i].x = pp.x;
-        v[i].y = pp.y;
-        v[i].z = pp.z;
+//-----------------------------------------------------------------------------
+void ofxLidarSlamResults::clear(){
+    RegisteredMap.clear();
+    for(auto &m : maps){
+        m.clear();
+    }
+    for(auto &k : keypoints){
+        k.clear();
     }
 }
 
 
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 ofxLidarSlam::ofxLidarSlam():pointShader("Points Shader")
 {
  
+
+ 
+}
+//-----------------------------------------------------------------------------
+ofxLidarSlam::~ofxLidarSlam()
+{
+
+    fromSlam.close();
+
+    waitForThread(true);
+}
+//-----------------------------------------------------------------------------
+void ofxLidarSlam::setup(std::shared_ptr<ofxOuster>& lidar){
+    
     bMarkCurrent = false;
     SlamAlgo = std::make_unique<LidarSlam::Slam>();
     
@@ -73,7 +98,7 @@ ofxLidarSlam::ofxLidarSlam():pointShader("Points Shader")
     InitPose.setZero();
     
     setDefaults();
-    SlamAlgo->SetVerbosity(5);
+    SlamAlgo->SetVerbosity(0);
     
     this->reset();
     
@@ -91,18 +116,9 @@ ofxLidarSlam::ofxLidarSlam():pointShader("Points Shader")
     pointShader.setRangeUnit(1);
     
     
- 
-}
-//-----------------------------------------------------------------------------
-ofxLidarSlam::~ofxLidarSlam()
-{
-
-    fromSlam.close();
-
-    waitForThread(true);
-}
-//-----------------------------------------------------------------------------
-void ofxLidarSlam::setup(std::shared_ptr<ofxOuster>& lidar){
+    
+    
+    
     this->lidar = lidar;
     this->lidar->disableRenderer();
     setParamsListeners();
@@ -243,7 +259,7 @@ void ofxLidarSlam::processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults
         // ===== SLAM frame and pose =====
         // Output : Current undistorted LiDAR frame in world coordinates
         
-        PclToOf(this->SlamAlgo->GetRegisteredFrame(), results.RegisteredMap);
+        ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetRegisteredFrame(), results.RegisteredMap);
         
         
         //TS_START("SavePose");
@@ -302,9 +318,9 @@ void ofxLidarSlam::processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults
 //            GET_MAP(PlanarMap, LidarSlam::PLANE)
 //            GET_MAP(BlobMap, LidarSlam::BLOB)
             
-            for(auto k : LidarSlam::KeypointTypes){
+            for(auto k : UsableKeypoints){
                 if(params.bDrawMaps[k] && params.bDrawMaps[k]->get()) {
-                    PclToOf(this->SlamAlgo->GetMap(k), results.maps[k]);
+                    ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetMap(k), results.maps[k]);
                 }
             }
             
@@ -318,9 +334,9 @@ void ofxLidarSlam::processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults
         {
             
             
-            for(auto k : LidarSlam::KeypointTypes){
+            for(auto k : UsableKeypoints){
                 if(params.bDrawMaps[k] && params.bDrawMaps[k]->get()) {
-                    PclToOf(this->SlamAlgo->GetTargetSubMap(k), results.maps[k]);
+                    ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetTargetSubMap(k), results.maps[k]);
                 }
             }
             
@@ -353,9 +369,9 @@ void ofxLidarSlam::processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults
         if (params.OutputCurrentKeypoints)
         {
             
-            for(auto k : LidarSlam::KeypointTypes){
+            for(auto k : UsableKeypoints){
                 if(params.bDrawKeypoints[k] && params.bDrawKeypoints[k]->get()) {
-                    PclToOf(this->SlamAlgo->GetKeypoints(k, params.OutputKeypointsInWorldCoordinates.get()), results.keypoints[k]);
+                    ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetKeypoints(k, params.OutputKeypointsInWorldCoordinates.get()), results.keypoints[k]);
                 }
             }
             
@@ -709,7 +725,7 @@ ofxSpinningSensorKeypointExtractor& ofxLidarSlam::getKeyPointExtractor(){
 if(params.bDraw##mesh) { ofSetColor(params.mesh##Color.get()); slamResults.mesh.draw(); }
 
 void ofxLidarSlam::drawMesh(vector<unique_ptr<ofParameter<bool>>>& bDraw ,  vector<ofVboMesh>& mesh, vector<unique_ptr<ofParameter<ofColor>>>& color){
-    for(auto k : LidarSlam::KeypointTypes){
+    for(auto k : UsableKeypoints){
         if(bDraw[k] && bDraw[k]->get()) {
             pointShader.begin();
             pointShader.shader.setUniform3f("offset", 0,0,0);
@@ -957,13 +973,17 @@ void ofxLidarSlam::setParamsListeners(){
     
     listeners.push(params.TimeWindowDuration.newListener(this, &ofxLidarSlam::_timeWindowDurationChanged));
     
-    listeners.push(params.LeafSizeEdges.newListener([&](float& f){
-        SetVoxelGridLeafSizeEdges(f);
-    }));
-    listeners.push(params.LeafSizePlanes.newListener([&](float& f){
-        SetVoxelGridLeafSizePlanes(f);
-        
-    }));
+    for(auto & k : UsableKeypoints){
+        listeners.push(params.LeafSize[k].newListener([&](float& f){
+            SetVoxelGridLeafSize(k,f);
+        }));
+    }
+//    listeners.push(params.LeafSizeEdges.newListener([&](float& f){
+//        SetVoxelGridLeafSize(LidarSlam::Keypoint::EDGE,f);
+//    }));
+//    listeners.push(params.LeafSizePlanes.newListener([&](float& f){
+//        SetVoxelGridLeafSize(LidarSlam::Keypoint::PLANE, f);
+//    }));
 //    listeners.push(params.LeafSizeBlobs.newListener([&](float& f){
 //        SetVoxelGridLeafSizeBlobs(f);
 //    }));
@@ -975,17 +995,25 @@ void ofxLidarSlam::setParamsListeners(){
     }));
     
     
-    listeners.push(params.samplingModeEdges.newListener([&](uint8_t& mode){
-        SetVoxelGridSamplingModeEdges((int)mode);
-    }));
+    for(auto & k : UsableKeypoints){
+        listeners.push(params.samplingMode[k].newListener([&](uint8_t& mode){
+            SetVoxelGridSamplingMode(k,(int)mode);
+        }));
+    }
+//    listeners.push(params.samplingModeEdges.newListener([&](uint8_t& mode){
+//        SetVoxelGridSamplingMode(LidarSlam::Keypoint::EDGE,(int)mode);
+//    }));
+//
+//    listeners.push(params.samplingModePlanes.newListener([&](uint8_t& mode){
+//        SetVoxelGridSamplingMode(LidarSlam::Keypoint::PLANE, (int)mode);
+//    }));
+//
+//    listeners.push(params.samplingModeBlobs.newListener([&](uint8_t& mode){
+//        SetVoxelGridSamplingMode(LidarSlam::Keypoint::BLOB,(int)mode);
+//    }));
+//
     
-    listeners.push(params.samplingModePlanes.newListener([&](uint8_t& mode){
-        SetVoxelGridSamplingModePlanes((int)mode);
-    }));
     
-    listeners.push(params.samplingModeBlobs.newListener([&](uint8_t& mode){
-        SetVoxelGridSamplingModeBlobs((int)mode);
-    }));
             
     listeners.push(params.angularAccLimit.newListener([&](float&){
         SetAccelerationLimits(params.linearAccLimit.get(), params.angularAccLimit.get());

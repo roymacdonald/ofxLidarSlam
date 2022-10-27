@@ -48,12 +48,11 @@ enum AccumulateMode : uint8_t{
 
 
 
+
 class ofxLidarSlamResults{
 public:
-    ofxLidarSlamResults(){
-        maps.resize(LidarSlam::nKeypointTypes);
-        keypoints.resize(LidarSlam::nKeypointTypes);
-    }
+    ofxLidarSlamResults();
+    
     ofxLidarSlamTrajectoryPoint trajectoryPoint;
     
     ofVboMesh RegisteredMap;
@@ -63,29 +62,23 @@ public:
         
     bool bValid = false;
     
-    void saveMaps(string timestamp){
-    
-        for(auto k : LidarSlam::KeypointTypes){
-            if(maps[k].getVertices().size()) {
-                maps[k].save(LidarSlam::KeypointTypeNames.at(k) + "_" + timestamp + ".ply" );
-            }
-        }
-    }
+    void saveMaps(string timestamp);
 
-    void clear(){
-        RegisteredMap.clear();
-        for(auto &m : maps){
-            m.clear();
-        }
-        for(auto &k : keypoints){
-            k.clear();
-        }
-    }
+    void clear();
 };
+
+
 
 class ofxLidarSlam: public ofThread
 {
 public:
+    
+    // I dont know why they implemented this in the SLAM library. By default it does not use the BLOB type, and its resources are inited in the constructor so it is kinda hard coded and not possible to init post construction without modifying the library, which I'd rather dont.
+    static const std::map<LidarSlam::Keypoint, bool> UseKeypoints; //= {{LidarSlam::EDGE, true}, {LidarSlam::INTENSITY_EDGE, true}, {LidarSlam::PLANE, true}, {LidarSlam::BLOB, false}};
+    static const std::vector<LidarSlam::Keypoint> UsableKeypoints; //= {LidarSlam::EDGE, LidarSlam::INTENSITY_EDGE, LidarSlam::PLANE};
+
+    
+    
     ofxLidarSlam();
     virtual ~ofxLidarSlam();
     
@@ -132,24 +125,24 @@ public:
     void SetVoxelGridSamplingMode(LidarSlam::Keypoint k, int sm);
     
     // For edges
-    int GetVoxelGridSamplingModeEdges() { return this->GetVoxelGridSamplingMode(LidarSlam::Keypoint::EDGE); }
-    void SetVoxelGridSamplingModeEdges(int sm)  { this->SetVoxelGridSamplingMode(LidarSlam::Keypoint::EDGE, sm);  }
+//    int GetVoxelGridSamplingModeEdges() { return this->GetVoxelGridSamplingMode(LidarSlam::Keypoint::EDGE); }
+//    void SetVoxelGridSamplingModeEdges(int sm)  { this->SetVoxelGridSamplingMode(LidarSlam::Keypoint::EDGE, sm);  }
 
     // For planes
-    int GetVoxelGridSamplingModePlanes() { return this->GetVoxelGridSamplingMode(LidarSlam::Keypoint::PLANE); }
-    void SetVoxelGridSamplingModePlanes(int sm) { this->SetVoxelGridSamplingMode(LidarSlam::Keypoint::PLANE, sm); }
+//    int GetVoxelGridSamplingModePlanes() { return this->GetVoxelGridSamplingMode(LidarSlam::Keypoint::PLANE); }
+//    void SetVoxelGridSamplingModePlanes(int sm) { this->SetVoxelGridSamplingMode(LidarSlam::Keypoint::PLANE, sm); }
 
     // For blobs
-    int GetVoxelGridSamplingModeBlobs() { return this->GetVoxelGridSamplingMode(LidarSlam::Keypoint::BLOB); }
-    void SetVoxelGridSamplingModeBlobs(int sm)  { this->SetVoxelGridSamplingMode(LidarSlam::Keypoint::BLOB, sm);  }
+//    int GetVoxelGridSamplingModeBlobs() { return this->GetVoxelGridSamplingMode(LidarSlam::Keypoint::BLOB); }
+//    void SetVoxelGridSamplingModeBlobs(int sm)  { this->SetVoxelGridSamplingMode(LidarSlam::Keypoint::BLOB, sm);  }
     
     void SetVoxelGridLeafSize(LidarSlam::Keypoint k, double s);
     
     // For edges
-    void SetVoxelGridLeafSizeEdges(double s)  { this->SetVoxelGridLeafSize(LidarSlam::Keypoint::EDGE, s);  }
+//    void SetVoxelGridLeafSizeEdges(double s)  { this->SetVoxelGridLeafSize(LidarSlam::Keypoint::EDGE, s);  }
 
     // For planes
-    void SetVoxelGridLeafSizePlanes(double s) { this->SetVoxelGridLeafSize(LidarSlam::Keypoint::PLANE, s); }
+//    void SetVoxelGridLeafSizePlanes(double s) { this->SetVoxelGridLeafSize(LidarSlam::Keypoint::PLANE, s); }
 
     // For blobs
 //    void SetVoxelGridLeafSizeBlobs(double s)  { this->SetVoxelGridLeafSize(LidarSlam::Keypoint::BLOB, s);  }

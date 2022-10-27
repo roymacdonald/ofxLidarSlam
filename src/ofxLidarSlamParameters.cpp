@@ -7,7 +7,7 @@
 
 #include "ofxLidarSlamParameters.h"
 #include "LidarSlam/Enums.h"
-
+#include "ofxLidarSlam.h"
 
 ofxLidarSlamParameters::ofxLidarSlamParameters(){
     
@@ -37,11 +37,11 @@ void ofxLidarSlamParameters::setupColorsGui(){
     initAndAddColorParam(TrajectoryLineColor, "Trajectory Line", ofColor::red);
     initAndAddColorParam(RegisteredMapColor, "Registered Map", ofColor::yellow);
     
-    for(auto k : LidarSlam::KeypointTypes){
+    for(auto k : ofxLidarSlam::UsableKeypoints){
         guiColors.add(*mapColor[k].get());
     }
 
-    for(auto k : LidarSlam::KeypointTypes){
+    for(auto k : ofxLidarSlam::UsableKeypoints){
         guiColors.add(*keypointColor[k].get());
     }
     loadGui(&guiColors, colorsSettingsFile);
@@ -50,6 +50,8 @@ void ofxLidarSlamParameters::setupColorsGui(){
 void ofxLidarSlamParameters::setupGuiGroups(){
     selectedTab.setName("selected tab");
     tabs = make_unique<ofxGuiIntTabs>(selectedTab);
+    
+    tabs->enableKeys();
     
     guiGroups.resize(GuiTypesNames.size());
     for(size_t i = 0; i < GuiTypesNames.size(); i ++){
@@ -60,6 +62,11 @@ void ofxLidarSlamParameters::setupGuiGroups(){
     
     selectedTabListener = selectedTab.newListener([&](int& i){
         setCurrentGuiGroup((GuiTypes)i);
+    });
+    advancedReturnListener = AdvancedReturnMode.newListener([&](bool& i){
+        if(current_gui == GUI_KEYFRAMES){
+            setCurrentGuiGroup(GUI_KEYFRAMES, true);
+        }
     });
     
     
@@ -82,21 +89,21 @@ void ofxLidarSlamParameters::setupGuiGroups(){
     guiGroups[GUI_OUTPUT]->add(accumulateByDropdown.get());
     
     
-    size_t n = LidarSlam::KeypointTypes.size();
+    size_t n = ofxLidarSlam::UsableKeypoints.size();
     bDrawMaps.resize(n);
     bDrawKeypoints.resize(n);
     keypointColor.resize(n);
     mapColor.resize(n);
     
     int i = 0;
-    for(auto k : LidarSlam::KeypointTypes){
+    for(auto k : ofxLidarSlam::UsableKeypoints){
         bDrawMaps[k] = make_unique<ofParameter<bool>>("Draw " + LidarSlam::KeypointTypeNames.at(k) + " Map", true);
         bDrawKeypoints[k] = make_unique<ofParameter<bool>>("Draw " + LidarSlam::KeypointTypeNames.at(k) + " Keypoints", true);
         
         ofColor c;
-        c.setHsb( (i*2) * 255.0f/ LidarSlam::KeypointTypes.size()*2 , 255, 255);
+        c.setHsb( (i*2) * 255.0f/ ofxLidarSlam::UsableKeypoints.size()*2 , 255, 255);
         mapColor[k] = make_unique<ofParameter<ofColor>>(LidarSlam::KeypointTypeNames.at(k) + " Map Color", c,ofColor(0,0,0,0), ofColor(255,255,255,255));
-        c.setHsb( (i*2 + 1) * 255.0f/ LidarSlam::KeypointTypes.size()*2 , 255, 255);
+        c.setHsb( (i*2 + 1) * 255.0f/ ofxLidarSlam::UsableKeypoints.size()*2 , 255, 255);
         keypointColor[k] = make_unique<ofParameter<ofColor>>(LidarSlam::KeypointTypeNames.at(k) + " Keypoint Color", c,ofColor(0,0,0,0), ofColor(255,255,255,255));
         i++;
     }
@@ -104,14 +111,16 @@ void ofxLidarSlamParameters::setupGuiGroups(){
     guiGroups[GUI_KEYPOINTS]->add(OutputCurrentKeypoints);
     guiGroups[GUI_KEYPOINTS]->add(MapsUpdateStep);
     guiGroups[GUI_KEYPOINTS]->add(OutputKeypointsInWorldCoordinates);
-    guiGroups[GUI_KEYPOINTS]->add(UseBlobs);
+//    guiGroups[GUI_KEYPOINTS]->add(UseBlobs);
     guiGroups[GUI_KEYPOINTS]->add(OutputKeypointsMapsDropdown.get());
     //    gui.add(TimestampFirstPacket);
 //    guiGroups[GUI_KEYPOINTS]->add(samplingModesParams);
 //    auto& g = gui.getGroup(samplingModesParams.getName());
-    guiGroups[GUI_KEYPOINTS]->add(samplingModeEdgesDropdown.get());
-    guiGroups[GUI_KEYPOINTS]->add(samplingModePlanesDropdown.get());
-    guiGroups[GUI_KEYPOINTS]->add(samplingModeBlobsDropdown.get());
+    for(auto& k : ofxLidarSlam::UsableKeypoints){
+        guiGroups[GUI_KEYPOINTS]->add(samplingModeDropdown[k].get());
+    }
+//    guiGroups[GUI_KEYPOINTS]->add(samplingModePlanesDropdown.get());
+//    guiGroups[GUI_KEYPOINTS]->add(samplingModeBlobsDropdown.get());
     
     
     
@@ -119,12 +128,14 @@ void ofxLidarSlamParameters::setupGuiGroups(){
     rollingGridParams.add(VoxelGridSize);
     rollingGridParams.add(VoxelGridResolution);
     rollingGridParams.add(VoxelGridMinFramesPerVoxel);
-    rollingGridParams.add(LeafSizeEdges);
-    rollingGridParams.add(LeafSizePlanes);
+    for(auto& k : ofxLidarSlam::UsableKeypoints){
+        rollingGridParams.add(LeafSize[k]);
+    }
+//    rollingGridParams.add(LeafSizePlanes);
 //    rollingGridParams.add(LeafSizeBlobs);
     
     guiGroups[GUI_KEYPOINTS]->add(rollingGridParams);
-    guiGroups[GUI_KEYPOINTS]->add(OverlapSamplingRatio);
+    
     
     
     
@@ -202,6 +213,12 @@ void ofxLidarSlamParameters::setupGuiGroups(){
 
     guiGroups[GUI_KEYFRAMES]->add(KfDistanceThreshold);
     guiGroups[GUI_KEYFRAMES]->add(KfAngleThreshold);
+    guiGroups[GUI_KEYFRAMES]->add(AdvancedReturnMode);
+    
+    advancedReturnParams.add(TimeWindowDuration);
+    advancedReturnParams.add(OverlapSamplingRatio);
+    
+
     
     
     
@@ -215,7 +232,7 @@ void ofxLidarSlamParameters::setupGuiGroups(){
     motionConstraintParams.add(angularVelLimit);
 
     guiGroups[GUI_MOTION]->add(motionConstraintParams);
-    guiGroups[GUI_MOTION]->add(TimeWindowDuration);
+
         
 }
 void ofxLidarSlamParameters::setupGui(){
@@ -227,12 +244,17 @@ void ofxLidarSlamParameters::setupGui(){
     gui.add(bUseImuData);
     gui.add(verboseLevel);
     gui.add(reset);
-    gui.add(AdvancedReturnMode);
+//    gui.add(AdvancedReturnMode);
 
     gui.add(tabs.get());
 //    gui.add(TimestampFirstPacket);
     if((int)current_gui < guiGroups.size()){
         gui.add(guiGroups[(int)current_gui].get());
+        if(current_gui == GUI_KEYFRAMES){
+            if(AdvancedReturnMode.get()){
+                gui.add(advancedReturnParams);
+            }
+        }
     }
     setGuisPositions();
     
@@ -306,11 +328,22 @@ void ofxLidarSlamParameters::makeDropdowns(){
         "CENTER_POINT" ,
         "CENTROID"};
     
-    samplingModeEdgesDropdown = makeDropdown(sampling_names , samplingModeEdges);
     
-    samplingModePlanesDropdown = makeDropdown(sampling_names, samplingModePlanes);
+    auto numKeypoints = ofxLidarSlam::UsableKeypoints.size();
     
-    samplingModeBlobsDropdown = makeDropdown(sampling_names, samplingModeBlobs);
+    samplingMode.resize(numKeypoints);
+    LeafSize.resize(numKeypoints);
+    samplingModeDropdown.resize(numKeypoints);
+    
+    for(auto& d: ofxLidarSlam::UsableKeypoints){
+        auto name = LidarSlam::KeypointTypeNames.at((LidarSlam::Keypoint)d);
+        samplingMode[d].set("Sampling Mode " + name,  0, 0, 5);
+        samplingModeDropdown[d] = makeDropdown(sampling_names , samplingMode[d]);
+        LeafSize[d].set("Leaf Size "+ name, 0.30, 0, 10);
+    }
+    LeafSize[LidarSlam::PLANE] = 0.60;
+    
+    
     
     
     
@@ -327,8 +360,8 @@ void ofxLidarSlamParameters::setTab(int tabIndex){
     }
 }
 
-void ofxLidarSlamParameters::setCurrentGuiGroup(GuiTypes group){
-    if(group != current_gui){
+void ofxLidarSlamParameters::setCurrentGuiGroup(GuiTypes group, bool bForceUpdate){
+    if(group != current_gui || bForceUpdate){
 //        cout <<"ofxLidarSlamParameters::setCurrentGuiGroup " << GuiTypesNames[group] << " -> " << GuiTypesNames[current_gui] <<endl;
         guiGroups[current_gui]->saveToFile(getCurrentGuiFilename());
         current_gui = group ;
