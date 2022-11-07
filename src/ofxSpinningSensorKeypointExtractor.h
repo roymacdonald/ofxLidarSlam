@@ -26,7 +26,7 @@
 class ofxSpinningSensorKeypointExtractor
 {
 public:
-    ofxSpinningSensorKeypointExtractor();
+    ofxSpinningSensorKeypointExtractor(LidarSlam::SpinningSensorKeypointExtractor * keypointExtractor);
     
     /// Max number of threads to use to process points in parallel
     ofParameter<int> NbThreads = {"Max num threads", 1,1, 8};
@@ -107,9 +107,10 @@ public:
     
     ofParameterGroup parameters = {"Keypoint Extractor"};
     
-    std::shared_ptr<LidarSlam::SpinningSensorKeypointExtractor> extractor = nullptr;
+    
 protected:
     
+    LidarSlam::SpinningSensorKeypointExtractor* extractor = nullptr;
     ofEventListeners listeners;
     
 };

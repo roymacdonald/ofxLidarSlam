@@ -21,14 +21,14 @@
 
 
 #define ADD_PARAM_LISTENER_MACRO(name, type)                                  \
-listeners.push( name .newListener([&](type & _arg){extractor->Set##name(_arg);}));
+listeners.push( name .newListener([&](type & _arg){if(extractor) extractor->Set##name(_arg);}));
 
 
 
 
 //-----------------------------------------------------------------------------
-ofxSpinningSensorKeypointExtractor::ofxSpinningSensorKeypointExtractor()
-: extractor(std::make_shared<LidarSlam::SpinningSensorKeypointExtractor>())
+ofxSpinningSensorKeypointExtractor::ofxSpinningSensorKeypointExtractor(LidarSlam::SpinningSensorKeypointExtractor * keypointExtractor):
+extractor(keypointExtractor)
 {
     
     parameters.add(NbThreads);
