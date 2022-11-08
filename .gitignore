@@ -8,7 +8,8 @@ docs/tagfile.xml
 */bin/*
 */bin/data/*.json
 !*/bin/data/
-
+example/bin/data/tooltips_slam.json
+example/bin/data/tooltips.json
 
 
 # for bin folder in root
