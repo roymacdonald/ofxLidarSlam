@@ -9,15 +9,16 @@
 #include "LidarSlam/Enums.h"
 #include "ofxLidarSlam.h"
 
-ofxLidarSlamParameters::ofxLidarSlamParameters(){
+void ofxLidarSlamParameters::setup(LidarSlam::SpinningSensorKeypointExtractor * keypointExtractor){
     
+    keypointExtractorParams = make_unique<ofxSpinningSensorKeypointExtractor>(keypointExtractor);
     
     makeDropdowns();
     setupGuiGroups();
 
     setupGui();
     
-    loadGui(&gui, settingsFile);
+//    loadGui(&gui, settingsFile);
     
     setupColorsGui();
     setGuisPositions();
@@ -26,7 +27,7 @@ ofxLidarSlamParameters::ofxLidarSlamParameters(){
         setGuisPositions();
     });
     setGuisPositions();
-    
+    setupTooltips();
 }
 
 void ofxLidarSlamParameters::setupColorsGui(){
@@ -137,6 +138,8 @@ void ofxLidarSlamParameters::setupGuiGroups(){
     guiGroups[GUI_KEYPOINTS]->add(rollingGridParams);
     
     
+    guiGroups[GUI_KEYPOINTS]->add(keypointExtractorParams->parameters);
+    
     
     
     drawParams.add(bUseDepthTest);
@@ -208,7 +211,7 @@ void ofxLidarSlamParameters::setupGuiGroups(){
     
     // Key frames
     
-    guiGroups[GUI_KEYFRAMES]->add(OutputKeypointsMaps);
+//    guiGroups[GUI_KEYFRAMES]->add(OutputKeypointsMaps);
     guiGroups[GUI_KEYFRAMES]->add(mappingModeDropdown.get());
 
     guiGroups[GUI_KEYFRAMES]->add(KfDistanceThreshold);
@@ -242,8 +245,9 @@ void ofxLidarSlamParameters::setupGui(){
     gui.add(bEnableSlam);
     gui.add(NbThreads);
     gui.add(bUseImuData);
-    gui.add(verboseLevel);
+    gui.add(verboseLevelDropdown.get());
     gui.add(reset);
+    gui.add(bTooltipsEnabled);
 //    gui.add(AdvancedReturnMode);
 
     gui.add(tabs.get());
@@ -261,10 +265,41 @@ void ofxLidarSlamParameters::setupGui(){
     
 }
 
-
+void ofxLidarSlamParameters::setupTooltips(){
+    ofJson json;
+    string tooltipFilepath = "tooltips_slam.json";
+    
+    
+    for(size_t i = 0; i <GuiTypesNames.size(); i++){
+        groups_tooltips.emplace_back(make_unique<ofxGuiTooltip>());
+        groups_tooltips[i]->registerGui(guiGroups[i].get(), tooltipFilepath, "/group/"+GuiTypesNames[i]);
+        groups_tooltips[i]->disable();
+    }
+    main_tooltip.registerGui(&gui, tooltipFilepath);
+    
+    tooltipsListener = bTooltipsEnabled.newListener([&](bool&){
+   
+        for(auto & g : groups_tooltips){
+            if(bTooltipsEnabled.get()){
+                g->enable();
+            }else{
+                g->disable();
+            }
+        }
+        if(bTooltipsEnabled.get()){
+            main_tooltip.enable();
+        }else{
+            main_tooltip.disable();
+        }
+        
+    });
+    
+}
 
 void ofxLidarSlamParameters::draw(){
     gui.draw();
+    main_tooltip.draw();
+    groups_tooltips[current_gui]->draw();
     if(bDrawColorsGui){
         guiColors.draw();
     }
@@ -313,10 +348,13 @@ void ofxLidarSlamParameters::makeDropdowns(){
         "UPDATE" }, mappingMode);
     
     egoMotionModeDropdown = makeDropdown({
-        "NONE" ,
-        "MOTION_EXTRAPOLATION" ,
-        "REGISTRATION" ,
-        "MOTION_EXTRAPOLATION_AND_REGISTRATION"}
+        "NONE",
+        "MOTION_EXTRAPOLATION",
+        "REGISTRATION",
+        "MOTION_EXTRAPOLATION_AND_REGISTRATION",
+        "EXTERNAL",
+        "EXTERNAL_OR_MOTION_EXTRAPOLATION"
+        }
         , egoMotionMode);
     
     accumulateByDropdown = makeDropdown({"NONE","DISTANCE", "FRAMES"}, accumulateByMode);
@@ -327,6 +365,9 @@ void ofxLidarSlamParameters::makeDropdowns(){
         "MAX_INTENSITY" ,
         "CENTER_POINT" ,
         "CENTROID"};
+    
+    
+    verboseLevelDropdown = makeDropdown({"0","1","2","3","4","5"}, verboseLevel);
     
     
     auto numKeypoints = ofxLidarSlam::UsableKeypoints.size();
@@ -363,11 +404,16 @@ void ofxLidarSlamParameters::setTab(int tabIndex){
 void ofxLidarSlamParameters::setCurrentGuiGroup(GuiTypes group, bool bForceUpdate){
     if(group != current_gui || bForceUpdate){
 //        cout <<"ofxLidarSlamParameters::setCurrentGuiGroup " << GuiTypesNames[group] << " -> " << GuiTypesNames[current_gui] <<endl;
+        if(current_gui < groups_tooltips.size() && groups_tooltips[current_gui]){
+            groups_tooltips[current_gui]->disable();
+        }
         guiGroups[current_gui]->saveToFile(getCurrentGuiFilename());
         current_gui = group ;
         setupGui();
         loadGui(guiGroups[current_gui].get(), getCurrentGuiFilename());
-        
+        if(current_gui < groups_tooltips.size() && groups_tooltips[current_gui]){
+            groups_tooltips[current_gui]->enable();
+        }
     }
 }
 bool ofxLidarSlamParameters::loadGui(ofxGuiGroup* g, const string& filepath){

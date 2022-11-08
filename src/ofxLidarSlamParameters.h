@@ -14,6 +14,11 @@
 #include "ofxDropdown.h"
 #include "ofxGuiTabs.h"
 
+#include "ofxGuiTooltip.h"
+
+#include <LidarSlam/SpinningSensorKeypointExtractor.h>
+#include "ofxSpinningSensorKeypointExtractor.h"
+
 class ofxLidarSlamParameters{
     
     
@@ -35,8 +40,8 @@ public:
     const vector<string>  GuiTypesNames = { "Input", "Keypoints", "Motion", "Localization", "Keyframes", "FineTune", "Markers", "Output", "Draw" };
     vector<unique_ptr<ofxGuiGroup>> guiGroups;
     
-    ofxLidarSlamParameters();
-    
+//    ofxLidarSlamParameters();
+    void setup(LidarSlam::SpinningSensorKeypointExtractor * keypointExtractor);
     
     void draw();
     
@@ -48,7 +53,7 @@ public:
     // ---------------------------------------------------------------------------
     
     ofParameter<bool> bUseImuData = {"Use IMU data", true};
-    ofParameter<int> NbThreads = {"Num Thrads", 1, 1, 8};
+    ofParameter<int> NbThreads = {"Num Threads", 1, 1, 8};
     ofParameter<bool> bEnableSlam = {"Enable Slam", true};
     ofParameter<void> reset = {"Reset"};
     
@@ -122,17 +127,17 @@ public:
     ofParameter<uint8_t> egoMotionMode = {"EgoMotionMode",  0, 0, 4};
     
     // Get/Set EgoMotion
-    ofParameter< unsigned int> EgoMotionLMMaxIter = {"Ego Motion LM Max Iter", 1, 0, 100};
-    ofParameter< unsigned int> EgoMotionICPMaxIter = {"Ego Motion ICP Max Iter", 1, 0, 100};
-    ofParameter< double> EgoMotionMaxNeighborsDistance = {"Ego Motion Max Neighbors Distance", 0, 0, 1000};
-    ofParameter< unsigned int> EgoMotionEdgeNbNeighbors = {"Ego Motion Edge Nb Neighbors", 0,0,100};
-    ofParameter< unsigned int> EgoMotionEdgeMinNbNeighbors = {"Ego Motion Edge Min Nb Neighbors", 0, 0, 100};
-    ofParameter< double> EgoMotionEdgeMaxModelError = {"Ego Motion Edge Max Model Error", 0, 1, 10};
-    ofParameter< unsigned int> EgoMotionPlaneNbNeighbors = {"Ego Motion Plane Nb Neighbors", 0, 0, 1000};
-    ofParameter< double> EgoMotionPlanarityThreshold = {"Ego Motion Planarity Threshold", 0, 0, 10};
-    ofParameter< double> EgoMotionPlaneMaxModelError = {"Ego Motion Plane Max Model Error", 0, 0,  10} ;
-    ofParameter< double> EgoMotionInitSaturationDistance = {"Ego Motion Init Saturation Distance", 0, 0, 1000};
-    ofParameter< double> EgoMotionFinalSaturationDistance = {"Ego Motion Final Saturation Distance", 0, 0, 1000};
+    ofParameter< unsigned int> EgoMotionLMMaxIter = {"LM Max Iter", 1, 0, 100};
+    ofParameter< unsigned int> EgoMotionICPMaxIter = {"ICP Max Iter", 1, 0, 100};
+    ofParameter< double> EgoMotionMaxNeighborsDistance = {"Max Neighbors Distance", 0, 0, 1000};
+    ofParameter< unsigned int> EgoMotionEdgeNbNeighbors = {"Edge Nb Neighbors", 0,0,100};
+    ofParameter< unsigned int> EgoMotionEdgeMinNbNeighbors = {"Edge Min Nb Neighbors", 0, 0, 100};
+    ofParameter< double> EgoMotionEdgeMaxModelError = {"Edge Max Model Error", 0, 1, 10};
+    ofParameter< unsigned int> EgoMotionPlaneNbNeighbors = {"Plane Nb Neighbors", 0, 0, 1000};
+    ofParameter< double> EgoMotionPlanarityThreshold = {"Planarity Threshold", 0, 0, 10};
+    ofParameter< double> EgoMotionPlaneMaxModelError = {"Plane Max Model Error", 0, 0,  10} ;
+    ofParameter< double> EgoMotionInitSaturationDistance = {"Init Saturation Distance", 0, 0, 1000};
+    ofParameter< double> EgoMotionFinalSaturationDistance = {"Final Saturation Distance", 0, 0, 1000};
     // Get/Set Localization
     ofParameter< unsigned int> LocalizationLMMaxIter = {"Localization LM Max Iter", 1, 0, 100};;
     ofParameter< unsigned int> LocalizationICPMaxIter = {"Localization ICP Max Iter", 1, 0, 100};
@@ -192,10 +197,10 @@ public:
     
     // Motion constraints
 
-    ofParameter<float> linearAccLimit = {"Linear Acc", FLT_MAX, -FLT_MAX, FLT_MAX};
-    ofParameter<float> angularAccLimit = {"Angular Acc", FLT_MAX, -FLT_MAX, FLT_MAX};
-    ofParameter<float> linearVelLimit = {"Linear Vel", FLT_MAX, -FLT_MAX, FLT_MAX};
-    ofParameter<float> angularVelLimit = {"Angular Vel", FLT_MAX, -FLT_MAX, FLT_MAX};
+    ofParameter<float> linearAccLimit = {"Translation Acc", FLT_MAX, -FLT_MAX, FLT_MAX};
+    ofParameter<float> angularAccLimit = {"Rotation Acc", FLT_MAX, -FLT_MAX, FLT_MAX};
+    ofParameter<float> linearVelLimit = {"Translation Vel", FLT_MAX, -FLT_MAX, FLT_MAX};
+    ofParameter<float> angularVelLimit = {"Rotation Vel", FLT_MAX, -FLT_MAX, FLT_MAX};
     
     
     // Internal variable to store window time to estimate local velocity when advanced return mode is disabled.
@@ -277,8 +282,19 @@ public:
     
     void setTab(int tabIndex);
     
+    ofParameter<bool> bTooltipsEnabled =  {"Enable Tooltips", true};
+    
+    unique_ptr<ofxSpinningSensorKeypointExtractor> keypointExtractorParams = nullptr;
+    
 protected:
 
+    
+    
+    void setupTooltips();
+    
+    vector<unique_ptr<ofxGuiTooltip>> groups_tooltips;
+    ofxGuiTooltip main_tooltip;
+    
     unique_ptr<ofxGuiIntTabs> tabs;
     ofParameter<int> selectedTab;
     
@@ -288,6 +304,7 @@ protected:
     shared_ptr<ofxDropdown_<uint8_t>> undistortionModeDropdown = nullptr;
     shared_ptr<ofxDropdown_<uint8_t>> mappingModeDropdown = nullptr;
     shared_ptr<ofxDropdown_<uint8_t>> egoMotionModeDropdown = nullptr;
+    shared_ptr<ofxDropdown_<uint8_t>> verboseLevelDropdown = nullptr;
     
     vector<shared_ptr<ofxDropdown_<uint8_t>>> samplingModeDropdown;
 //    shared_ptr<ofxDropdown_<uint8_t>> samplingModePlanesDropdown = nullptr;
@@ -311,6 +328,8 @@ protected:
     
     ofEventListener selectedTabListener;
     ofEventListener advancedReturnListener;
+    
+    ofEventListener tooltipsListener;
     
     ofEventListener windowSizeListener;
     void setGuisPositions();
