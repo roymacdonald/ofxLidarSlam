@@ -2,6 +2,8 @@
 #include "ofxGui.h"
 #include "ofxOuster.hpp"
 #include "ofxLidarSlam.h"
+#include "ofxPlaybackGui.h"
+#include "ofxGuiTooltip.h"
 class ofApp : public ofBaseApp{
 
     public:
@@ -25,8 +27,14 @@ class ofApp : public ofBaseApp{
 
     ofxPanel gui;
 
+    ofParameterGroup connectParamGroup = {"Connect to Lidar"};
+    ofParameterGroup playbackParamGroup = {"Playback PCAP file"};
 
+    ofxPlaybackGui playback;
+
+    ofxGuiTooltip tooltips;
     
+    ofxLabel message;
 
     ofEventListeners listeners;
 
@@ -51,5 +59,13 @@ class ofApp : public ofBaseApp{
     string currentParams;
     bool bShowParams = false;
     
+    string recFile;
+    
+    
+//    ofxBaseGui* findOverGui(ofxGuiGroup* group, float x, float y);
+
+    ofRectangle overGuiShape;
+    
+    ofEventListener mouseMoveListener;
     
 };

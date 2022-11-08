@@ -23,21 +23,70 @@ string validateFileInJson(ofJson& json, string key){
 //--------------------------------------------------------------
 void ofApp::setup(){
     
+    ofSetLogLevel(OF_LOG_VERBOSE);
+    
     ofSetBackgroundAuto(false);
 //    ofxGuiSetTextPadding(30);
     
     gui.setup();
-    gui.add(lidarIp);
-    gui.add(localIp);
-    gui.add(connect);
-    gui.add(openPcapDialogParam);
-    gui.add(openPcapParam);
-    gui.add(bRecord);
+    connectParamGroup.add(lidarIp);
+    connectParamGroup.add(localIp);
+    connectParamGroup.add(connect);
+    connectParamGroup.add(bRecord);
+    playbackParamGroup.add(openPcapDialogParam);
+    playbackParamGroup.add(openPcapParam);
+    
+    gui.add(connectParamGroup);
+    gui.add(playbackParamGroup);
+    
+    playback.setup();
+    auto & pbGui = gui.getGroup(playbackParamGroup.getName());
+    
+    pbGui.add(&playback);
+    pbGui.add(message.setup("",""));
+
+
     
 
     lidar = make_shared<ofxOuster>();
     slam.setup(lidar);
 
+    // create listeners for the buttons
+    listeners.push(playback.forwards.newListener([&](){
+        if(lidar){
+            if(!lidar->isPlaying()){
+                lidar->nextFrame();
+            }
+        }
+    }));
+
+    listeners.push(playback.backwards.newListener([&](){
+        if(lidar) lidar->firstFrame();
+    }));
+    
+    listeners.push(playback.stop.newListener([&](){
+        if(lidar) lidar->stop();
+    }));
+    
+    listeners.push(playback.play.newListener([&](bool& play){
+        if(lidar){
+            if((play && lidar->isPlaying()) || (!play && !lidar->isPlaying())){
+                // this is just in case the gui and player are "out of sync"
+                if(lidar->isPlaying()){
+                    lidar->pause();
+                }else{
+                    lidar->play();
+                }
+            }else{
+                if(play){
+                    lidar->play();
+                }else{
+                    lidar->pause();
+                }
+            }
+        }
+    }));
+    
     listeners.push(connect.newListener([&](){
         // set to the correct IP address of both your computer and the lidar
         lidar->connect(lidarIp.get(), localIp.get());
@@ -51,8 +100,8 @@ void ofApp::setup(){
 
     lidar->setGuiPosition(gui.getShape().getBottomLeft() + glm::vec2(0, 20));
 
-    auto r = slam.params.gui.getShape();
-    slam.params.gui.setPosition(ofGetWidth() - r.width - 20, 20);
+    auto r = slam.params->gui.getShape();
+    slam.params->gui.setPosition(ofGetWidth() - r.width - 20, 20);
     
     listeners.push(bRecord.newListener([&](bool&){
         if(lidar){
@@ -60,16 +109,21 @@ void ofApp::setup(){
                 auto res = ofSystemSaveDialog("LidarRecording_"+ofGetTimestampString(), "Choose where to save your recording");
             
                 if(res.bSuccess){
-                    lidar->recordToPCap(res.getPath());
+                    recFile = res.getPath();
+                    if(!lidar->recordToPCap(res.getPath())){
+                        bRecord  = false;
+                    }
                 }else{
                     bRecord = false;
                 }
             }else{
                 if(lidar->isRecording()) lidar->endRecording();
+                recFile = "";
             }
         }
     }));
     
+    tooltips.registerGui(&gui, "tooltips.json");
     
     
 }
@@ -85,20 +139,26 @@ void ofApp::openPcapDialog(){
     auto res = ofSystemLoadDialog("Select .pcap file");
     if(res.bSuccess){
         pcap = res.getPath();
+        if(ofFile::doesFileExist(pcap)){
+            
+            config = ofFilePath::join(ofFilePath::getEnclosingDirectory(pcap),ofFilePath::getBaseName(pcap)) + ".json";
+            if(!ofFile::doesFileExist(config)){
+                res = ofSystemLoadDialog("Select .json configuration file");
+                if(res.bSuccess){
+                    config = res.getPath();
+                }else{
+                    config = "";
+                }
+            }
+            if(openPcap(pcap, config)){
+                ofJson json;
+                json["PCAP"] = pcap;
+                json["Config"] = config;
+                
+                ofSaveJson(FILE_SETTINGS, json);
+            }
+        }
     }
-    res = ofSystemLoadDialog("Select .json configuration file");
-   if(res.bSuccess){
-       config = res.getPath();
-   }
-    
-    if(openPcap(pcap, config)){
-        ofJson json;
-        json["PCAP"] = pcap;
-        json["Config"] = config;
-
-        ofSaveJson(FILE_SETTINGS, json);        
-    }
-    
 }
 
 //--------------------------------------------------------------
@@ -132,15 +192,21 @@ void ofApp::draw(){
     
 //    lidar->drawGui();
     gui.draw();
+    
     slam.drawGui();
     
+    
+    if(bRecord.get()){
+        ofColor bg (ofMap(sin(ofGetElapsedTimef()),-1, 1, 0, 255), 0,0);
+        ofDrawBitmapStringHighlight("Recording into:\n" + recFile, gui.getShape().getTopRight() + glm::vec3(10, 0,0), bg);
+    }
     
     if(bShowParams){
         ofDrawBitmapStringHighlight(currentParams, 20,20);
     }
     
-    
-    
+    tooltips.draw();
+
     
 }
 
