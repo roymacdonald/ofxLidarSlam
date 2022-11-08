@@ -12,7 +12,8 @@
 #include "LidarSlam/Enums.h"
 
 #include "ouster/lidar_scan.h"
-#include "ofxSpinningSensorKeypointExtractor.h"
+//#include "ofxSpinningSensorKeypointExtractor.h"
+#include <LidarSlam/SpinningSensorKeypointExtractor.h>
 //! Which keypoints' maps to output
 #include "ofxOuster.hpp"
 #include "ofxOusterIMU.h"
@@ -160,7 +161,7 @@ public:
     
     void drawGui();
     
-    ofxLidarSlamParameters params;
+    unique_ptr<ofxLidarSlamParameters> params = nullptr;
     
     void printParams();
     string getCurrentSlamParamsAsString();
@@ -208,8 +209,8 @@ protected:
     
     std::unique_ptr<LidarSlam::Slam> SlamAlgo = nullptr;
     
-    static ofxSpinningSensorKeypointExtractor& getKeyPointExtractor();
     
+    std::shared_ptr<LidarSlam::SpinningSensorKeypointExtractor> extractor = nullptr;
     
     /// callback on AdvanceReturnMode change
     void advancedReturnModeChanged(bool& _arg);
