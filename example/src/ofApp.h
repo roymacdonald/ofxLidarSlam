@@ -56,16 +56,9 @@ class ofApp : public ofBaseApp{
     bool openPcap(string pcap, string config);
     void tryOpenPcap();
     
-    string currentParams;
-    bool bShowParams = false;
+    
     
     string recFile;
-    
-    
-//    ofxBaseGui* findOverGui(ofxGuiGroup* group, float x, float y);
 
-    ofRectangle overGuiShape;
-    
-    ofEventListener mouseMoveListener;
     
 };

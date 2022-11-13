@@ -181,7 +181,9 @@ void ofApp::tryOpenPcap(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-
+    if(lidar){
+        message = "Current frame: " + ofToString(lidar->getFrameCount());
+    }
 }
 
 //--------------------------------------------------------------
@@ -201,10 +203,6 @@ void ofApp::draw(){
         ofDrawBitmapStringHighlight("Recording into:\n" + recFile, gui.getShape().getTopRight() + glm::vec3(10, 0,0), bg);
     }
     
-    if(bShowParams){
-        ofDrawBitmapStringHighlight(currentParams, 20,20);
-    }
-    
     tooltips.draw();
 
     
@@ -219,25 +217,9 @@ void ofApp::keyPressed(int key){
 void ofApp::keyReleased(int key){
     
     
-     if(key == 'p'){
-        bShowParams ^= true;
-        if(bShowParams){
-            currentParams = slam.getCurrentSlamParamsAsString();
-        }
-    }else if(key == ' '){
+    
+     if(key == ' '){
         slam.markCurrentFrame();
-//        slam.params.bEnableSlam = false;
-//        slam.saveRegisteredMeshes();
-        
-//        auto & tr = slam.getTrajectory();
-//
-//        ofMesh mesh;
-//        for(auto& t: tr){
-//            mesh.addVertices(t.mesh.getVertices());
-//        }
-//
-//        mesh.save(ofGetTimestampString()+".ply");
-//
     }
 }
 
