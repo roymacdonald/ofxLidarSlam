@@ -75,22 +75,28 @@ void ofxLidarSlamResults::clear(){
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 ofxLidarSlam::ofxLidarSlam():pointShader("Points Shader")
-{
- 
-
- 
-}
+{ }
 //-----------------------------------------------------------------------------
 ofxLidarSlam::~ofxLidarSlam()
 {
-
     fromSlam.close();
-
+    
     waitForThread(true);
 }
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::setup(std::shared_ptr<ofxOuster>& lidar){
-
+    
+    cam = make_unique<
+#ifdef HAS_OFXGRABCAM
+    ofxGrabCam
+#else
+    ofEasyCam
+#endif
+    >();
+    
+    
+    
+    
     SlamAlgo = std::make_unique<LidarSlam::Slam>();
     extractor = make_shared<LidarSlam::SpinningSensorKeypointExtractor>();
     
@@ -111,27 +117,26 @@ void ofxLidarSlam::setup(std::shared_ptr<ofxOuster>& lidar){
     this->reset();
     
     
-
-    cam.setFarClip(1000000);
-    cam.setNearClip(0);
+    
+    cam->setFarClip(1000000);
+    cam->setNearClip(0);
 #ifdef HAS_OFXGRABCAM
-    cam.toggleFixUpDirectionEnabled();
+    cam->toggleFixUpDirectionEnabled();
 #else
-    cam.setRelativeYAxis(!cam.getRelativeYAxis());
+    cam->setRelativeYAxis(!cam->getRelativeYAxis());
 #endif
     /// the SLAM library uses meters as its units
     pointShader.setRangeUnit(1);
     
     
-    
-    
-    
     this->lidar = lidar;
     this->lidar->disableRenderer();
+    this->lidar->disableUpdating();
+    
+    
+    
     setParamsListeners();
     
-
-
     listeners.push(ofEvents().update.newListener(this, &ofxLidarSlam::_update));
     
     
@@ -182,21 +187,10 @@ void ofxLidarSlam::reset()
     
     slamResults.clear();
     
-    
-    
-    
-    
+    currentSavePath = "";
     
 }
 
-////-----------------------------------------------------------------------------
-//void ofxLidarSlam::onLidarData(ouster::LidarScan &scan){
-//
-//    if(bMarkCurrent){
-//        markedFrames.push_back(scan.frame_id);
-//        bMarkCurrent = false;
-//    }
-//}
 //-----------------------------------------------------------------------------
 string ofxLidarSlam::createSaveDir(string timestamp){
     currentSavePath  = "RegisteredMeshes/"+ timestamp;
@@ -222,8 +216,8 @@ void ofxLidarSlam::saveRegisteredMeshes(string timestamp){
             trajectory[i].save(currentSavePath, i, true);
         }
     }
-    cout <<"saveRegisteredMeshes:: done!\n";
-
+    //    cout <<"saveRegisteredMeshes:: done!\n";
+    
 }
 
 
@@ -268,140 +262,87 @@ void ofxLidarSlam::processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults
         
         ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetRegisteredFrame(), results.RegisteredMap);
         
+        updateMaps(results);
         
-        //TS_START("SavePose");
-        
-//        saveMarkersOnly = {"Save Markers Only", true};
-//        ofParameter<bool> saveMeshes = {"Save Meshes", false};
-//
-        
-        if(params->accumulateByMode.get() != AccumulateMode::DONT_ACCUM){
-            if(currentSavePath.empty()){
-                createSaveDir( ofGetTimestampString());
-            }
-            
-            auto& p = trajectory.back();
-            glm::vec3 pose (p.x, p.y, p.z);
-            bool bAccum = false;
-            if(params->accumulateByMode.get() == AccumulateMode::DISTANCE){
-                if (glm::distance(lastSavedPose, pose) >= params->accumEveryDistance.get()){
-                    bAccum = true;
-                }
-            }else if(params->accumulateByMode.get() == AccumulateMode::FRAMES){
-                if (frameCount % params->accumEveryFrames.get() == 0){
-                    bAccum = true;
-                }
-            }
-            
-            if(bAccum){
-                lastSavedPose = pose;
-                p.isMarker = true;
-                if(p.mesh.getVertices().size() <= 0){
-                    p.copyMesh(results.RegisteredMap);
-                }
-                if(params->bSaveAccumToDisk){
-                    p.save(currentSavePath, frameCount);
-                    if(!params->saveMarkersOnly){
-                        meshSaver.save(results.RegisteredMap, ofFilePath::join(currentSavePath, ofToString(frameCount, 4,0) + ".ply"));
-                    }
-                }
-                
-            }
-        }
-        //TS_STOP("SavePose");
-        
-        
-//        cout << "Trajectory num verts: " << trajectory.back().mesh.getNumVertices() << endl;
-        // Update the output maps if required or if the mode was changed
-        bool updateMaps = params->OutputKeypointsMaps != this->PreviousMapOutputMode ||
-        (this->SlamAlgo->GetNbrFrameProcessed() - 1) % params->MapsUpdateStep == 0;
-        
-        // The expected maps can be the whole maps or the submaps
-        // If the maps is fixed by the user, the whole map and the submap are equal but the submap is outputed (faster)
-        if (updateMaps && (params->OutputKeypointsMaps == OutputKeypointsMapsMode::FULL_MAPS && this->SlamAlgo->GetMapUpdate() != LidarSlam::MappingMode::NONE))
-        {
-            //TS_START("Get Full Maps");
-//            GET_MAP(EdgeMap, LidarSlam::EDGE)
-//            GET_MAP(PlanarMap, LidarSlam::PLANE)
-//            GET_MAP(BlobMap, LidarSlam::BLOB)
-            
-            for(auto k : UsableKeypoints){
-                if(params->bDrawMaps[k] && params->bDrawMaps[k]->get()) {
-                    ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetMap(k), results.maps[k]);
-                }
-            }
-            
-            
-            
-            
-//            this->PreviousMapOutputMode = params->OutputKeypointsMaps.get();
-            //TS_STOP("Get Full Maps");
-        }
-        else if (updateMaps && (params->OutputKeypointsMaps == OutputKeypointsMapsMode::SUB_MAPS || this->SlamAlgo->GetMapUpdate() == LidarSlam::MappingMode::NONE))
-        {
-            
-            
-            for(auto k : UsableKeypoints){
-                if(params->bDrawMaps[k] && params->bDrawMaps[k]->get()) {
-                    ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetTargetSubMap(k), results.maps[k]);
-                }
-            }
-            
-            
-            
-            //TS_START("Get Sub Maps");
-//            GET_SUBMAP(EdgeMap, LidarSlam::EDGE)
-//            GET_SUBMAP(PlanarMap, LidarSlam::PLANE)
-//            GET_SUBMAP(BlobMap, LidarSlam::BLOB)
-            //TS_STOP("Get Sub Maps");
-            
-//            this->PreviousMapOutputMode = params->OutputKeypointsMaps.get();
-        }
-        // If the output is disabled, reset it.
-        else if (params->OutputKeypointsMaps != this->PreviousMapOutputMode && params->OutputKeypointsMaps == OutputKeypointsMapsMode::NONE)
-        {
-            for(auto & m : results.maps){
-                m.clear();
-            }
-//            results.EdgeMap.clear();
-//            results.PlanarMap.clear();
-//            results.BlobMap.clear();
-            
-//            this->PreviousMapOutputMode = params->OutputKeypointsMaps.get();
-        }
-        
-        this->PreviousMapOutputMode = params->OutputKeypointsMaps.get();
-        // ===== Extracted keypoints from current frame =====
-
-        if (params->OutputCurrentKeypoints)
-        {
-            
-            for(auto k : UsableKeypoints){
-                if(params->bDrawKeypoints[k] && params->bDrawKeypoints[k]->get()) {
-                    ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetKeypoints(k, params->OutputKeypointsInWorldCoordinates.get()), results.keypoints[k]);
-                }
-            }
-            
-            
-            
-            //TS_START("Get KeyPoints");
-//            GET_KEYPOINTS(EdgeKeypoints, LidarSlam::EDGE)
-//            GET_KEYPOINTS(PlanarKeypoints, LidarSlam::PLANE)
-//            GET_KEYPOINTS(BlobKeypoints, LidarSlam::BLOB)
-            //TS_STOP("Get KeyPoints");
-        }
-        results.bValid = true;
-        //TS_STOP("processLidarData");
     }
     frameCount++;
     
 }
 //-----------------------------------------------------------------------------
-//void ofxLidarSlam::onImuData(ofxOusterIMUData& data){
-//#ifndef OFX_OUSTER_USE_THREAD_CHANNELS
-//    toSlamIMU.send(data);
-//#endif
-//}
+void ofxLidarSlam::updateMaps(ofxLidarSlamResults & results){
+    
+    //        cout << "Trajectory num verts: " << trajectory.back().mesh.getNumVertices() << endl;
+    // Update the output maps if required or if the mode was changed
+    bool updateMaps = params->OutputKeypointsMaps != this->PreviousMapOutputMode ||
+    (this->SlamAlgo->GetNbrFrameProcessed() - 1) % params->MapsUpdateStep == 0;
+    
+    bool outputtingMaps = false;
+    
+    // The expected maps can be the whole maps or the submaps
+    // If the maps is fixed by the user, the whole map and the submap are equal but the submap is outputed (faster)
+    if (updateMaps && (params->OutputKeypointsMaps == OutputKeypointsMapsMode::FULL_MAPS && this->SlamAlgo->GetMapUpdate() != LidarSlam::MappingMode::NONE))
+    {
+        outputtingMaps = true;
+        for(auto k : UsableKeypoints){
+            if(params->bDrawMaps[k] && params->bDrawMaps[k]->get()) {
+                ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetMap(k), results.maps[k]);
+            }
+        }
+    }
+    else if (updateMaps && (params->OutputKeypointsMaps == OutputKeypointsMapsMode::SUB_MAPS || this->SlamAlgo->GetMapUpdate() == LidarSlam::MappingMode::NONE))
+    {
+        outputtingMaps = true;
+        for(auto k : UsableKeypoints){
+            if(params->bDrawMaps[k] && params->bDrawMaps[k]->get()) {
+                ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetTargetSubMap(k), results.maps[k]);
+            }
+        }
+    }
+    // If the output is disabled, reset it.
+    else if (params->OutputKeypointsMaps != this->PreviousMapOutputMode && params->OutputKeypointsMaps == OutputKeypointsMapsMode::NONE)
+    {
+        for(auto & m : results.maps){
+            m.clear();
+        }
+    }
+    this->PreviousMapOutputMode = params->OutputKeypointsMaps.get();
+    
+    
+    if (params->OutputCurrentKeypoints && outputtingMaps)
+    {
+        for(auto k : UsableKeypoints){
+            if(params->bDrawKeypoints[k] && params->bDrawKeypoints[k]->get()) {
+                ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetKeypoints(k, params->OutputKeypointsInWorldCoordinates.get()), results.keypoints[k]);
+            }
+        }
+    }
+    
+    if(outputtingMaps){
+        if(currentSavePath.empty()){
+            createSaveDir( ofGetTimestampString());
+        }
+        
+        auto& p = trajectory.back();
+        glm::vec3 pose (p.x, p.y, p.z);
+        
+        lastSavedPose = pose;
+        p.isMarker = true;
+        if(p.mesh.getVertices().size() <= 0){
+            p.copyMesh(results.RegisteredMap);
+        }
+        if(params->bSaveAccumToDisk){
+            p.save(currentSavePath, frameCount);
+            if(!params->saveMarkersOnly){
+                meshSaver.save(results.RegisteredMap, ofFilePath::join(currentSavePath, ofToString(frameCount, 4,0) + ".ply"));
+            }
+        }
+    }
+    
+    
+    results.bValid = outputtingMaps;
+}
+
+
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::processImuData(ofxOusterIMUData & data){
     if(params->bUseImuData){
@@ -444,11 +385,11 @@ void ofxLidarSlam::threadedFunction(){
                     fromSlam.send(std::move(results));
                 }
             }
-            
-            return;
+        }else{
+        // if this is not present the app will use all the processor power needlesly when there is no lidar
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(20ms);
         }
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(20ms);
     }
 }
 
@@ -461,10 +402,7 @@ void ofxLidarSlam::_update(ofEventArgs &){
         bNewFrame = true;
     }
     if(bNewFrame){
-        if(renderer == nullptr && lidar){
-            renderer = make_unique<ofxOusterRenderer>(lidar->getSensorInfo());
-            renderer->setGuiPosition(params->gui.getShape().getBottomLeft() + glm::vec3(0,20,0));
-        }
+        auto renderer = getRenderer();
         if(renderer){
             renderer->render(scan);
         }
@@ -497,7 +435,6 @@ void ofxLidarSlam::setInitialPoseRotation(double roll, double pitch, double yaw)
     this->SlamAlgo->SetWorldTransformFromGuess(LidarSlam::Utils::PoseToIsometry(this->InitPose));
     
 }
-
 
 // =============================================================================
 //   Useful helpers
@@ -561,64 +498,64 @@ LidarSlam::Slam::PointCloud::Ptr ofxLidarSlam::getPointCloudFromLidar(ouster::Li
     if(lidar){
         
         LidarSlam::Slam::PointCloud::Ptr pc = make_shared<LidarSlam::Slam::PointCloud>();
-
-                        
-            size_t nbPoints = scan.w * scan.h;
-            pc->reserve(nbPoints);
-            
-            auto timestamps = scan.timestamp();
-            auto ids = scan.measurement_id();
-            
-            
-            auto frameTimestamp = timestamps[(params->TimestampFirstPacket?0:(scan.w - 1))];
-            pc->header.stamp = frameTimestamp / 1000.0f; // max time in microseconds
-            pc->header.frame_id = this->SlamAlgo->GetBaseFrameId();
-            pc->header.seq = frameCount;
-            auto range = scan.field(ouster::sensor::RANGE);
-            auto signal = scan.field(ouster::sensor::ChanField::SIGNAL);//.cast<double>();
-            
-            auto& lut = lidar->getLut();
-            
-            
-            if (range.cols() * range.rows() != lut.direction.rows()){
-                ofLogError("ofxLidarSlam::getPointCloudFromLidar") << "unexpected image dimensions";
-                return nullptr;
-            }
+        
+        
+        size_t nbPoints = scan.w * scan.h;
+        pc->reserve(nbPoints);
+        
+        auto timestamps = scan.timestamp();
+        auto ids = scan.measurement_id();
+        
+        
+        auto frameTimestamp = timestamps[(params->TimestampFirstPacket?0:(scan.w - 1))];
+        pc->header.stamp = frameTimestamp / 1000.0f; // max time in microseconds
+        pc->header.frame_id = this->SlamAlgo->GetBaseFrameId();
+        pc->header.seq = frameCount;
+        auto range = scan.field(ouster::sensor::RANGE);
+        auto signal = scan.field(ouster::sensor::ChanField::SIGNAL);//.cast<double>();
+        
+        auto& lut = lidar->getLut();
+        
+        
+        if (range.cols() * range.rows() != lut.direction.rows()){
+            ofLogError("ofxLidarSlam::getPointCloudFromLidar") << "unexpected image dimensions";
+            return nullptr;
+        }
         
         // it is very important to convert the lidars data from whichever units it is into meters.
         // Otherwise SLAM will not work properly.
         float mm_to_meters_factor = 0.001;
-            for(size_t y= 0; y< range.rows(); y++){
-                for(size_t x= 0; x< range.cols(); x++){
-                    size_t i = y * range.cols() + x;
-                    double val = range(y, x);
-                    
-                    
-                    LidarSlam::Slam::Point p;
-                    
-                    p.x = lut.direction(i, 0) * val * mm_to_meters_factor;
-                    p.y = lut.direction(i, 1) * val * mm_to_meters_factor;
-                    p.z = lut.direction(i, 2) * val * mm_to_meters_factor;
-//                    if(val > 0.0){
-//                        p.x += lut.offset(i, 0) * mm_to_meters_factor;
-//                        p.y += lut.offset(i, 1) * mm_to_meters_factor;
-//                        p.z += lut.offset(i, 2) * mm_to_meters_factor;
-//                    }
-
-                                        
-                    p.intensity = signal(y, x);
-                    p.laser_id = range.rows()  - y - 1;
-                    
-                    p.device_id = 0;
-                    
-                    p.time = (timestamps[x] - frameTimestamp)* TimeToSecondsFactor;
-                    
-                    pc->push_back(p);
-                }
+        for(size_t y= 0; y< range.rows(); y++){
+            for(size_t x= 0; x< range.cols(); x++){
+                size_t i = y * range.cols() + x;
+                double val = range(y, x);
+                
+                
+                LidarSlam::Slam::Point p;
+                
+                p.x = lut.direction(i, 0) * val * mm_to_meters_factor;
+                p.y = lut.direction(i, 1) * val * mm_to_meters_factor;
+                p.z = lut.direction(i, 2) * val * mm_to_meters_factor;
+                //                    if(val > 0.0){
+                //                        p.x += lut.offset(i, 0) * mm_to_meters_factor;
+                //                        p.y += lut.offset(i, 1) * mm_to_meters_factor;
+                //                        p.z += lut.offset(i, 2) * mm_to_meters_factor;
+                //                    }
+                
+                
+                p.intensity = signal(y, x);
+                p.laser_id = range.rows()  - y - 1;
+                
+                p.device_id = 0;
+                
+                p.time = (timestamps[x] - frameTimestamp)* TimeToSecondsFactor;
+                
+                pc->push_back(p);
             }
-
-            return pc;
         }
+        
+        return pc;
+    }
     return nullptr;
 }
 
@@ -633,8 +570,6 @@ void ofxLidarSlam::advancedReturnModeChanged(bool& _arg){
     SlamAlgo->SetLoggingTimeout( ( _arg? 1.1 * params->TimeWindowDuration.get() : 0.));
     
 }
-
-
 
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::SetBaseToLidarTranslation(double x, double y, double z)
@@ -651,7 +586,6 @@ void ofxLidarSlam::SetBaseToLidarRotation(double rx, double ry, double rz)
     baseToLidar.linear() = LidarSlam::Utils::RPYtoRotationMatrix(LidarSlam::Utils::Deg2Rad(rx), LidarSlam::Utils::Deg2Rad(ry), LidarSlam::Utils::Deg2Rad(rz));
     this->SlamAlgo->SetBaseToLidarOffset(baseToLidar);
 }
-
 
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::SetMapUpdate(unsigned int mode)
@@ -675,7 +609,6 @@ void ofxLidarSlam::SetVoxelGridLeafSize(LidarSlam::Keypoint k, double s)
 {
     this->SlamAlgo->SetVoxelGridLeafSize(k, s);
 }
-
 
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::SetVoxelGridSamplingMode(LidarSlam::Keypoint k, int mode)
@@ -726,11 +659,6 @@ void ofxLidarSlam::_timeWindowDurationChanged(float&)
     }
 }
 
-
-
-//#define DRAW_MESH(mesh) \
-if(params->bDraw##mesh) { ofSetColor(params->mesh##Color.get()); slamResults.mesh.draw(); }
-
 void ofxLidarSlam::drawMesh(vector<unique_ptr<ofParameter<bool>>>& bDraw ,  vector<ofVboMesh>& mesh, vector<unique_ptr<ofParameter<ofColor>>>& color){
     for(auto k : UsableKeypoints){
         if(bDraw[k] && bDraw[k]->get()) {
@@ -745,7 +673,10 @@ void ofxLidarSlam::drawMesh(vector<unique_ptr<ofParameter<bool>>>& bDraw ,  vect
 
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::draw(){
-    cam.begin();
+    auto renderer = getRenderer();
+    if(renderer){
+
+    cam->begin();
     
     if(params->bUseDepthTest){
         ofEnableDepthTest();
@@ -817,32 +748,20 @@ void ofxLidarSlam::draw(){
         if(renderer){
             renderer->drawPointCloud();
         }
-//        if(lidar) {
-            
-//            if(trajectory.size() > 0){
-//                trajectory.back().getNode(true).transformGL();
-//            }
-//            lidar->drawPointCloud();
-//            if(trajectory.size() > 0){
-//                trajectory.back().getNode(true).restoreTransformGL();
-//            }
-//        }
     }
-    
-    
-  
     
     if(params->bUseDepthTest){
         ofDisableDepthTest();
     }
-    cam.end();
-    
+    cam->end();
+    }
 }
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::drawGui(){
     params->draw();
-//    pointShader.gui.draw();
+    //    pointShader.gui.draw();
     if(params->bDrawLidarFeed){
+        auto renderer = getRenderer();
         if(renderer){
             renderer->drawGui();
         }
@@ -973,10 +892,9 @@ void ofxLidarSlam::setParamsListeners(){
     addListenerMacro(VoxelGridResolution, double )
     addListenerMacro(VoxelGridMinFramesPerVoxel, unsigned int )
     addListenerMacro(OverlapSamplingRatio,float)
-//    addListenerMacro(TimeWindowDuration, float)
+    //    addListenerMacro(TimeWindowDuration, float)
     addListenerMacro(GravityWeight, double)
     listeners.push(params->OverlapSamplingRatio.newListener(this, &ofxLidarSlam::_overlapSamplingRatioChanged));
-//    addListenerMacro(UseBlobs, bool)
     
     listeners.push(params->TimeWindowDuration.newListener(this, &ofxLidarSlam::_timeWindowDurationChanged));
     
@@ -985,15 +903,6 @@ void ofxLidarSlam::setParamsListeners(){
             SetVoxelGridLeafSize(k,f);
         }));
     }
-//    listeners.push(params->LeafSizeEdges.newListener([&](float& f){
-//        SetVoxelGridLeafSize(LidarSlam::Keypoint::EDGE,f);
-//    }));
-//    listeners.push(params->LeafSizePlanes.newListener([&](float& f){
-//        SetVoxelGridLeafSize(LidarSlam::Keypoint::PLANE, f);
-//    }));
-//    listeners.push(params->LeafSizeBlobs.newListener([&](float& f){
-//        SetVoxelGridLeafSizeBlobs(f);
-//    }));
     
     listeners.push(params->saveMaps.newListener([&](){
         auto ts = ofGetTimestampString();
@@ -1007,21 +916,7 @@ void ofxLidarSlam::setParamsListeners(){
             SetVoxelGridSamplingMode(k,(int)mode);
         }));
     }
-//    listeners.push(params->samplingModeEdges.newListener([&](uint8_t& mode){
-//        SetVoxelGridSamplingMode(LidarSlam::Keypoint::EDGE,(int)mode);
-//    }));
-//
-//    listeners.push(params->samplingModePlanes.newListener([&](uint8_t& mode){
-//        SetVoxelGridSamplingMode(LidarSlam::Keypoint::PLANE, (int)mode);
-//    }));
-//
-//    listeners.push(params->samplingModeBlobs.newListener([&](uint8_t& mode){
-//        SetVoxelGridSamplingMode(LidarSlam::Keypoint::BLOB,(int)mode);
-//    }));
-//
     
-    
-            
     listeners.push(params->angularAccLimit.newListener([&](float&){
         SetAccelerationLimits(params->linearAccLimit.get(), params->angularAccLimit.get());
     }));
@@ -1038,10 +933,8 @@ void ofxLidarSlam::setParamsListeners(){
     listeners.push(params->verboseLevel.newListener([&](uint8_t& level){
         SlamAlgo->SetVerbosity(level);
     }));
-
+    
 }
-
-
 
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::setDefaults(){
@@ -1073,9 +966,21 @@ void ofxLidarSlam::setDefaults(){
     SetDefaultValueMacro(SensorTimeOffset)
     SetDefaultValueMacro(SensorTimeThreshold)
     SetDefaultValueMacro(SensorMaxMeasures)
-
+    
     SetDefaultValueMacro(KfDistanceThreshold)
     SetDefaultValueMacro(KfAngleThreshold)
     SetDefaultValueMacro(OverlapSamplingRatio)
     SetDefaultValueMacro(TimeWindowDuration)
+}
+
+ofxOusterRenderer* ofxLidarSlam::getRenderer(){
+    if(_renderer == nullptr && lidar && (lidar->isConnected() || lidar->isLoaded())){
+        
+        _renderer = make_unique<ofxOusterRenderer>(lidar->getSensorInfo());
+        params->guiGroups[ofxLidarSlamParameters::GUI_DRAW]->add(&(_renderer->gui));
+        //        renderer->setGuiPosition(params->gui.getShape().getBottomLeft() + glm::vec3(0,20,0));
+        _renderer->colorMap.colorMapGui->colorMapDropdown->setDropDownPosition(ofxIntDropdown::DD_LEFT);
+    }
+    return _renderer.get();
+
 }

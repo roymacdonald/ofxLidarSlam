@@ -30,7 +30,7 @@
 #endif
 
 #include "ofxLidarSlamTrajectoryPoint.h"
-
+//
 enum OutputKeypointsMapsMode : uint8_t
 {
     //! No maps output
@@ -41,11 +41,11 @@ enum OutputKeypointsMapsMode : uint8_t
     SUB_MAPS = 2
 };
 
-enum AccumulateMode : uint8_t{
-    DONT_ACCUM = 0,
-    DISTANCE = 1,
-    FRAMES = 2
-};
+//enum AccumulateMode : uint8_t{
+//    DONT_ACCUM = 0,
+//    DISTANCE = 1,
+//    FRAMES = 2
+//};
 
 
 
@@ -113,9 +113,6 @@ public:
     // ---------------------------------------------------------------------------
     
     
-    
-    
-    
     // Set RollingGrid Parameters
     
     unsigned int GetMapUpdate();
@@ -125,29 +122,8 @@ public:
     int GetVoxelGridSamplingMode(LidarSlam::Keypoint k);
     void SetVoxelGridSamplingMode(LidarSlam::Keypoint k, int sm);
     
-    // For edges
-//    int GetVoxelGridSamplingModeEdges() { return this->GetVoxelGridSamplingMode(LidarSlam::Keypoint::EDGE); }
-//    void SetVoxelGridSamplingModeEdges(int sm)  { this->SetVoxelGridSamplingMode(LidarSlam::Keypoint::EDGE, sm);  }
-
-    // For planes
-//    int GetVoxelGridSamplingModePlanes() { return this->GetVoxelGridSamplingMode(LidarSlam::Keypoint::PLANE); }
-//    void SetVoxelGridSamplingModePlanes(int sm) { this->SetVoxelGridSamplingMode(LidarSlam::Keypoint::PLANE, sm); }
-
-    // For blobs
-//    int GetVoxelGridSamplingModeBlobs() { return this->GetVoxelGridSamplingMode(LidarSlam::Keypoint::BLOB); }
-//    void SetVoxelGridSamplingModeBlobs(int sm)  { this->SetVoxelGridSamplingMode(LidarSlam::Keypoint::BLOB, sm);  }
-    
     void SetVoxelGridLeafSize(LidarSlam::Keypoint k, double s);
-    
-    // For edges
-//    void SetVoxelGridLeafSizeEdges(double s)  { this->SetVoxelGridLeafSize(LidarSlam::Keypoint::EDGE, s);  }
-
-    // For planes
-//    void SetVoxelGridLeafSizePlanes(double s) { this->SetVoxelGridLeafSize(LidarSlam::Keypoint::PLANE, s); }
-
-    // For blobs
-//    void SetVoxelGridLeafSizeBlobs(double s)  { this->SetVoxelGridLeafSize(LidarSlam::Keypoint::BLOB, s);  }
-    
+  
     
     // ---------------------------------------------------------------------------
     //   Confidence estimator parameters
@@ -156,10 +132,18 @@ public:
 
     void SetAccelerationLimits(float linearAcc, float angularAcc);
     void SetVelocityLimits(float linearVel, float angularVel);
-        
+
+    // ---------------------------------------------------------------------------
+    //   Rendering
+    // ---------------------------------------------------------------------------
+
     void draw();
     
     void drawGui();
+    
+    // ---------------------------------------------------------------------------
+    //   Others
+    // ---------------------------------------------------------------------------
     
     unique_ptr<ofxLidarSlamParameters> params = nullptr;
     
@@ -168,12 +152,12 @@ public:
     
     const vector<ofxLidarSlamTrajectoryPoint>& getTrajectory(){return trajectory;};
     
+    
     void saveRegisteredMeshes(string timestamp);
-    
-    
+
     void markCurrentFrame();
     
-    
+    std::mutex coutMutex;
     
 protected:
     ofxMeshSaver meshSaver;
@@ -204,7 +188,7 @@ private:
     // ---------------------------------------------------------------------------
     
     
-    
+    ofxOusterRenderer* getRenderer();
 protected:
     
     std::unique_ptr<LidarSlam::Slam> SlamAlgo = nullptr;
@@ -219,9 +203,6 @@ protected:
     void _overlapSamplingRatioChanged(float&);
 
     
-    
-//    void onLidarData(ouster::LidarScan &);
-//    void onImuData(ofxOusterIMUData & );
     
     void processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults & results);
     void processImuData(ofxOusterIMUData & );
@@ -240,13 +221,11 @@ private:
     
     ofThreadChannel<ouster::LidarScan > toRenderer;
     
-    unique_ptr<ofxOusterRenderer> renderer = nullptr;
+    unique_ptr<ofxOusterRenderer> _renderer = nullptr;
     
     std::atomic<bool> bMarkCurrent;
     
     uint8_t PreviousMapOutputMode = OutputKeypointsMapsMode::FULL_MAPS;
-    
-    
     
     const double TimeToSecondsFactor = 1e-9;          ///< Coef to apply to TimeArray values to express time in seconds
     
@@ -268,13 +247,16 @@ private:
     
     ofxLidarSlamResults slamResults;
     
+    void updateMaps(ofxLidarSlamResults & results);
     
+
+    unique_ptr<
 #ifdef HAS_OFXGRABCAM
-    ofxGrabCam cam;
+    ofxGrabCam
 #else
-    ofEasyCam cam;
+    ofEasyCam
 #endif
-    
+    > cam = nullptr;
 
     
     void setParamsListeners();
