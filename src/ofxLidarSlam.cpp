@@ -147,6 +147,9 @@ void ofxLidarSlam::setup(std::shared_ptr<ofxOuster>& lidar){
 //    pointShader.setGuiPosition( glm::vec2(ofGetWidth() - 600,10) );
     
     params->guiGroups[ofxLidarSlamParameters::GUI_DRAW]->add(&pointShader.gui);
+//    params->guiGroups[ofxLidarSlamParameters::GUI_OUTPUT]->add(&meshesDropdown);
+    
+    
     
     pointShader.colorMap.colorMapGui->colorMapDropdown->setDropDownPosition(ofxIntDropdown::DD_LEFT);
     
@@ -189,6 +192,10 @@ void ofxLidarSlam::reset()
     
     currentSavePath = "";
     
+    meshes.clear();
+    
+    params->selectedMeshesDropdown->clear();
+    
 }
 
 //-----------------------------------------------------------------------------
@@ -224,13 +231,8 @@ void ofxLidarSlam::saveRegisteredMeshes(string timestamp){
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults & results){
             
-//    if(bMarkCurrent){
-//        markedFrames.push_back(scan.frame_id);
-//        bMarkCurrent = false;
-//    }
     if(params->bEnableSlam){
-        //TS_START("processLidarData");
-//        cout << "ofxLidarSlam::processLidarData\n";
+
         // Get frame first point time in vendor format
         double frameFirstPointTime = scan.timestamp()[0] * this->TimeToSecondsFactor;
         // Get first frame packet reception time
@@ -242,23 +244,16 @@ void ofxLidarSlam::processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults
         if (this->SlamAlgo->GetNbrFrameProcessed() > 0 && (absCurrentOffset < 1e-6 || std::abs(potentialOffset) < absCurrentOffset))
             this->SlamAlgo->SetSensorTimeOffset(potentialOffset);
         
-        //TS_START_NIF("getPointCloudFromLidar");
+
         auto pc = getPointCloudFromLidar(scan) ;
         if(pc == nullptr){
             ofLogError("ofxLidarSlam::onLidarData") << "Got nullptr pointcloud";
             return;
         }
-        //TS_STOP_NIF("getPointCloudFromLidar");
-        
-        //TS_START("AddFrame");
+
         this->SlamAlgo->AddFrame(pc);
-        //TS_STOP("AddFrame");
         
-        //TS_START("AddPose");
         this->AddCurrentPoseToTrajectory();
-        //TS_STOP("AddPose");
-        // ===== SLAM frame and pose =====
-        // Output : Current undistorted LiDAR frame in world coordinates
         
         ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetRegisteredFrame(), results.RegisteredMap);
         
@@ -318,24 +313,25 @@ void ofxLidarSlam::updateMaps(ofxLidarSlamResults & results){
     }
     
     if(outputtingMaps){
-        if(currentSavePath.empty()){
-            createSaveDir( ofGetTimestampString());
-        }
-        
-        auto& p = trajectory.back();
-        glm::vec3 pose (p.x, p.y, p.z);
-        
-        lastSavedPose = pose;
-        p.isMarker = true;
-        if(p.mesh.getVertices().size() <= 0){
-            p.copyMesh(results.RegisteredMap);
-        }
-        if(params->bSaveAccumToDisk){
-            p.save(currentSavePath, frameCount);
-            if(!params->saveMarkersOnly){
-                meshSaver.save(results.RegisteredMap, ofFilePath::join(currentSavePath, ofToString(frameCount, 4,0) + ".ply"));
-            }
-        }
+        results.trajectoryPoint = trajectory.back();
+//        if(currentSavePath.empty()){
+//            createSaveDir( ofGetTimestampString());
+//        }
+//
+//        auto& p = trajectory.back();
+//        glm::vec3 pose (p.x, p.y, p.z);
+//
+//        lastSavedPose = pose;
+//        p.isMarker = true;
+//        if(p.mesh.getVertices().size() <= 0){
+//            p.copyMesh(results.RegisteredMap);
+//        }
+//        if(params->bSaveAccumToDisk){
+//            p.save(currentSavePath, frameCount);
+//            if(!params->saveMarkersOnly){
+//                meshSaver.save(results.RegisteredMap, ofFilePath::join(currentSavePath, ofToString(frameCount, 4,0) + ".ply"));
+//            }
+//        }
     }
     
     
@@ -409,7 +405,44 @@ void ofxLidarSlam::_update(ofEventArgs &){
     }
     
     while(fromSlam.tryReceive(slamResults)){
-        
+        if(slamResults.bValid){
+            if(currentSavePath.empty()){
+                createSaveDir( ofGetTimestampString());
+            }
+            
+//            auto& p = trajectory.back();
+            auto &p = slamResults.trajectoryPoint;
+            glm::vec3 pose (p.x, p.y, p.z);
+            
+            lastSavedPose = pose;
+            p.isMarker = true;
+            
+            
+            string meshName = ofToString(meshes.size());
+            meshes.push_back(ofxLidarSlamMesh(meshName));
+            
+            auto& m = meshes.back();
+            params->selectedMeshesDropdown->add(meshName);
+            
+            auto c = params->selectedMeshesDropdown->getOwnedChildren().back().get();
+            
+            if(c){
+                
+                c->getParameter().template cast<bool>().makeReferenceTo(m.bDraw);
+                c->setFillColor(m.color);
+            }
+            
+            m.offset = pose;
+            if(m.mesh.getVertices().size() <= 0){
+                m.copyMesh(slamResults.RegisteredMap);
+            }
+            if(params->bSaveAccumToDisk){
+                p.save(currentSavePath, frameCount);
+                if(!params->saveMarkersOnly){
+                    meshSaver.save(slamResults.RegisteredMap, ofFilePath::join(currentSavePath, ofToString(frameCount, 4,0) + ".ply"));
+                }
+            }
+        }
     }
 }
 
@@ -691,13 +724,14 @@ void ofxLidarSlam::draw(){
     if(params->bDrawAccum){
     
         size_t numAccumDrawn = 0;
-        for(size_t i = 0; i < trajectory.size() && numAccumDrawn < params->drawAccumMax.get(); i++)
+        for(size_t i = 0; i < meshes.size() && numAccumDrawn < params->drawAccumMax.get(); i++)
         {
-            if(trajectory[i].isMarker && trajectory[i].mesh.getVertices().size() > 0){
-                pointShader.begin();
-                pointShader.shader.setUniform3f("offset", trajectory[i].x, trajectory[i].y, trajectory[i].z);
-                trajectory[i].mesh.draw();
-                pointShader.end();
+            if(meshes[i].mesh.getVertices().size() > 0){
+                   meshes[i].draw(pointShader);
+//                pointShader.begin();
+//                pointShader.shader.setUniform3f("offset", trajectory[i].x, trajectory[i].y, trajectory[i].z);
+//                trajectory[i].mesh.draw();
+//                pointShader.end();
                 numAccumDrawn ++;
             }
         }
@@ -715,6 +749,7 @@ void ofxLidarSlam::draw(){
 
     
     drawMesh(params->bDrawMaps ,  slamResults.maps, params->mapColor);
+        
     if (params->OutputCurrentKeypoints){
         drawMesh(params->bDrawKeypoints ,  slamResults.keypoints, params->keypointColor);
     }

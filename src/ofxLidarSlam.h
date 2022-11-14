@@ -25,6 +25,8 @@
 
 #include "ofxMeshSaver.h"
 
+#include "ofxDropdown.h"
+
 #ifdef HAS_OFXGRABCAM
 #include "ofxGrabCam.h"
 #endif
@@ -157,7 +159,7 @@ public:
 
     void markCurrentFrame();
     
-    std::mutex coutMutex;
+    
     
 protected:
     ofxMeshSaver meshSaver;
@@ -249,7 +251,13 @@ private:
     
     void updateMaps(ofxLidarSlamResults & results);
     
+    void tryMerging();
+    
 
+    vector<ofxLidarSlamMesh> meshes;
+    
+    
+    
     unique_ptr<
 #ifdef HAS_OFXGRABCAM
     ofxGrabCam
