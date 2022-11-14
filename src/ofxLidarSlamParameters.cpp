@@ -19,6 +19,7 @@ void ofxLidarSlamParameters::setup(LidarSlam::SpinningSensorKeypointExtractor * 
     setupGui();
     
 //    loadGui(&gui, settingsFile);
+    loadAllGuis(settingsFile);
     
     setupColorsGui();
     setGuisPositions();
@@ -80,14 +81,21 @@ void ofxLidarSlamParameters::setupGuiGroups(){
     accumulateParams.add(saveMaps);
     accumulateParams.add(saveMarkersOnly);
 //    accumulateParams.add(saveMeshes);
-    accumulateParams.add(accumEveryDistance);
-    accumulateParams.add(accumEveryFrames);
+//    accumulateParams.add(accumEveryDistance);
+//    accumulateParams.add(accumEveryFrames);
     accumulateParams.add(bSaveAccumToDisk);
-    accumulateParams.add(drawAccumMax);
+    
     
     
     guiGroups[GUI_OUTPUT]->add(accumulateParams);
-    guiGroups[GUI_OUTPUT]->add(accumulateByDropdown.get());
+//    guiGroups[GUI_OUTPUT]->add(accumulateByDropdown.get());
+    
+    guiGroups[GUI_OUTPUT]->add(MapsUpdateStep);
+    guiGroups[GUI_OUTPUT]->add(OutputKeypointsInWorldCoordinates);
+    
+    
+    guiGroups[GUI_OUTPUT]->add(selectedMeshesDropdown.get());
+    
     
     
     size_t n = ofxLidarSlam::UsableKeypoints.size();
@@ -110,8 +118,8 @@ void ofxLidarSlamParameters::setupGuiGroups(){
     }
     
     guiGroups[GUI_KEYPOINTS]->add(OutputCurrentKeypoints);
-    guiGroups[GUI_KEYPOINTS]->add(MapsUpdateStep);
-    guiGroups[GUI_KEYPOINTS]->add(OutputKeypointsInWorldCoordinates);
+//    guiGroups[GUI_KEYPOINTS]->add(MapsUpdateStep);
+//    guiGroups[GUI_KEYPOINTS]->add(OutputKeypointsInWorldCoordinates);
 //    guiGroups[GUI_KEYPOINTS]->add(UseBlobs);
     guiGroups[GUI_KEYPOINTS]->add(OutputKeypointsMapsDropdown.get());
     //    gui.add(TimestampFirstPacket);
@@ -160,6 +168,7 @@ void ofxLidarSlamParameters::setupGuiGroups(){
         
     drawParams.add(bDrawMarkers);
     drawParams.add(bDrawAccum);
+    drawParams.add(drawAccumMax);
     
     guiGroups[GUI_DRAW]->add(drawParams);
     
@@ -248,10 +257,10 @@ void ofxLidarSlamParameters::setupGui(){
     gui.add(verboseLevelDropdown.get());
     gui.add(reset);
     gui.add(bTooltipsEnabled);
-//    gui.add(AdvancedReturnMode);
+
 
     gui.add(tabs.get());
-//    gui.add(TimestampFirstPacket);
+
     if((int)current_gui < guiGroups.size()){
         gui.add(guiGroups[(int)current_gui].get());
         if(current_gui == GUI_KEYFRAMES){
@@ -261,8 +270,6 @@ void ofxLidarSlamParameters::setupGui(){
         }
     }
     setGuisPositions();
-    
-    
 }
 
 void ofxLidarSlamParameters::setupTooltips(){
@@ -387,7 +394,12 @@ void ofxLidarSlamParameters::makeDropdowns(){
     
     
     
+    selectedMeshesDropdown = make_shared<ofxDropdown>("Selected Meshes");
     
+    selectedMeshesDropdown->enableMultipleSelection();
+    selectedMeshesDropdown->disableCollapseOnSelection();
+    selectedMeshesDropdown->setDropDownPosition(ofxDropdown::DD_LEFT);
+
     
 }
 
@@ -407,15 +419,49 @@ void ofxLidarSlamParameters::setCurrentGuiGroup(GuiTypes group, bool bForceUpdat
         if(current_gui < groups_tooltips.size() && groups_tooltips[current_gui]){
             groups_tooltips[current_gui]->disable();
         }
-        guiGroups[current_gui]->saveToFile(getCurrentGuiFilename());
+//        guiGroups[current_gui]->saveToFile(getCurrentGuiFilename());
         current_gui = group ;
         setupGui();
-        loadGui(guiGroups[current_gui].get(), getCurrentGuiFilename());
+//        loadGui(guiGroups[current_gui].get(), getCurrentGuiFilename());
         if(current_gui < groups_tooltips.size() && groups_tooltips[current_gui]){
             groups_tooltips[current_gui]->enable();
         }
     }
 }
+
+bool ofxLidarSlamParameters::loadAllGuis(const string& filepath){
+    cout << "ofxLidarSlamParameters::loadAllGuis\n";
+    if(ofFile::doesFileExist(filepath)){
+        auto json = ofLoadJson(filepath);
+        gui.loadFrom(json);
+        for(size_t i = 0; i < GuiTypesNames.size(); i ++){
+            if(json.contains(GuiTypesNames[i])){
+                if(guiGroups[i]){
+                    guiGroups[i]->loadFrom(json[GuiTypesNames[i]]);
+                }
+            }else{
+                ofLogError("ofxLidarSlamParameters::loadAllGui") << "key does not exist. " << GuiTypesNames[i];
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+
+void ofxLidarSlamParameters::saveAllGuis(const string& filepath){
+    cout << "ofxLidarSlamParameters::saveAllGuis\n";
+    ofJson json;
+    gui.saveTo(json);
+    for(size_t i = 0; i < GuiTypesNames.size(); i ++){
+        if(guiGroups[i]){
+            guiGroups[i]->saveTo(json[GuiTypesNames[i]]);
+        }
+    }
+    ofSaveJson(filepath, json);
+}
+
+
 bool ofxLidarSlamParameters::loadGui(ofxGuiGroup* g, const string& filepath){
     if(!g)return false;
     if(ofFile::doesFileExist(filepath)){

@@ -286,6 +286,12 @@ public:
     
     unique_ptr<ofxSpinningSensorKeypointExtractor> keypointExtractorParams = nullptr;
     
+    
+    shared_ptr<ofxDropdown> selectedMeshesDropdown = nullptr;
+    
+    bool loadAllGuis(const string& filepath = "Slam_settings.json");
+    void saveAllGuis(const string& filepath = "Slam_settings.json");
+    
 protected:
 
     
@@ -305,6 +311,8 @@ protected:
     shared_ptr<ofxDropdown_<uint8_t>> mappingModeDropdown = nullptr;
     shared_ptr<ofxDropdown_<uint8_t>> egoMotionModeDropdown = nullptr;
     shared_ptr<ofxDropdown_<uint8_t>> verboseLevelDropdown = nullptr;
+    
+    
     
     vector<shared_ptr<ofxDropdown_<uint8_t>>> samplingModeDropdown;
 //    shared_ptr<ofxDropdown_<uint8_t>> samplingModePlanesDropdown = nullptr;
