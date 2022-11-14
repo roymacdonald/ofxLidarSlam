@@ -7,6 +7,7 @@
 
 #pragma once
 #include "ofMain.h"
+#include "ofxPointShader.h"
 
 class ofxLidarSlamTrajectoryPoint{
 public:
@@ -21,10 +22,10 @@ public:
     
     ofxLidarSlamTrajectoryPoint * prev = nullptr;
         
-    ofVboMesh mesh;
+
         
     const ofNode& getNode(bool scaled = false);
-    void copyMesh(ofVboMesh& m);
+
     bool save(string savePath, size_t index, bool saveMesh = false);
     
 private:
@@ -32,4 +33,21 @@ private:
     ofNode node, scaledNode;
     bool bNeedsSetNode = true;
         
+};
+
+class ofxLidarSlamMesh{
+public:
+    ofxLidarSlamMesh(string name);
+    
+    glm::vec3 offset;
+    
+    ofVboMesh mesh;
+    void copyMesh(ofVboMesh& m);
+    
+    ofColor color;
+    ofParameter<bool> bDraw = {"", true};
+    
+    
+    void draw(ofxPointShader& shader);
+    
 };

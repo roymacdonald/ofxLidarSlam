@@ -7,6 +7,31 @@
 
 #include "ofxLidarSlamTrajectoryPoint.h"
 
+ofxLidarSlamMesh::ofxLidarSlamMesh(string name){
+    bDraw.setName(name);
+    color.setHsb(ofRandom(255), ofRandom(200,255), ofRandom(200, 255));
+}
+
+void ofxLidarSlamMesh::copyMesh(ofVboMesh& m){
+    mesh.setMode(OF_PRIMITIVE_POINTS);
+    mesh.addVertices(m.getVertices());
+
+}
+
+void ofxLidarSlamMesh::draw(ofxPointShader& shader){
+    if(bDraw && mesh.getVertices().size() > 0){
+        
+        shader.begin();
+        shader.shader.setUniform3f("offset", offset.x, offset.y, offset.z);
+        
+        ofSetColor(color);
+        mesh.draw();
+        shader.end();
+    }
+}
+
+
+
 const ofNode& ofxLidarSlamTrajectoryPoint::getNode(bool scaled){
     if(bNeedsSetNode){
         bNeedsSetNode = false;
@@ -24,19 +49,10 @@ const ofNode& ofxLidarSlamTrajectoryPoint::getNode(bool scaled){
 }
 
 
-
-
-void ofxLidarSlamTrajectoryPoint::copyMesh(ofVboMesh& m){
-    mesh.setMode(OF_PRIMITIVE_POINTS);
-    mesh.addVertices(m.getVertices());
-    
-    
-}
-
 bool ofxLidarSlamTrajectoryPoint::save(string savePath, size_t index, bool saveMesh){
-    if(saveMesh && mesh.getVertices().size()){
-        mesh.save(savePath + "/" + ofToString(index) + ".ply");
-    }
+//    if(saveMesh && mesh.getVertices().size()){
+//        mesh.save(savePath + "/" + ofToString(index) + ".ply");
+//    }
     ofJson j;
     j["x"] = x;
     j["y"] = y;
