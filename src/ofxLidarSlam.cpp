@@ -16,6 +16,8 @@
 #include <pcl/point_types.h>
 #include <LidarSlam/Utilities.h>
 
+#include "ofxOpen3d.h"
+
 #define addListenerMacro(param,type) \
 listeners.push(params->param.newListener([&](type & _arg){\
 this->SlamAlgo->Set##param(_arg);\
@@ -134,7 +136,6 @@ void ofxLidarSlam::setup(std::shared_ptr<ofxOuster>& lidar){
     this->lidar->disableUpdating();
     
     
-    
     setParamsListeners();
     
     listeners.push(ofEvents().update.newListener(this, &ofxLidarSlam::_update));
@@ -168,6 +169,7 @@ void ofxLidarSlam::reset()
     
     TrajectoryLine.clear();
     frameCount = 0;
+    lastSavedFrame = 0;
     
     InitPose.setZero();
     
@@ -257,6 +259,8 @@ void ofxLidarSlam::processLidarData(ouster::LidarScan &scan, ofxLidarSlamResults
         
         ofxLidarSlamUtils::PclToOf(this->SlamAlgo->GetRegisteredFrame(), results.RegisteredMap);
         
+        results.trajectoryPoint = trajectory.back();
+        
         updateMaps(results);
         
     }
@@ -303,7 +307,7 @@ void ofxLidarSlam::updateMaps(ofxLidarSlamResults & results){
     this->PreviousMapOutputMode = params->OutputKeypointsMaps.get();
     
     
-    if (params->OutputCurrentKeypoints && outputtingMaps)
+    if (params->OutputCurrentKeypoints)
     {
         for(auto k : UsableKeypoints){
             if(params->bDrawKeypoints[k] && params->bDrawKeypoints[k]->get()) {
@@ -312,8 +316,10 @@ void ofxLidarSlam::updateMaps(ofxLidarSlamResults & results){
         }
     }
     
-    if(outputtingMaps){
-        results.trajectoryPoint = trajectory.back();
+    
+    
+//    if(outputtingMaps){
+        
 //        if(currentSavePath.empty()){
 //            createSaveDir( ofGetTimestampString());
 //        }
@@ -332,7 +338,7 @@ void ofxLidarSlam::updateMaps(ofxLidarSlamResults & results){
 //                meshSaver.save(results.RegisteredMap, ofFilePath::join(currentSavePath, ofToString(frameCount, 4,0) + ".ply"));
 //            }
 //        }
-    }
+//    }
     
     
     results.bValid = outputtingMaps;
@@ -405,18 +411,85 @@ void ofxLidarSlam::_update(ofEventArgs &){
     }
     
     while(fromSlam.tryReceive(slamResults)){
-        if(slamResults.bValid){
+        storeSlamResults();
+    }
+    
+    if(_mergeInfo){
+    
+    if(_meshMerger){
+        if(_meshMerger->isMergeDone()){
+            mergedMesh = _meshMerger->getMergedMesh();
+            _meshMerger = nullptr;
+            _mergeInfo->setState(MERGE_DOWNSAMPLING);
+            if(!_meshDownsampler){
+                _meshDownsampler = make_unique<ofxMeshDownsampler>();
+            }
+            _meshDownsampler->downsample(mergedMesh, params->OutputVoxelSize);
+        }
+    }
+    
+    if(_meshDownsampler){
+        ofMesh dnMesh;
+        bool bReceived = false;
+        while(_meshDownsampler->fromDownsample.tryReceive(dnMesh)){
+            bReceived = true;
+        }
+        if(bReceived){
+            downsampledMesh = dnMesh;
+            _mergeInfo->setState(MERGE_SAVING);
+            _meshDownsampler = nullptr;
+            _meshMergeSaver = make_unique<ofxMeshSaver> ();
+            _meshMergeSaver->save(downsampledMesh, _mergeSavePath);
+        }
+    }
+        if(_meshMergeSaver){
+            if(_meshMergeSaver->isDone()){
+                _meshMergeSaver = nullptr;
+                _mergeInfo->setState(MERGE_DONE);
+            }
+        }
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+void ofxLidarSlam::storeSlamResults(){
+    if(slamResults.bValid){
+        if(params->saveMeshes){
+            auto &p = slamResults.trajectoryPoint;
+            glm::vec3 pose (p.x, p.y, p.z);
+            
+            if(params->accumulateByMode.get() == ofxLidarSlamParameters::ACCUM_NONE){
+                return;
+            }
+            
+            if(params->accumulateByMode.get() == ofxLidarSlamParameters::ACCUM_DISTANCE){
+                if(params->accumEveryDistance > glm::distance(pose,lastSavedPose)){
+                    return;
+                }
+                
+            }
+            else if(params->accumulateByMode.get() == ofxLidarSlamParameters::ACCUM_FRAMES){
+                if(params->accumEveryFrames > frameCount - lastSavedFrame){
+                    return;
+                }
+                lastSavedFrame = frameCount ;
+            }
+            
             if(currentSavePath.empty()){
                 createSaveDir( ofGetTimestampString());
             }
             
-//            auto& p = trajectory.back();
-            auto &p = slamResults.trajectoryPoint;
-            glm::vec3 pose (p.x, p.y, p.z);
             
-            lastSavedPose = pose;
+            
+            
+            
             p.isMarker = true;
             
+            
+            
+            
+            lastSavedPose = pose;
             
             string meshName = ofToString(meshes.size());
             meshes.push_back(ofxLidarSlamMesh(meshName));
@@ -427,7 +500,6 @@ void ofxLidarSlam::_update(ofEventArgs &){
             auto c = params->selectedMeshesDropdown->getOwnedChildren().back().get();
             
             if(c){
-                
                 c->getParameter().template cast<bool>().makeReferenceTo(m.bDraw);
                 c->setFillColor(m.color);
             }
@@ -445,9 +517,6 @@ void ofxLidarSlam::_update(ofEventArgs &){
         }
     }
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::setInitialPoseTranslation(double x, double y, double z)
@@ -723,8 +792,8 @@ void ofxLidarSlam::draw(){
 
     if(params->bDrawAccum){
     
-        size_t numAccumDrawn = 0;
-        for(size_t i = 0; i < meshes.size() && numAccumDrawn < params->drawAccumMax.get(); i++)
+//        size_t numAccumDrawn = 0;
+        for(size_t i = 0; i < meshes.size(); i++)//} && numAccumDrawn < params->drawAccumMax.get(); i++)
         {
             if(meshes[i].mesh.getVertices().size() > 0){
                    meshes[i].draw(pointShader);
@@ -732,7 +801,7 @@ void ofxLidarSlam::draw(){
 //                pointShader.shader.setUniform3f("offset", trajectory[i].x, trajectory[i].y, trajectory[i].z);
 //                trajectory[i].mesh.draw();
 //                pointShader.end();
-                numAccumDrawn ++;
+//                numAccumDrawn ++;
             }
         }
     }
@@ -790,17 +859,25 @@ void ofxLidarSlam::draw(){
     }
     cam->end();
     }
+    
+    if(_mergeInfo){
+        _mergeInfo->draw();
+        if(_mergeInfo->shouldKill()){
+            _mergeInfo = nullptr;
+        }
+    }
 }
+
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::drawGui(){
     params->draw();
     //    pointShader.gui.draw();
-    if(params->bDrawLidarFeed){
-        auto renderer = getRenderer();
-        if(renderer){
-            renderer->drawGui();
-        }
-    }
+//    if(params->bDrawLidarFeed){
+//        auto renderer = getRenderer();
+//        if(renderer){
+//            renderer->drawGui();
+//        }
+//    }
 }
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::printParams(){
@@ -866,6 +943,13 @@ string ofxLidarSlam::getCurrentSlamParamsAsString(){
 //-----------------------------------------------------------------------------
 void ofxLidarSlam::setParamsListeners(){
     
+//    listeners.push(params->bEnableSlam.newListener([&](bool&){
+//        if(params->bEnableSlam){
+//            startThread();
+//        }else{
+//            ofThread::waitForThread(true, 30000);
+//        }
+//    }));
     
     listeners.push(params->egoMotionMode.newListener([&](uint8_t& mode){
         LidarSlam::EgoMotionMode egoMotion = static_cast<LidarSlam::EgoMotionMode>(mode);
@@ -929,6 +1013,13 @@ void ofxLidarSlam::setParamsListeners(){
     addListenerMacro(OverlapSamplingRatio,float)
     //    addListenerMacro(TimeWindowDuration, float)
     addListenerMacro(GravityWeight, double)
+    
+    listeners.push(params->MergeAndSave.newListener([&](){
+        mergeMeshes();
+    }));
+    
+    
+    
     listeners.push(params->OverlapSamplingRatio.newListener(this, &ofxLidarSlam::_overlapSamplingRatioChanged));
     
     listeners.push(params->TimeWindowDuration.newListener(this, &ofxLidarSlam::_timeWindowDurationChanged));
@@ -1017,5 +1108,64 @@ ofxOusterRenderer* ofxLidarSlam::getRenderer(){
         _renderer->colorMap.colorMapGui->colorMapDropdown->setDropDownPosition(ofxIntDropdown::DD_LEFT);
     }
     return _renderer.get();
+
+}
+void ofxLidarSlam::mergeMeshes(){
+    if(_mergeInfo != nullptr){
+        ofLogError("ofxLidarSlam::mergeMeshes") << "Already merging meshes!";
+        return;
+    }
+    {
+        size_t count = 0;
+        for(auto& m : meshes){
+            if(m.bDraw){
+                count++;
+                if(count >= 2){
+                    break;
+                }
+            }
+        }
+        if(count < 2){
+            ofLogError("ofxLidarSlam::mergeMeshes") << "No active meshes to merge!";
+            return;
+        }
+    }
+    
+    if(meshes.size() == 0){
+        ofLogError("ofxLidarSlam::mergeMeshes") << "No meshes to merge!";
+        return;
+    }
+    
+    
+    auto res = ofSystemSaveDialog(ofGetTimestampString()+".ply", "Choose where to save the merged mesh");
+    if(res.bSuccess == false){
+        return;
+    }
+    _mergeSavePath = res.getPath();
+    
+    
+    if(_meshMerger == nullptr){
+        _meshMerger = make_unique<ofxMeshMerger>();
+    }
+    
+    _mergeInfo = make_unique<MergeInfo>();
+    
+    
+//    mergedMesh.clear();
+//    auto &mm = mergedMesh.getVertices();
+    
+    
+    _mergeInfo->setState(MERGE_MERGING);
+    
+    
+    for(auto& m : meshes){
+        if(m.bDraw){
+            _meshMerger->add(m.mesh);
+        }
+    }
+//    PclPointCloud pcl_mesh;
+//    ofxOpen3d::toOpen3d(mergedMesh, pcl_mesh );
+//    pcl_mesh_down = pcl_mesh->VoxelDownSample(params->OutputVoxelSize);
+//    ofxOpen3d::toOF(pcl_mesh_down, downsampledMesh);
 
 }

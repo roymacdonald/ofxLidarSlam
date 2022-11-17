@@ -43,12 +43,6 @@ enum OutputKeypointsMapsMode : uint8_t
     SUB_MAPS = 2
 };
 
-//enum AccumulateMode : uint8_t{
-//    DONT_ACCUM = 0,
-//    DISTANCE = 1,
-//    FRAMES = 2
-//};
-
 
 
 
@@ -166,6 +160,9 @@ protected:
     
     void setDefaults();
     
+    void storeSlamResults();
+    
+    
 private:
     ofxLidarSlam(const ofxLidarSlam&) = delete;
     void operator=(const ofxLidarSlam&) = delete;
@@ -276,11 +273,28 @@ private:
     
     glm::vec3 lastSavedPose = {0,0,0};
     
+    uint64_t lastSavedFrame = 0;
     
     string currentSavePath;
     
     
     vector<int32_t > markedFrames;
+    
+    
+    ofVboMesh mergedMesh;
+    ofVboMesh downsampledMesh;
+    void mergeMeshes();
+    
+    
+    unique_ptr<ofxMeshMerger> _meshMerger = nullptr;
+    unique_ptr<ofxMeshDownsampler> _meshDownsampler = nullptr;
+    unique_ptr<ofxMeshSaver> _meshMergeSaver = nullptr;
+    string _mergeSavePath;
+    
+    
+
+    unique_ptr<MergeInfo> _mergeInfo = nullptr;
+     
     
     
 };
