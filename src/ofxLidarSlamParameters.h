@@ -23,6 +23,14 @@ class ofxLidarSlamParameters{
     
     
 public:
+    
+    enum AccumMode  : uint8_t{
+        ACCUM_NONE=0,
+        ACCUM_DISTANCE=1,
+        ACCUM_FRAMES=2
+    };
+    
+
 
     enum GuiTypes{
         GUI_INPUT = 0,
@@ -40,7 +48,7 @@ public:
     const vector<string>  GuiTypesNames = { "Input", "Keypoints", "Motion", "Localization", "Keyframes", "FineTune", "Markers", "Output", "Draw" };
     vector<unique_ptr<ofxGuiGroup>> guiGroups;
     
-//    ofxLidarSlamParameters();
+
     void setup(LidarSlam::SpinningSensorKeypointExtractor * keypointExtractor);
     
     void draw();
@@ -59,23 +67,25 @@ public:
     
     ofParameter<void> saveMaps = {"Save Maps"};
     ofParameter<bool> saveMarkersOnly = {"Save Markers Only", true};
-//    ofParameter<bool> saveMeshes = {"Save Meshes", false};
+
     
     
     ofParameter<bool> bDrawMarkers = {"Draw Markers", true};
     ofParameter<bool> bUseDepthTest = {"Use Depth Test", false};
 
     
-//    ofParameter<bool> bAccumulateRegistered = {"Accumulate reg. meshes", false};
     
-    ofParameter<float> accumEveryDistance = {"Accum. Distance", 1, 0, 10};
-    ofParameter<size_t> accumEveryFrames = {"Accum. Frames", 4, 1, 100};
-    ofParameter<bool> bSaveAccumToDisk = {"Enable Save To disk", false};
+    ofParameter<float> accumEveryDistance = {"Store Distance", 1, 0, 10};
+    ofParameter<size_t> accumEveryFrames = {"Store Frames", 4, 1, 100};
+    
+    
+    ofParameter<bool> saveMeshes = {"Store registered meshes", true};
+    ofParameter<bool> bSaveAccumToDisk = {"Save To disk", false};
     ofParameter<size_t> drawAccumMax = {"Draw Accum Max", 10, 0, 100};
     
-    ofParameter<uint8_t> accumulateByMode = {"Accumulate by", 0, 0, 2};
+    ofParameter<uint8_t> accumulateByMode = {"Store by", 0, 0, 2};
     
-    ofParameter<bool> bDrawAccum = {"Draw Accumulated", true};
+    ofParameter<bool> bDrawAccum = {"Draw Stored", true};
     
     /// AdvancedReturnMode
     /// If enabled, advanced return mode will add arrays to outputs showing some
@@ -88,7 +98,7 @@ public:
     /// OutputCurrentKeypoints
     /// If enabled, SLAM filter will output keypoints extracted from current
     /// frame. Otherwise, these filter outputs are left empty to save time.
-    ofParameter<bool> OutputCurrentKeypoints = {"Output Current Keypoints", true};
+    ofParameter<bool> OutputCurrentKeypoints = {"Output Current Keypoints", false};
     
     
     /// MapsUpdateStep
@@ -105,8 +115,12 @@ public:
     /// Only used if OutputCurrentKeypoints = true.
     ofParameter<bool> OutputKeypointsInWorldCoordinates = {"Output Keypoints In World Coordinates", true};
     
+        
+    ofParameter<void> MergeAndSave = {"Merge and save"};
     
-//    ofParameter<bool> UseBlobs = {"UseBlobs", false};
+    
+    ///\ the voxel size to which the merged mesh will be downsampled. 
+    ofParameter<float> OutputVoxelSize = {"Output voxel size", 0.5, 0.01, 10};
     
     
     // Allows to choose which map keypoints to output
@@ -172,9 +186,6 @@ public:
     
     vector<ofParameter<uint8_t>>samplingMode;
     
-//    ofParameter<uint8_t> samplingModeEdges = {"Sampling Mode Edges",  0, 0, 5};
-//    ofParameter<uint8_t> samplingModePlanes = {"Sampling Mode Planes",  0, 0, 5};
-//    ofParameter<uint8_t> samplingModeBlobs = {"Sampling Mode Blobs",  0, 0, 5};
     
     ofParameter< double> VoxelGridDecayingThreshold = {"Voxel Grid Decaying Threshold", 0, 0, 100};
     ofParameter<int> VoxelGridSize = {"Voxel Grid Size", 0, 0, 1000};
@@ -182,10 +193,7 @@ public:
     ofParameter<unsigned int> VoxelGridMinFramesPerVoxel = {"Voxel Grid Min Frames Per Voxel",0,0, 10};
 
     vector<ofParameter<float>> LeafSize;
-//    ofParameter<float> LeafSizeEdges = {"Leaf Size Edges", 0.30, 0, 10};
-//    ofParameter<float> LeafSizePlanes = {"Leaf Size Planes", 0.60, 0, 10};
-//    ofParameter<float> LeafSizeBlobs = {"Leaf Size Blobs", 0.30, 0, 10};
-    
+
 
     // ---------------------------------------------------------------------------
     //   Confidence estimator parameters
@@ -217,12 +225,7 @@ public:
     ofParameter<bool> bDrawLidarFeed = {"Draw Lidar Feed", true};
     ofParameter<bool> bDrawTrajectoryLine = {"Draw Trajectory Line", true};
     ofParameter<bool> bDrawRegisteredMap = {"Draw Registered Map", true};
-//    ofParameter<bool> bDrawEdgeMap = {"Draw Edge Map", true};
-//    ofParameter<bool> bDrawPlanarMap = {"Draw Planar Map", true};
-//    ofParameter<bool> bDrawBlobMap = {"Draw Blob Map", true};
-//    ofParameter<bool> bDrawEdgeKeypoints = {"Draw Edge KeyPoints", true};
-//    ofParameter<bool> bDrawPlanarKeypoints = {"Draw Planar KeyPoints", true};
-//    ofParameter<bool> bDrawBlobKeypoints = {"Draw Blob KeyPoints", true};
+
     
     vector<unique_ptr<ofParameter<bool>>> bDrawKeypoints;
     vector<unique_ptr<ofParameter<bool>>> bDrawMaps;
@@ -235,12 +238,12 @@ public:
     /// parameter group which contains all the parameters.
     
     ofParameterGroup accumulateParams = {"Accumulate Registered"};
-//    ofParameterGroup optimizationParams = {"Optimization"};
+
     ofParameterGroup egoMotionParams = {"Motion"};
     ofParameterGroup localizationParams = {"Localization"};
-//    ofParameterGroup keyframesParams = {"Keyframes"};
+
     ofParameterGroup rollingGridParams = {"Rolling Grid"};
-//    ofParameterGroup confidenceParams = {"Confidence"};
+
     ofParameterGroup motionConstraintParams = {"Motion Constraint"};    
 
     ofParameterGroup samplingModesParams= {"Sampling modes"};
@@ -256,12 +259,7 @@ public:
     
     ofParameter<ofColor> TrajectoryLineColor;
     ofParameter<ofColor> RegisteredMapColor;
-//    ofParameter<ofColor> EdgeMapColor;
-//    ofParameter<ofColor> PlanarMapColor;
-//    ofParameter<ofColor> BlobMapColor;
-//    ofParameter<ofColor> EdgeKeypointsColor;
-//    ofParameter<ofColor> PlanarKeypointsColor;
-//    ofParameter<ofColor> BlobKeypointsColor;
+
     vector<unique_ptr<ofParameter<ofColor>>> mapColor;
     vector<unique_ptr<ofParameter<ofColor>>> keypointColor;
     
@@ -302,7 +300,7 @@ protected:
     ofxGuiTooltip main_tooltip;
     
     unique_ptr<ofxGuiIntTabs> tabs;
-    ofParameter<int> selectedTab;
+//    ofParameter<int> selectedTab;
     
     shared_ptr<ofxDropdown_<uint8_t>> makeDropdown(const vector<string>& names, ofParameter<uint8_t> & param , bool bMultiselect = false, bool bCollapseOnSelect = true);
 
@@ -315,8 +313,7 @@ protected:
     
     
     vector<shared_ptr<ofxDropdown_<uint8_t>>> samplingModeDropdown;
-//    shared_ptr<ofxDropdown_<uint8_t>> samplingModePlanesDropdown = nullptr;
-//    shared_ptr<ofxDropdown_<uint8_t>> samplingModeBlobsDropdown = nullptr;
+
     
     shared_ptr<ofxDropdown_<uint8_t>> accumulateByDropdown = nullptr;
     
@@ -333,6 +330,8 @@ protected:
     
     bool loadGui(ofxGuiGroup* g, const string& filepath);
     string getCurrentGuiFilename();
+    
+    void selectedTabChanged(int&);
     
     ofEventListener selectedTabListener;
     ofEventListener advancedReturnListener;

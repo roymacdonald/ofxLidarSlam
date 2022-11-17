@@ -50,8 +50,8 @@ void ofxLidarSlamParameters::setupColorsGui(){
 }
 
 void ofxLidarSlamParameters::setupGuiGroups(){
-    selectedTab.setName("selected tab");
-    tabs = make_unique<ofxGuiIntTabs>(selectedTab);
+//    selectedTab.setName("selected tab");
+    tabs = make_unique<ofxGuiIntTabs>("selected tab");
     
     tabs->enableKeys();
     
@@ -62,9 +62,12 @@ void ofxLidarSlamParameters::setupGuiGroups(){
         tabs->add(i, GuiTypesNames[i]);
     }
     
-    selectedTabListener = selectedTab.newListener([&](int& i){
-        setCurrentGuiGroup((GuiTypes)i);
-    });
+//    selectedTabListener = selectedTab.newListener([&](int& i){
+//        setCurrentGuiGroup((GuiTypes)i);
+//    });
+    
+    selectedTabListener = tabs->selectedValue.newListener(this, &ofxLidarSlamParameters::selectedTabChanged);
+    
     advancedReturnListener = AdvancedReturnMode.newListener([&](bool& i){
         if(current_gui == GUI_KEYFRAMES){
             setCurrentGuiGroup(GUI_KEYFRAMES, true);
@@ -78,24 +81,22 @@ void ofxLidarSlamParameters::setupGuiGroups(){
     
     guiGroups[GUI_DRAW]->add(bDrawColorsGui);
     
-    accumulateParams.add(saveMaps);
+//    accumulateParams.add(saveMaps);
     accumulateParams.add(saveMarkersOnly);
-//    accumulateParams.add(saveMeshes);
-//    accumulateParams.add(accumEveryDistance);
-//    accumulateParams.add(accumEveryFrames);
+    accumulateParams.add(saveMeshes);
+    accumulateParams.add(accumEveryDistance);
+    accumulateParams.add(accumEveryFrames);
     accumulateParams.add(bSaveAccumToDisk);
     
     
     
     guiGroups[GUI_OUTPUT]->add(accumulateParams);
-//    guiGroups[GUI_OUTPUT]->add(accumulateByDropdown.get());
+    guiGroups[GUI_OUTPUT]->add(accumulateByDropdown.get());
     
-    guiGroups[GUI_OUTPUT]->add(MapsUpdateStep);
-    guiGroups[GUI_OUTPUT]->add(OutputKeypointsInWorldCoordinates);
-    
+    guiGroups[GUI_OUTPUT]->add(OutputVoxelSize);
     
     guiGroups[GUI_OUTPUT]->add(selectedMeshesDropdown.get());
-    
+    guiGroups[GUI_OUTPUT]->add(MergeAndSave);
     
     
     size_t n = ofxLidarSlam::UsableKeypoints.size();
@@ -118,8 +119,8 @@ void ofxLidarSlamParameters::setupGuiGroups(){
     }
     
     guiGroups[GUI_KEYPOINTS]->add(OutputCurrentKeypoints);
-//    guiGroups[GUI_KEYPOINTS]->add(MapsUpdateStep);
-//    guiGroups[GUI_KEYPOINTS]->add(OutputKeypointsInWorldCoordinates);
+    guiGroups[GUI_KEYPOINTS]->add(MapsUpdateStep);
+    guiGroups[GUI_KEYPOINTS]->add(OutputKeypointsInWorldCoordinates);
 //    guiGroups[GUI_KEYPOINTS]->add(UseBlobs);
     guiGroups[GUI_KEYPOINTS]->add(OutputKeypointsMapsDropdown.get());
     //    gui.add(TimestampFirstPacket);
@@ -408,8 +409,8 @@ string ofxLidarSlamParameters::getCurrentGuiFilename(){
 }
 
 void ofxLidarSlamParameters::setTab(int tabIndex){
-    if(tabIndex >= 0 && tabIndex < GuiTypesNames.size()){
-        selectedTab = tabIndex;
+    if(tabs && tabIndex >= 0 && tabIndex < GuiTypesNames.size()){
+        tabs->selectedValue = tabIndex;
     }
 }
 
@@ -474,4 +475,8 @@ bool ofxLidarSlamParameters::loadGui(ofxGuiGroup* g, const string& filepath){
 void ofxLidarSlamParameters::setGuisPositions(){
     gui.setPosition(ofGetWidth() - gui.getShape().width, 0);
     guiColors.setPosition(gui.getShape().getMinX() - guiColors.getWidth(), 0);
+}
+void ofxLidarSlamParameters::selectedTabChanged(int& i){
+    cout << "ofxLidarSlamParameters::selectedTabChanged\n";
+    setCurrentGuiGroup((GuiTypes)i);
 }
