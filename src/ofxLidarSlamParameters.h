@@ -32,28 +32,28 @@ public:
     
 
 
-    enum GuiTypes{
-        GUI_INPUT = 0,
-        GUI_KEYPOINTS,
-        GUI_MOTION,
-        GUI_LOCALIZATION,
-        GUI_KEYFRAMES,
-        GUI_FINE_TUNE,
-        GUI_MARKERS,
-        GUI_OUTPUT,
-        GUI_DRAW
-    }current_gui = GUI_INPUT;
+//    enum GuiTypes{
+//        GUI_INPUT = 0,
+//        GUI_KEYPOINTS,
+//        GUI_MOTION,
+//        GUI_LOCALIZATION,
+//        GUI_KEYFRAMES,
+//        GUI_FINE_TUNE,
+//        GUI_MARKERS,
+//        GUI_OUTPUT,
+//        GUI_DRAW
+//    }current_gui = GUI_INPUT;
     
     
-    const vector<string>  GuiTypesNames = { "Input", "Keypoints", "Motion", "Localization", "Keyframes", "FineTune", "Markers", "Output", "Draw" };
-    vector<unique_ptr<ofxGuiGroup>> guiGroups;
+//    const vector<string>  GuiTypesNames = { "Input", "Keypoints", "Motion", "Localization", "Keyframes", "FineTune", "Markers", "Output", "Draw" };
+//    vector<unique_ptr<ofxGuiGroup>> guiGroups;
     
 
     void setup(LidarSlam::SpinningSensorKeypointExtractor * keypointExtractor);
     
     void draw();
     
-    void setCurrentGuiGroup(GuiTypes group, bool bForceUpdate = false);
+//    void setCurrentGuiGroup(GuiTypes group, bool bForceUpdate = false);
     
     
     // ---------------------------------------------------------------------------
@@ -278,7 +278,7 @@ public:
 
     
     
-    void setTab(int tabIndex);
+//    void setTab(int tabIndex);
     
     ofParameter<bool> bTooltipsEnabled =  {"Enable Tooltips", true};
     
@@ -287,8 +287,11 @@ public:
     
     shared_ptr<ofxDropdown> selectedMeshesDropdown = nullptr;
     
-    bool loadAllGuis(const string& filepath = "Slam_settings.json");
-    void saveAllGuis(const string& filepath = "Slam_settings.json");
+//    bool loadAllGuis(const string& filepath = "Slam_settings.json");
+//    void saveAllGuis(const string& filepath = "Slam_settings.json");
+    
+    
+    ofxGuiTabs tabs;
     
 protected:
 
@@ -299,7 +302,7 @@ protected:
     vector<unique_ptr<ofxGuiTooltip>> groups_tooltips;
     ofxGuiTooltip main_tooltip;
     
-    unique_ptr<ofxGuiIntTabs> tabs;
+    
 //    ofParameter<int> selectedTab;
     
     shared_ptr<ofxDropdown_<uint8_t>> makeDropdown(const vector<string>& names, ofParameter<uint8_t> & param , bool bMultiselect = false, bool bCollapseOnSelect = true);
@@ -331,7 +334,7 @@ protected:
     bool loadGui(ofxGuiGroup* g, const string& filepath);
     string getCurrentGuiFilename();
     
-    void selectedTabChanged(int&);
+//    void selectedTabChanged(int&);
     
     ofEventListener selectedTabListener;
     ofEventListener advancedReturnListener;
