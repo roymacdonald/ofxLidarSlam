@@ -147,7 +147,10 @@ void ofxLidarSlam::setup(std::shared_ptr<ofxOuster>& lidar){
     
 //    pointShader.setGuiPosition( glm::vec2(ofGetWidth() - 600,10) );
     
-    params->guiGroups[ofxLidarSlamParameters::GUI_DRAW]->add(&pointShader.gui);
+//    params->guiGroups[ofxLidarSlamParameters::GUI_DRAW]->add(&pointShader.gui);
+    auto gg = params->tabs.getGuiGroup("Draw");
+    if(gg) gg->add(&pointShader.gui);
+    
 //    params->guiGroups[ofxLidarSlamParameters::GUI_OUTPUT]->add(&meshesDropdown);
     
     
@@ -1103,7 +1106,12 @@ ofxOusterRenderer* ofxLidarSlam::getRenderer(){
     if(_renderer == nullptr && lidar && (lidar->isConnected() || lidar->isLoaded())){
         
         _renderer = make_unique<ofxOusterRenderer>(lidar->getSensorInfo());
-        params->guiGroups[ofxLidarSlamParameters::GUI_DRAW]->add(&(_renderer->gui));
+//        params->guiGroups[ofxLidarSlamParameters::GUI_DRAW]->add(&(_renderer->gui));
+        
+        auto gg = params->tabs.getGuiGroup("Draw");
+        if(gg) gg->add(&(_renderer->gui));
+        
+        
         //        renderer->setGuiPosition(params->gui.getShape().getBottomLeft() + glm::vec3(0,20,0));
         _renderer->colorMap.colorMapGui->colorMapDropdown->setDropDownPosition(ofxIntDropdown::DD_LEFT);
     }
